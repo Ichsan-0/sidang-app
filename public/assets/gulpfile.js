@@ -1,294 +1,98 @@
-/*
+const path = require('path');
 
-=========================================================
-* Volt - Bootstrap 5 Admin Dashboard
-=========================================================
+// Config
+// -------------------------------------------------------------------------------
 
-* Product Page: https://themesberg.com/product/admin-dashboard/volt-bootstrap-5-dashboard
-* Copyright 2020 Themesberg (https://www.themesberg.com)
+const env = require('gulp-environment');
+process.env.NODE_ENV = env.current.name;
 
-* Designed and coded by https://themesberg.com
+let serverPath;
+const conf = (() => {
+  const _conf = require('./build-config');
+  serverPath = _conf.base.serverPath;
+  templatePath = _conf.base.buildTemplatePath;
+  buildPath = _conf.base.buildPath;
+  return require('deepmerge').all([{}, _conf.base || {}, _conf[process.env.NODE_ENV] || {}]);
+})();
 
-=========================================================
+conf.distPath = path.resolve(__dirname, conf.distPath).replace(/\\/g, '/');
 
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. Please contact us to request a removal.
+// Modules
+// -------------------------------------------------------------------------------
 
-*/
+const { parallel, series, watch } = require('gulp');
+const del = require('del');
+const colors = require('ansi-colors');
+const browserSync = require('browser-sync').create();
+colors.enabled = require('color-support').hasBasic;
 
-var autoprefixer = require('gulp-autoprefixer');
-var browserSync = require('browser-sync').create();
-var cleanCss = require('gulp-clean-css');
-var del = require('del');
-const htmlmin = require('gulp-htmlmin');
-const cssbeautify = require('gulp-cssbeautify');
-var gulp = require('gulp');
-const npmDist = require('gulp-npm-dist');
-var sass = require('gulp-sass');
-var wait = require('gulp-wait');
-var sourcemaps = require('gulp-sourcemaps');
-var fileinclude = require('gulp-file-include');
+// Utilities
+// -------------------------------------------------------------------------------
 
-// Define paths
+function srcGlob(...src) {
+  return src.concat(conf.exclude.map(d => `!${d}/**/*`));
+}
 
-const paths = {
-    dist: {
-        base: './dist/',
-        css: './dist/css',
-        html: './dist/pages',
-        assets: './dist/assets',
-        img: './dist/assets/img',
-        vendor: './dist/vendor'
-    },
-    dev: {
-        base: './html&css/',
-        css: './html&css/css',
-        html: './html&css/pages',
-        assets: './html&css/assets',
-        img: './html&css/assets/img',
-        vendor: './html&css/vendor'
-    },
-    base: {
-        base: './',
-        node: './node_modules'
-    },
-    src: {
-        base: './src/',
-        css: './src/css',
-        html: './src/pages/**/*.html',
-        assets: './src/assets/**/*.*',
-        partials: './src/partials/**/*.html',
-        scss: './src/scss',
-        node_modules: './node_modules/',
-        vendor: './vendor'
-    },
-    temp: {
-        base: './.temp/',
-        css: './.temp/css',
-        html: './.temp/pages',
-        assets: './.temp/assets',
-        vendor: './.temp/vendor'
-    }
+// Tasks
+// -------------------------------------------------------------------------------
+
+const buildTasks = require('./tasks/build')(conf, srcGlob);
+const prodTasks = require('./tasks/prod')(conf);
+
+// Clean build directory
+// -------------------------------------------------------------------------------
+
+const cleanTask = function () {
+  return del([conf.distPath, buildPath], {
+    force: true
+  });
 };
 
-// Compile SCSS
-gulp.task('scss', function () {
-    return gulp.src([paths.src.scss + '/volt/**/*.scss', paths.src.scss + '/volt.scss'])
-        .pipe(wait(500))
-        .pipe(sourcemaps.init())
-        .pipe(sass().on('error', sass.logError))
-        .pipe(autoprefixer({
-            overrideBrowserslist: ['> 1%']
-        }))
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(paths.temp.css))
-        .pipe(browserSync.stream());
-});
+// Watch
+// -------------------------------------------------------------------------------
+const watchTask = function () {
+  watch(srcGlob('**/*.scss', '!fonts/**/*.scss'), buildTasks.css);
+  watch(srcGlob('fonts/**/*.scss'), parallel(buildTasks.css, buildTasks.fonts));
+  watch(srcGlob('**/*.@(js|es6)', '!*.js'), buildTasks.js);
+  // watch(srcGlob('**/*.png', '**/*.gif', '**/*.jpg', '**/*.jpeg', '**/*.svg', '**/*.swf'), copyTasks.copyAssets)
+};
 
-gulp.task('index', function () {
-    return gulp.src([paths.src.base + '*.html'])
-        .pipe(fileinclude({
-            prefix: '@@',
-            basepath: './src/partials/',
-            context: {
-                environment: 'development'
-            }
-        }))
-        .pipe(gulp.dest(paths.temp.base))
-        .pipe(browserSync.stream());
-});
+// Serve
+// -------------------------------------------------------------------------------
+const serveTasks = function () {
+  browserSync.init({
+    // ? You can change server path variable from build-config.js file
+    server: serverPath
+  });
+  watch([
+    // ? You can change add/remove files/folders watch paths in below array
+    'html/**/*.html',
+    'html-starter/**/*.html',
+    'assets/vendor/css/*.css',
+    'assets/vendor/css/rtl/*.css',
+    'assets/css/*.css',
+    'assets/js/*.js'
+  ]).on('change', browserSync.reload);
+};
 
-gulp.task('html', function () {
-    return gulp.src([paths.src.html])
-        .pipe(fileinclude({
-            prefix: '@@',
-            basepath: './src/partials/',
-            context: {
-                environment: 'development'
-            }
-        }))
-        .pipe(gulp.dest(paths.temp.html))
-        .pipe(browserSync.stream());
-});
+const serveTask = parallel([serveTasks, watchTask]);
 
-gulp.task('assets', function () {
-    return gulp.src([paths.src.assets])
-        .pipe(gulp.dest(paths.temp.assets))
-        .pipe(browserSync.stream());
-});
+// Build (Dev & Prod)
+// -------------------------------------------------------------------------------
 
-gulp.task('vendor', function() {
-    return gulp.src(npmDist(), { base: paths.src.node_modules })
-      .pipe(gulp.dest(paths.temp.vendor));
-});
+const buildTask = conf.cleanDist
+  ? series(cleanTask, env.current.name === 'production' ? [buildTasks.all, prodTasks.all] : buildTasks.all)
+  : series(env.current.name === 'production' ? [buildTasks.all, prodTasks.all] : buildTasks.all);
 
-gulp.task('serve', gulp.series('scss', 'html', 'index', 'assets', 'vendor', function() {
-    browserSync.init({
-        server: paths.temp.base
-    });
-
-    gulp.watch([paths.src.scss + '/volt/**/*.scss', paths.src.scss + '/volt.scss'], gulp.series('scss'));
-    gulp.watch([paths.src.html, paths.src.base + '*.html', paths.src.partials], gulp.series('html', 'index'));
-    gulp.watch([paths.src.assets], gulp.series('assets'));
-    gulp.watch([paths.src.vendor], gulp.series('vendor'));
-}));
-
-// Beautify CSS
-gulp.task('beautify:css', function () {
-    return gulp.src([
-        paths.dev.css + '/volt.css'
-    ])
-        .pipe(cssbeautify())
-        .pipe(gulp.dest(paths.dev.css))
-});
-
-// Minify CSS
-gulp.task('minify:css', function () {
-    return gulp.src([
-        paths.dist.css + '/volt.css'
-    ])
-    .pipe(cleanCss())
-    .pipe(gulp.dest(paths.dist.css))
-});
-
-// Minify Html
-gulp.task('minify:html', function () {
-    return gulp.src([paths.dist.html + '/**/*.html'])
-        .pipe(htmlmin({
-            collapseWhitespace: true
-        }))
-        .pipe(fileinclude({
-            prefix: '@@',
-            basepath: './src/partials/',
-            context: {
-                environment: 'production'
-            }
-        }))
-        .pipe(gulp.dest(paths.dist.html))
-});
-
-gulp.task('minify:html:index', function () {
-    return gulp.src([paths.dist.base + '*.html'])
-        .pipe(htmlmin({
-            collapseWhitespace: true
-        }))
-        .pipe(fileinclude({
-            prefix: '@@',
-            basepath: './src/partials/',
-            context: {
-                environment: 'production'
-            }
-        }))
-        .pipe(gulp.dest(paths.dist.base))
-});
-
-// Clean
-gulp.task('clean:dist', function () {
-    return del([paths.dist.base]);
-});
-
-gulp.task('clean:dev', function () {
-    return del([paths.dev.base]);
-});
-
-// Compile and copy scss/css
-gulp.task('copy:dist:css', function () {
-    return gulp.src([paths.src.scss + '/volt/**/*.scss', paths.src.scss + '/volt.scss'])
-        .pipe(wait(500))
-        .pipe(sourcemaps.init())
-        .pipe(sass().on('error', sass.logError))
-        .pipe(autoprefixer({
-            overrideBrowserslist: ['> 1%']
-        }))
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(paths.dist.css))
-});
-
-gulp.task('copy:dev:css', function () {
-    return gulp.src([paths.src.scss + '/volt/**/*.scss', paths.src.scss + '/volt.scss'])
-        .pipe(wait(500))
-        .pipe(sourcemaps.init())
-        .pipe(sass().on('error', sass.logError))
-        .pipe(autoprefixer({
-            overrideBrowserslist: ['> 1%']
-        }))
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(paths.dev.css))
-});
-
-// Copy Html
-gulp.task('copy:dist:html', function () {
-    return gulp.src([paths.src.html])
-        .pipe(fileinclude({
-            prefix: '@@',
-            basepath: './src/partials/',
-            context: {
-                environment: 'production'
-            }
-        }))
-        .pipe(gulp.dest(paths.dist.html));
-});
-
-gulp.task('copy:dev:html', function () {
-    return gulp.src([paths.src.html])
-        .pipe(fileinclude({
-            prefix: '@@',
-            basepath: './src/partials/',
-            context: {
-                environment: 'development'
-            }
-        }))
-        .pipe(gulp.dest(paths.dev.html));
-});
-
-// Copy index
-gulp.task('copy:dist:html:index', function () {
-    return gulp.src([paths.src.base + '*.html'])
-        .pipe(fileinclude({
-            prefix: '@@',
-            basepath: './src/partials/',
-            context: {
-                environment: 'production'
-            }
-        }))
-        .pipe(gulp.dest(paths.dist.base))
-});
-
-gulp.task('copy:dev:html:index', function () {
-    return gulp.src([paths.src.base + '*.html'])
-        .pipe(fileinclude({
-            prefix: '@@',
-            basepath: './src/partials/',
-            context: {
-                environment: 'development'
-            }
-        }))
-        .pipe(gulp.dest(paths.dev.base))
-});
-
-// Copy assets
-gulp.task('copy:dist:assets', function () {
-    return gulp.src(paths.src.assets)
-        .pipe(gulp.dest(paths.dist.assets))
-});
-
-gulp.task('copy:dev:assets', function () {
-    return gulp.src(paths.src.assets)
-        .pipe(gulp.dest(paths.dev.assets))
-});
-
-// Copy node_modules to vendor
-gulp.task('copy:dist:vendor', function() {
-    return gulp.src(npmDist(), { base: paths.src.node_modules })
-      .pipe(gulp.dest(paths.dist.vendor));
-});
-
-gulp.task('copy:dev:vendor', function() {
-    return gulp.src(npmDist(), { base: paths.src.node_modules })
-      .pipe(gulp.dest(paths.dev.vendor));
-});
-
-gulp.task('build:dev', gulp.series('clean:dev', 'copy:dev:css', 'copy:dev:html', 'copy:dev:html:index', 'copy:dev:assets', 'beautify:css', 'copy:dev:vendor'));
-gulp.task('build:dist', gulp.series('clean:dist', 'copy:dist:css', 'copy:dist:html', 'copy:dist:html:index', 'copy:dist:assets', 'minify:css', 'minify:html', 'minify:html:index', 'copy:dist:vendor'));
-
-// Default
-gulp.task('default', gulp.series('serve'));
+// Exports
+// -------------------------------------------------------------------------------
+module.exports = {
+  default: buildTask,
+  build: buildTask,
+  'build:js': buildTasks.js,
+  'build:css': buildTasks.css,
+  'build:fonts': buildTasks.fonts,
+  'build:copy': parallel([buildTasks.copy]),
+  watch: watchTask,
+  serve: serveTask
+};

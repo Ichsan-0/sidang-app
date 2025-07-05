@@ -1,64 +1,110 @@
 {
-    "name": "@themesberg/volt-bootstrap-5-dashboard",
-    "version": "1.0.1",
-    "description": "Volt - Bootstrap 5 Dashboard",
-    "main": "gulpfile.js",
-    "author": "Themesberg",
-    "keywords": [
-        "bootstrap",
-        "bootstrap5",
-        "bootstrap-5",
-        "bootstrap 5",
-        "bootstrap 5 dashboard",
-        "bootstrap 5 admin dashboard",
-        "dashboard vanilla js",
-        "admin dashboard vanilla js",
-        "bootstrap template vanilla js",
-        "bootstrap 5 chart",
-        "bootstrap 5 datepicker"
+  "name": "sneat-bootstrap-html-admin-template-free",
+  "description": "Most Powerful & Comprehensive Free Bootstrap 5 HTML Admin Dashboard Template built for developers! 🚀",
+  "license": "MIT",
+  "version": "1.0.0",
+  "author": {
+    "name": "ThemeSelection",
+    "url": "https://themeselection.com/"
+  },
+  "bugs": {
+    "url": "https://github.com/themeselection/sneat-html-admin-template-free/issues"
+  },
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/themeselection/sneat-html-admin-template-free.git"
+  },
+  "homepage": "https://themeselection.com/products/sneat-free-bootstrap-html-admin-template/",
+  "keywords": [
+    "bootstrap",
+    "front-end",
+    "admin",
+    "framework",
+    "admin-dashboard",
+    "webapp",
+    "bootstrap5",
+    "themeselection",
+    "freebies"
+  ],
+  "scripts": {
+    "build": "npx gulp build",
+    "build:js": "npx gulp build:js",
+    "build:css": "npx gulp build:css",
+    "build:fonts": "npx gulp build:fonts",
+    "build:copy": "npx gulp build:copy",
+    "build:prod": "npx gulp build --env=production",
+    "build:prod:js": "npx gulp build:js --env=production",
+    "build:prod:css": "npx gulp build:css --env=production",
+    "build:prod:fonts": "npx gulp build:fonts --env=production",
+    "build:prod:copy": "npx gulp build:copy --env=production",
+    "watch": "npx gulp watch",
+    "serve": "npx gulp serve"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.9.2",
+    "apexcharts-clevision": "^3.28.3",
+    "bootstrap": "~5.1.3",
+    "boxicons": "~2.0.9",
+    "highlight.js": "~9.17.1",
+    "jquery": "~3.5.1",
+    "masonry-layout": "~4.2.1",
+    "perfect-scrollbar": "~1.5.1"
+  },
+  "devDependencies": {
+    "@babel/core": "~7.7.7",
+    "@babel/plugin-proposal-object-rest-spread": "~7.7.7",
+    "@babel/plugin-transform-destructuring": "~7.7.4",
+    "@babel/plugin-transform-template-literals": "~7.7.4",
+    "@babel/preset-env": "~7.7.7",
+    "ansi-colors": "~4.1.1",
+    "babel-loader": "~8.0.4",
+    "browser-sync": "^2.26.7",
+    "color-support": "~1.1.3",
+    "css-loader": "~3.4.0",
+    "deepmerge": "~4.2.2",
+    "del": "~5.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^7.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.3.1",
+    "fancy-log": "~1.3.3",
+    "gulp": "~4.0.2",
+    "gulp-autoprefixer": "~7.0.1",
+    "gulp-environment": "~1.5.2",
+    "gulp-if": "~3.0.0",
+    "gulp-rename": "~2.0.0",
+    "gulp-replace": "~1.0.0",
+    "gulp-sourcemaps": "~2.6.4",
+    "gulp-useref": "^5.0.0",
+    "gulp-dart-sass": "^1.0.2",
+    "gulp-exec": "^5.0.0",
+    "html-loader": "~0.5.5",
+    "js-beautify": "^1.10.3",
+    "prettier": "^2.2.1",
+    "sass-loader": "~8.0.0",
+    "string-replace-webpack-plugin": "~0.1.3",
+    "style-loader": "~1.1.2",
+    "uglifyjs-webpack-plugin": "~2.2.0",
+    "webpack": "~4.41.0",
+    "yarn": "~1.21.1"
+  },
+  "gulp-environment": {
+    "environments": [
+      {
+        "name": "development",
+        "aliases": [
+          "dev"
+        ]
+      },
+      {
+        "name": "production",
+        "aliases": [
+          "prod"
+        ]
+      }
     ],
-    "homepage": "https://themesberg.com/product/admin-dashboard/volt-pro-premium-bootstrap-5-dashboard",
-    "bugs": {
-        "url": "https://github.com/themesberg/volt-bootstrap-5-dashboard/issues"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/themesberg/volt-bootstrap-5-dashboard"
-    },
-    "license": "https://github.com/themesberg/volt-bootstrap-5-dashboard/blob/master/LICENSE.md",
-    "devDependencies": {
-        "browser-sync": "2.26.7",
-        "del": "4.1.1",
-        "gulp": "4.0.2",
-        "gulp-autoprefixer": "6.1.0",
-        "gulp-clean-css": "4.2.0",
-        "gulp-cssbeautify": "1.0.1",
-        "gulp-file-include": "2.1.0",
-        "gulp-header": "2.0.7",
-        "gulp-htmlmin": "5.0.1",
-        "gulp-npm-dist": "^1.0.3",
-        "gulp-plumber": "1.2.1",
-        "gulp-rename": "1.4.0",
-        "gulp-sass": "4.0.2",
-        "gulp-sourcemaps": "2.6.5",
-        "gulp-uglify": "3.0.2",
-        "gulp-wait": "0.0.2",
-        "merge-stream": "2.0.0"
-    },
-    "dependencies": {
-        "@fortawesome/fontawesome-free": "5.11.2",
-        "bootstrap": "5.0.0-alpha1",
-        "chartist": "^0.11.4",
-        "chartist-plugin-tooltips": "0.0.17",
-        "countup.js": "^2.0.6",
-        "jarallax": "1.12.0",
-        "notyf": "^3.9.0",
-        "nouislider": "11.0.3",
-        "onscreen": "1.3.4",
-        "popper.js": "1.16.0",
-        "simplebar": "^6.0.0-beta.2",
-        "smooth-scroll": "^16.1.0",
-        "vanillajs-datepicker": "^1.0.3",
-        "waypoints": "4.0.1"
-    }
+    "default": "development"
+  }
 }

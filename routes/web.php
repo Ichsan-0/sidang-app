@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DataMaster;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('dashboard');
+Route::get('/', fn () => view('dashboard'));
+
+Route::controller(DataMaster::class)->group(function () {
+    Route::get('/prodi', 'prodi')->name('prodi.index');
+    Route::get('/prodi/ajax', 'ajax')->name('prodi.ajax');
 });

@@ -1,202 +1,193 @@
-# [Volt - Bootstrap 5 Admin Dashboard](https://demo.themesberg.com/volt/) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fthemesberg%2Fvolt-bootstrap-5-dashboard&via=themesberg&text=Volt%20-%20Open%20Source%20Bootstrap%205%20Admin%20Dashboard)
+<p align="center">
+   <a href="https://themeselection.com/products/sneat-free-bootstrap-html-admin-template/" target="_blank">
+      <img src="https://user-images.githubusercontent.com/749684/150333149-805037bc-8874-4a1f-876a-61a9683f8ef5.png" alt="sneat-logo" width="30px" height="auto">
+   </a>
+</p>
 
- ![version](https://img.shields.io/badge/version-1.0.1-yellow.svg) ![license](https://img.shields.io/badge/license-MIT-blue.svg) [![GitHub issues open](https://img.shields.io/github/issues/themesberg/volt-bootstrap-5-dashboard.svg?maxAge=2592000)](https://github.com/themesberg/volt-bootstrap-5-dashboard/issues?q=is%3Aopen+is%3Aissue) [![GitHub issues closed](https://img.shields.io/github/issues-closed-raw/themesberg/themesberg/volt-bootstrap-5-dashboard.svg?maxAge=2592000)](https://github.com/themesberg/volt-bootstrap-5-dashboard/issues?q=is%3Aissue+is%3Aclosed)
+<h1 align="center">
+   <a href="https://themeselection.com/products/sneat-free-bootstrap-html-admin-template/" target="_blank" align="center">
+      Sneat - Free Bootstrap 5 HTML Admin Template
+   </a>
+</h1>
 
-<a href="https://demo.themesberg.com/volt/">
- <img src="https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/volt-bootstrap-5-dashboard-preview.jpg" alt="Volt Bootstrap 5 Dashboard Preview"/>
- </a>
+<p align="center">Most Powerful & Comprehensive Free Bootstrap 5 HTML Admin Dashboard Template built for developers!</p>
 
-Volt is a free and open source Bootstrap 5 Admin Dashboard featuring over 100 components, 11 example pages and 3 customized plugins. Volt **does not require jQuery** as a dependency meaning that every library and script's are jQuery free.
+![GitHub](https://img.shields.io/github/license/themeselection/sneat-html-admin-template-free) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/themeselection/sneat-html-admin-template-free) ![GitHub issues](https://img.shields.io/github/issues/themeselection/sneat-html-admin-template-free) ![GitHub closed issues](https://img.shields.io/github/issues-closed/themeselection/sneat-html-admin-template-free) ![Twitter Follow](https://img.shields.io/twitter/follow/Theme_Selection?style=social)
 
-## Bootstrap 5 and Vanilla Javascript
+[![Sneat - Bootstrap 5 HTML Admin Template Demo Screenshot](https://user-images.githubusercontent.com/80033712/153581472-452394ee-327a-4d00-a41a-c6e8036b7096.png)](https://themeselection.com/products/sneat-free-bootstrap-html-admin-template/)
 
-Volt is built using the latest version of Bootstrap 5 and because [jQuery is no longer required as a dependency](https://themesberg.com/blog/tutorial/bootstrap-5-tutorial), Volt has been built using only Vanilla JS.
+## Introduction 🚀
 
-## 100+ Components
+If you’re a developer looking for most Powerful & comprehensive [**Free Bootstrap 5 HTML Admin Template**](https://themeselection.com/products/sneat-free-bootstrap-html-admin-template/) built for developers, rich with features, and highly customizable look no further than Sneat. We’ve followed the highest industry standards to bring you the very best admin template that is not only fast and easy to use but highly scalable. Offering ultimate convenience and flexibility, you’ll be able to build whatever application you want with very little hassle.
 
-Because it is created using the latest version of Bootstrap 5, every components and element is based on the latest Bootstrap 5 Sass variables and HTML markup. Check out the documentation of the components [here](https://themesberg.com/docs/volt-bootstrap-5-dashboard/components/accordions/).
+Build premium quality applications with ease. Use our innovative [bootstrap admin templates](https://themeselection.com/products/category/bootstrap-admin-templates/) to create eye-catching, high-quality WebApps. Your apps will be completely responsive, ensuring they’ll look stunning and function flawlessly on desktops, tablets, and mobile devices.
 
-## 11 Example pages
+[View Demo](https://themeselection.com/demo/sneat-bootstrap-html-admin-template-free/html/)
 
-We created no less than 11 advanced example pages such as the overview page, transactions, user settings, sign in and sign up and many more.
+## Installation ⚒️
 
-## Full documentation
+Automate time-consuming or repetitive tasks in your development workflow using Gulp 🥤
 
-Every component, plugin and getting started is thoroughly documented on our [online documentation](https://themesberg.com/docs/volt-bootstrap-5-dashboard/getting-started/quick-start/).
+> Please note, the use of Node, Webpack & Gulp and their advanced settings are totally optional. You can use and customize the template without using them too.
 
-## Workflow
+Installing Node & Gulp and running it is super easy in Sneat, please follow these steps and you should be ready to rock 🤘
 
-This product is built using the following widely used technologies:
+1. First of all, make sure you have installed [Node](https://nodejs.org/en/) (LTS). If Node.js is already installed in your system, make sure the installed version is `LTS` and jump to step 2
 
-- Most popular CSS Framework Bootstrap
-- Productive workflow tool Gulp
-- Awesome CSS preprocessor Sass
+2. Install the Gulp CLI: Open Terminal/Command Prompt and run the following command and wait until it finishes. If you have already installed Gulp CLI, you can skip this step and jump to step 3.
 
-## Table of Contents
-
-* [Demo](#demo)
-* [Quick Start](#quick-start)
-* [Documentation](#documentation)
-* [File Structure](#file-structure)
-* [Browser Support](#browser-support)
-* [Resources](#resources)
-* [Upgrade to PRO](#upgrade-to-pro)
-* [Reporting Issues](#reporting-issues)
-* [Technical Support or Questions](#technical-support-or-questions)
-* [Licensing](#licensing)
-* [Useful Links](#useful-links)
-
-## Demo
-
-| Dashboard | Transactions | Settings | Forms |
-| --- | --- | --- | --- |
-| [![Dashboard](https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/github/dashboard.jpg)](https://demo.themesberg.com/volt/pages/dashboard/dashboard.html) | [![Transactions](https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/github/transactions.jpg)](https://demo.themesberg.com/volt/pages/transactions.html) | [![Settings](https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/github/settings.jpg)](https://demo.themesberg.com/volt/pages/settings.html) | [![Forms](https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/github/forms.jpg)](https://demo.themesberg.com/volt/pages/components/forms.html)
-
-| Sign in | Sign up | Forgot password | Reset password |
-| --- | --- | --- | --- |
-| [![Sign in](https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/github/signin.jpg)](https://demo.themesberg.com/volt/pages/examples/sign-in.html) | [![Sign up](https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/github/signup.jpg)](https://demo.themesberg.com/volt/pages/examples/sign-up.html) | [![Forgot Password](https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/github/forgot-password.jpg)](https://demo.themesberg.com/volt/pages/examples/forgot-password.html) | [![Reset password](https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/github/forgot-password.jpg)](https://demo.themesberg.com/volt/pages/examples/reset-password.html)
-
-| Lock Profile | 404 Not Found | 500 Server Error | Documentation |
-| --- | --- | --- | --- |
-| [![Lock Profile](https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/github/lock.jpg)](https://demo.themesberg.com/volt/pages/examples/lock.html) | [![404 Not Found](https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/github/404.jpg)](https://demo.themesberg.com/volt/pages/examples/404.html) | [![500 Server Error](https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/github/500.jpg)](https://demo.themesberg.com/volt/pages/examples/500.html) | [![Documentation](https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/github/docs.jpg)](https://themesberg.com/docs/volt-bootstrap-5-dashboard/getting-started/quick-start/)
-
--   [Live Preview](https://demo.themesberg.com/volt/)
--   [Details](https://themesberg.com/product/admin-dashboard/volt-bootstrap-5-dashboard)
-
-## Quick start
-
-1. Download from [Themesberg](https://themesberg.com/product/admin-dashboard/volt-bootstrap-5-dashboard) or clone this repository
-2. Download the project's zip
-3. Make sure you have Node locally installed.
-4. Download Gulp Command Line Interface to be able to use gulp in your Terminal.
-
-```
-npm install gulp-cli -g
+```bash
+npm install --global gulp-cli
 ```
 
-5. After installing Gulp, run npm install in the main `volt/` folder to download all the project dependencies. You'll find them in the `node_modules/` folder.
+3. Navigate to the Sneat root directory and run following command to install our local dependencies listed in `package.json`. You can use `npm` OR `yarn` as per your preference.
 
-```
-npm install
-```
+> It is recommended to use Yarn
 
-6. Run gulp in the `volt/` folder to serve the project files using BrowserSync. Running gulp will compile the theme and open `/index.html` in your main browser.
+```bash
+# For npm
+npm install --legacy-peer-deps
 
-```
-gulp
-```
-
-While the gulp command is running, files in the `assets/scss/`, `assets/js/` and `components/` folders will be monitored for changes. Files from the `assets/scss/` folder will generate injected CSS.
-
-Hit `CTRL+C` to terminate the gulp command. This will stop the local server from running.
-
-## Theme without Sass, Gulp or Npm
-
-If you'd like to get a version of our theme without Sass, Gulp or Npm, we've got you covered. Run the following command:
-
-```
-gulp build:dev
+# For Yarn
+yarn
 ```
 
-This will generate a folder `html&css` which will have unminified CSS, Html and Javascript.
+4. Now, you are ready to run `npm` tasks, below command will start the server and watch the code using [browsersync](https://browsersync.io/). Open [http://localhost:3000/](http://localhost:3000/) to check your development 🚀.
 
-## Minified version
+```bash
+# npm
+npm run serve
 
-If you'd like to compile the code and get a minified version of the HTML and CSS just run the following Gulp command:
-
-```
-gulp build:dist
-```
-
-This will generate a folder `dist` which will have minified CSS, Html and Javascript.
-
-## Documentation
-The documentation for Volt is hosted on our [website](https://themesberg.com/docs/volt-bootstrap-5-dashboard/getting-started/quick-start/).
-
-## File Structure
-Within the download you'll find the following directories and files:
-
-```
-Volt Bootstrap 5 Admin Dashboard
-.
-├── README.md
-├── gulpfile.js
-├── package-lock.json
-├── package.json
-└── src
-    ├── assets
-    │   ├── img
-    │   └── js
-    ├── index.html
-    ├── pages
-    │   ├── components
-    │   ├── dashboard
-    │   ├── examples
-    │   ├── settings.html
-    │   ├── tables
-    │   └── transactions.html
-    ├── partials
-    │   ├── _analytics.html
-    │   ├── _footer.html
-    │   ├── _head.html
-    │   ├── _navigation.html
-    │   ├── _pages-preview.html
-    │   ├── _preloader.html
-    │   ├── _scripts.html
-    │   └── dashboard
-    └── scss
-        ├── volt
-        └── volt.scss
+# yarn
+yarn serve
 ```
 
-## Browser Support
+## Available Tasks 🧑‍💻
+
+Open console/terminal, go to the Sneat root directory and run `npm run {task_name}`.i.e To generate build run `npm run build`.
+
+Run a task with specified environment(development/production) just execute the task with `--env={environment}` option, i.e. `npm run build --env=production`.
+
+> **Tip:** Use `npm run` command to list all predefined npm tasks from `package.json` file.
+
+## What's Included 📦
+
+- Dashboard
+- Layouts
+  - Without menu
+  - Without Navbar
+  - Container
+  - Fluid
+  - Blank
+- Pages
+  - Account Settings
+  - Login
+  - Register
+  - Forgot Password
+  - Error
+  - Under Maintenance
+- Cards
+- User Interface
+  - **All Bootstrap Components**
+- Extended UI
+  - Perfect Scrollbar
+  - Text Divider
+- Boxicon
+- Form Elements
+  - Basic Inputs
+  - Input Groups
+- Form Layout
+  - Vertical Form
+  - Horizontal Form
+- Tables
+
+## What's in Premium Version 💎
+
+| Sneat Free Version                                                                        | Sneat Premium Version                                                                                                            |
+| ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| [Demo](https://themeselection.com/demo/sneat-bootstrap-html-admin-template-free/html/)    | [Demo](https://themeselection.com/demo/sneat-bootstrap-html-admin-template/html/vertical-menu-template/)                         |
+| [Download](https://themeselection.com/products/sneat-free-bootstrap-html-admin-template/) | [Purchase](https://themeselection.com/products/sneat-bootstrap-html-admin-template/)                                             |
+| Single vertical Menu                                                                      | Vertical Menu + Horizontal Menu                                                                                                  |
+| Simple Light Style                                                                        | Light & Dark Style                                                                                                               |
+| Default Theme                                                                             | Default, Semi Dark & Bordered Themes                                                                                             |
+| Fixed Layout(Menu)                                                                        | Fixed & Static Layout(Menu)                                                                                                      |
+| 1 Simple Dashboard                                                                        | 3 Niche Dashboards                                                                                                               |
+| -                                                                                         | Multiple Ready to use Application like Calendar, Invoice, Users List, Users View, Roles and Permission etc.                      |
+| Simple From Elements                                                                      | Advance form elements, validation & form wizard                                                                                  |
+| Basic Cards                                                                               | Basic, Advance , Statistics, Analytics, Gamifications and Actions Cards                                                          |
+| Basic User Interface(Components)                                                          | Advance and Custom User Interfaces(Components)                                                                                   |
+| Two Extended Components                                                                   | Twelve Ready to use Extended Components                                                                                          |
+| -                                                                                         | Quick Search - Quickly navigate between pages (w/ hotkey support)                                                                |
+| Basic Pages                                                                               | Authentication Pages in 2 Variants + Ready to use pages like User Profile, Account Settings,FAQ, Help Center, Pricing, Misc etc. |
+| -                                                                                         | 3D Characters + Illustrations                                                                                                    |
+| Basic tables                                                                              | Advanced tables                                                                                                                  |
+| -                                                                                         | Quick customization using theme config file                                                                                      |
+| -                                                                                         | Leaflet Maps                                                                                                                     |
+| 1 Chart Library                                                                           | 2 Chart Libraries                                                                                                                |
+| -                                                                                         | Multiple Navbar & Menu Options                                                                                                   |
+| -                                                                                         | Starter-kit                                                                                                                      |
+| -                                                                                         | Internationalization support                                                                                                     |
+| -                                                                                         | RTL Support                                                                                                                      |
+| Regular Support                                                                           | Priority Support                                                                                                                 |
+| Detailed Documentation                                                                    | Detailed Documentation                                                                                                           |
+
+## Documentation 📜
+
+Check out our live [Documentation](https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/)
+
+## Browser Support 🖥️
 
 At present, we officially aim to support the last two versions of the following browsers:
 
-<img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/chrome.png" width="64" height="64"> <img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/firefox.png" width="64" height="64"> <img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/edge.png" width="64" height="64"> <img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/safari.png" width="64" height="64"> <img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/opera.png" width="64" height="64">
+- Chrome (latest)
+- FireFox (latest)
+- Safari (latest)
+- Microsoft Edge (latest)
+- Opera (latest)
 
-## Resources
-- Demo: <https://demo.themesberg.com/volt/>
-- Download Page: <https://themesberg.com/product/admin-dashboard/volt-bootstrap-5-dashboard>
-- Documentation: <https://themesberg.com/docs/volt-bootstrap-5-dashboard/getting-started/quick-start/>
-- License Agreement: <https://themesberg.com/licensing>
-- Support: <https://themesberg.com/contact>
-- Issues: [Github Issues Page](https://github.com/themesberg/volt-bootstrap-5-dashboard/issues)
+## Useful Links 🎁
 
-## Upgrade to Pro
+- [Freebies](https://themeselection.com/products/category/download-free-admin-templates/)
+- [Download Free Admin Templates](https://themeselection.com/products/category/download-free-admin-templates/)
+- [Bootstrap 5 CheatSheet](https://bootstrap-cheatsheet.themeselection.com/)
 
-There is also a pro version of Volt which has more than 800 components, 20 example pages and over 10 advanced plugins that can take your admin dashboard application to the next level. Check out [Volt Pro Premium Bootstrap 5 Admin Dashboard](https://themesberg.com/product/admin-dashboard/volt-premium-bootstrap-5-dashboard).
+## Support 👨‍💻
 
-## Reporting Issues
+We use GitHub issues as support tickets to manage Item support.
 
-We use GitHub Issues as the official bug tracker for Volt Bootstrap 5 Admin Dashboard. Here are some advices for our users that want to report an issue:
+1. In order to raise the GitHub issue, you must have a github account. [Raise a Issue](https://github.com/themeselection/sneat-html-admin-template-free/issues)
 
-1. Make sure that you are using the latest version of Volt Bootstrap 5 Admin Dashboard. Check the CHANGELOG from your dashboard on our [website](https://themesberg.com/docs/volt-bootstrap-5-dashboard/getting-started/changelog/).
-2. Providing us reproducible steps for the issue will shorten the time it takes for it to be fixed.
-3. Some issues may be browser specific, so specifying in what browser you encountered the issue might help.
+## License ©
 
-## Technical Support or Questions
+- Copyright © [ThemeSelection](https://themeselection.com/)
+- Licensed under [MIT](https://github.com/themeselection/sneat-html-admin-template-free/blob/master/LICENSE.md)
 
-If you have questions or need help integrating the product please [contact us](https://themesberg.com/contact) instead of opening an issue.
+## Contributing 🦸
 
-## Licensing
+Contribution are always welcome and recommended! Here is how:
 
-- Copyright 2020 Themesberg (Crafty Dwarf LLC) (https://themesberg.com)
-- Themesberg [license](https://themesberg.com/licensing#mit) (MIT License)
+- Fork the repository ([here is the guide](https://docs.github.com/en/get-started/quickstart/fork-a-repo)).
+- Clone to your machine `git clone https://github.com/YOUR_USERNAME/REPO_URL` Make your changes
+- Create a pull request
 
-## Useful Links
+### Contribution Requirements 🧰
 
-- [More themes](https://themesberg.com/themes) from Themesberg
-- [Free themes](https://themesberg.com/templates/free) from Themesberg
-- [Bootstrap Themes, Templates & UI Kits](https://themesberg.com/templates/bootstrap) from Themesberg
-- [Affiliate Program](https://themesberg.com/affiliate)
+- When you contribute, you agree to give a non-exclusive license to ThemeSelection to use that contribution in any context as we (ThemeSelection) see appropriate.
+- If you use content provided by another party, it must be appropriately licensed using an open source license.
+- Contributions are only accepted through Github pull requests.
+- Finally, contributed code must work in all supported browsers.
 
-##### Social Media
+## Creators 😇
 
-Twitter: <https://twitter.com/themesberg>
+- [ThemeSelection](https://themeselection.com)
 
-Facebook: <https://www.facebook.com/themesberg/>
+## Changelog 📆
 
-Dribbble: <https://dribbble.com/themesberg>
+Please refer to the [CHANGELOG](https://themeselection.com/demo/sneat-bootstrap-html-admin-template-free/changelog.html) file. We will add a detailed release notes to each new release.
 
-Instagram: <https://www.instagram.com/themesberg/>
+## Social Media 🌍
+
+- Twitter : [https://twitter.com/Theme_Selection](https://twitter.com/Theme_Selection)
+- Facebook : [https://www.facebook.com/ThemeSelections/](https://www.facebook.com/ThemeSelections/)
+- Pinterest : [https://pinterest.com/themeselect/](https://pinterest.com/themeselect/)
+- Instagram : [https://www.instagram.com/themeselection/](https://www.instagram.com/themeselection/)
