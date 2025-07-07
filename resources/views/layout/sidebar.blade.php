@@ -78,13 +78,23 @@
             </li>
 
             <!-- Layouts -->
-            <li class="menu-item {{ request()->is('prodi*') ? 'open active' : '' }}">
+            @php
+            // daftar route untuk menu Data Master
+            $dataMasterRoutes = ['tahun', 'prodi', 'jurusan', 'mata-kuliah', 'dosen', 'mahasiswa'];
+            @endphp
+
+            <li class="menu-item {{ in_array(request()->segment(1), $dataMasterRoutes) ? 'open active' : '' }}">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-layout"></i>
                 <div data-i18n="Layouts">Data Master</div>
               </a>
 
               <ul class="menu-sub">
+                <li class="menu-item {{ request()->is('tahun') ? 'active' : '' }}">
+                  <a href="{{ route('tahun.index') }}" class="menu-link">
+                    <div data-i18n="Without menu">Tahun Ajaran</div>
+                  </a>
+                </li>
                 <li class="menu-item {{ request()->is('prodi') ? 'active' : '' }}">
                   <a href="{{ route('prodi.index') }}" class="menu-link">
                     <div data-i18n="Without menu">Data Prodi</div>

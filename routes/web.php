@@ -18,5 +18,10 @@ Route::get('/', fn () => view('dashboard'));
 
 Route::controller(DataMaster::class)->group(function () {
     Route::get('/prodi', 'prodi')->name('prodi.index');
-    Route::get('/prodi/ajax', 'ajax')->name('prodi.ajax');
+    Route::get('/prodi/ajax', 'ajaxProdi')->name('prodi.ajax');
+    Route::post('/prodi/store','storeProdi')->name('prodi.store');
+    Route::get('/tahun', 'tahun')->name('tahun.index');
+    Route::get('/tahun/ajax', 'ajaxTahun')->name('tahun.ajax');
+    Route::post('/prodi/store', [ProdiController::class, 'store'])->name('prodi.store');
+
 });
