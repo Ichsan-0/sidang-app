@@ -80,7 +80,7 @@
             <!-- Layouts -->
             @php
             // daftar route untuk menu Data Master
-            $dataMasterRoutes = ['tahun', 'prodi', 'jurusan', 'mata-kuliah', 'dosen', 'mahasiswa'];
+            $dataMasterRoutes = ['tahun', 'fakultas','prodi', 'jurusan', 'mata-kuliah', 'dosen', 'mahasiswa'];
             @endphp
 
             <li class="menu-item {{ in_array(request()->segment(1), $dataMasterRoutes) ? 'open active' : '' }}">
@@ -93,6 +93,11 @@
                 <li class="menu-item {{ request()->is('tahun') ? 'active' : '' }}">
                   <a href="{{ route('tahun.index') }}" class="menu-link">
                     <div data-i18n="Without menu">Tahun Ajaran</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->is('fakultas') ? 'active' : '' }}">
+                  <a href="{{ route('fakultas.index') }}" class="menu-link">
+                    <div data-i18n="Without menu">Fakultas</div>
                   </a>
                 </li>
                 <li class="menu-item {{ request()->is('prodi') ? 'active' : '' }}">
