@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DataMaster;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,25 +14,18 @@ use App\Http\Controllers\DataMaster;
 |
 */
 
-Route::get('/', fn () => view('dashboard'));
-
-Route::controller(DataMaster::class)->group(function () {
-    // Prodi CRUD
-    Route::get('/prodi', 'prodi')->name('prodi.index');
-    Route::get('/prodi/ajax', 'ajaxProdi')->name('prodi.ajax');
-    Route::post('/prodi/store', 'storeProdi')->name('prodi.store');
-    Route::get('/prodi/edit/{id}', 'editProdi')->name('prodi.edit');
-    Route::post('/prodi/update/{id}', 'updateProdi')->name('prodi.update');
-    Route::delete('/prodi/delete/{id}', 'deleteProdi')->name('prodi.delete');
-
-    Route::get('/tahun', 'tahun')->name('tahun.index');
-    Route::get('/tahun/ajax', 'ajaxTahun')->name('tahun.ajax');
-    // Fakultas CRUD
-    Route::get('/fakultas', 'fakultas')->name('fakultas.index');
-    Route::get('/fakultas/ajax', 'ajaxFakultas')->name('fakultas.ajax');
-    Route::post('/fakultas/store', 'storeFakultas')->name('fakultas.store');
-    Route::get('/fakultas/edit/{id}', 'editFakultas')->name('fakultas.edit');
-    Route::post('/fakultas/update/{id}', 'updateFakultas')->name('fakultas.update');
-    Route::delete('/fakultas/delete/{id}', 'deleteFakultas')->name('fakultas.delete');
-
+Route::get('/', function () {
+    return view('welcome');
 });
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
