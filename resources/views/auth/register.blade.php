@@ -1,52 +1,139 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - SIGMA</title>
+    @vite('resources/css/app.css')
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+    <!-- Header -->
+    @include('auth.component.headerauth')
+
+    <!-- Register Form -->
+    <main class="flex-1 flex items-center justify-center py-12">
+        <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Daftar Akun Baru</h2>
+
+            @if ($errors->any())
+                <div class="mb-4">
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded">
+                        <ul class="text-sm list-disc pl-5">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('register') }}" class="space-y-5">
+                @csrf
+
+                <!-- Name -->
+                <div>
+                    <label for="name" class="block text-gray-700 font-medium mb-1">Nama Lengkap</label>
+                    <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name"
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                </div>
+                <div>
+                    <label for="nim" class="block text-gray-700 font-medium mb-1">NIM</label>
+                    <input id="nim" type="text" name="nim" value="{{ old('name') }}" required autofocus autocomplete="nim"
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                </div>
+                <!-- Email Address -->
+                <div>
+                    <label for="email" class="block text-gray-700 font-medium mb-1">Email</label>
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="username"
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                </div>
+                <!-- Prodi Dropdown -->
+                <div class="max-w-md mx-auto mt-10">
+                    <label for="prodi" class="block text-gray-700 font-medium mb-1">Program Studi</label>
+                    <select id="prodi" placeholder="Pilih Program Studi..." class="w-full"></select>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="password" class="block text-gray-700 font-medium mb-1">Password</label>
+                    <input id="password" type="password" name="password" required autocomplete="new-password"
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label for="password_confirmation" class="block text-gray-700 font-medium mb-1">Konfirmasi Password</label>
+                    <input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password"
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                </div>
+
+                <div class="flex items-center justify-between mt-6">
+                    <a href="{{ route('login') }}" class="text-sm text-blue-600 hover:underline">Sudah punya akun?</a>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold">
+                        Daftar
+                    </button>
+                </div>
+            </form>
         </div>
+    </main>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+    <!-- Footer -->
+   @include('auth.component.footerauth')
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+    <!-- Scripts -->
+    @vite('resources/js/app.js')
+    @stack('scripts')
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+    <!-- Tom Select for Prodi Dropdown -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const select = document.getElementById('prodi');
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+    const options = [
+        {value: '1', text: 'Teknik Informatika', optgroup: 'Fakultas Teknik'},
+        {value: '2', text: 'Sistem Informasi', optgroup: 'Fakultas Teknik'},
+        {value: '3', text: 'Manajemen', optgroup: 'Fakultas Ekonomi'},
+        {value: '4', text: 'Akuntansi', optgroup: 'Fakultas Ekonomi'},
+    ];
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+    const optgroups = [
+        {value: 'Fakultas Teknik', label: 'Fakultas Teknik'},
+        {value: 'Fakultas Ekonomi', label: 'Fakultas Ekonomi'}
+    ];
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+    new TomSelect(select, {
+        options: options,
+        optgroups: optgroups,
+        optgroupField: 'optgroup',
+        valueField: 'value',
+        labelField: 'text',
+        searchField: 'text',
+        sortField: {
+            field: 'text',
+            direction: 'asc'
+        },
+        placeholder: 'Pilih Program Studi...',
+        render: {
+            optgroup_header: function(data, escape) {
+                // ini untuk label optgroup
+                return `<div class="px-2 py-1 font-bold text-gray-600 bg-gray-100">${escape(data.label)}</div>`;
+            },
+            option: function(data, escape) {
+                // ini untuk tiap option
+                return `<div class="px-3 py-2 hover:bg-blue-100">${escape(data.text)}</div>`;
+            },
+            item: function(data, escape) {
+                return `<div>${escape(data.text)}</div>`;
+            }
+        }
+    });
+});
+</script>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+</body>
+</html>
