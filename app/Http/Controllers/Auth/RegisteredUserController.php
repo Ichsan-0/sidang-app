@@ -42,7 +42,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'no_induk' => $request->no_induk,
-            'prodi' => $request->prodi,
+            'prodi_id' => $request->prodi_id,
         ]);
 
         $user->assignRole('mahasiswa'); // contoh: role mahasiswa

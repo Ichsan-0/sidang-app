@@ -46,13 +46,13 @@
                 <!-- Email Address -->
                 <div>
                     <label for="email" class="block text-gray-700 font-medium mb-1">Email</label>
-                    <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="username"
+                    <input id="email" type="email" name="email" value="" required autocomplete="username"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" />
                 </div>
                 <!-- Prodi Dropdown -->
                 <div class="max-w-md mx-auto mt-10">
                     <label for="prodi" class="block text-gray-700 font-medium mb-1">Program Studi</label>
-                    <select id="prodi" placeholder="Pilih Program Studi..." class="w-full"></select>
+                    <select id="prodi" name="prodi_id" class="w-full"></select>
                 </div>
 
                 <!-- Password -->
@@ -89,49 +89,39 @@
     <!-- Tom Select for Prodi Dropdown -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
     const select = document.getElementById('prodi');
 
-    const options = [
-        {value: '1', text: 'Teknik Informatika', optgroup: 'Fakultas Teknik'},
-        {value: '2', text: 'Sistem Informasi', optgroup: 'Fakultas Teknik'},
-        {value: '3', text: 'Manajemen', optgroup: 'Fakultas Ekonomi'},
-        {value: '4', text: 'Akuntansi', optgroup: 'Fakultas Ekonomi'},
-    ];
-
-    const optgroups = [
-        {value: 'Fakultas Teknik', label: 'Fakultas Teknik'},
-        {value: 'Fakultas Ekonomi', label: 'Fakultas Ekonomi'}
-    ];
-
-    new TomSelect(select, {
-        options: options,
-        optgroups: optgroups,
-        optgroupField: 'optgroup',
-        valueField: 'value',
-        labelField: 'text',
-        searchField: 'text',
-        sortField: {
-            field: 'text',
-            direction: 'asc'
-        },
-        placeholder: 'Pilih Program Studi...',
-        render: {
-            optgroup_header: function(data, escape) {
-                // ini untuk label optgroup
-                return `<div class="px-2 py-1 font-bold text-gray-600 bg-gray-100">${escape(data.label)}</div>`;
-            },
-            option: function(data, escape) {
-                // ini untuk tiap option
-                return `<div class="px-3 py-2 hover:bg-blue-100">${escape(data.text)}</div>`;
-            },
-            item: function(data, escape) {
-                return `<div>${escape(data.text)}</div>`;
-            }
-        }
+    fetch('/get-prodi')
+        .then(res => res.json())
+        .then(({ options, optgroups }) => {
+            new TomSelect(select, {
+                options,
+                optgroups,
+                optgroupField: 'optgroup',
+                valueField: 'value',
+                labelField: 'text',
+                searchField: 'text',
+                sortField: {
+                    field: 'text',
+                    direction: 'asc'
+                },
+                placeholder: 'Pilih Program Studi...',
+                render: {
+                    optgroup_header: function(data, escape) {
+                        return `<div class="px-2 py-1 font-bold text-gray-600 bg-gray-100">${escape(data.label)}</div>`;
+                    },
+                    option: function(data, escape) {
+                        return `<div class="px-3 py-2 hover:bg-blue-100">${escape(data.text)}</div>`;
+                    },
+                    item: function(data, escape) {
+                        return `<div>${escape(data.text)}</div>`;
+                    }
+                }
+            });
+        });
     });
-});
-</script>
+    </script>
 
 
 

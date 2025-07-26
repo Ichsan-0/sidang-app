@@ -171,7 +171,12 @@ public function ajaxTahun(Request $request)
             'ket'          => 'nullable|string',
         ]);
 
-        $prodi = Prodi::create($request->all());
+        $prodi = Prodi::create([
+            'nama_prodi' => $request->nama_prodi,
+            'kode_prodi' => $request->kode_prodi,
+            'id_fakultas' => $request->id_fakultas,
+            'ket' => $request->ket ?? null, 
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Prodi berhasil ditambahkan', 'data' => $prodi]);
     }
@@ -207,5 +212,30 @@ public function ajaxTahun(Request $request)
         return response()->json(['success' => true, 'message' => 'Prodi berhasil dihapus']);
     }
 
+    public function getProdi()
+    {
+        $prodi = Prodi::with('fakultas')->get();
 
+        // Mapping ke format yang sesuai
+        $options = $prodi->map(function ($item) {
+            return [
+                'value' => $item->id,
+                'text' => $item->nama_prodi,
+                'optgroup' => $item->fakultas->nama ?? 'Lainnya', // Ganti nama_fakultas dengan nama
+            ];
+        });
+
+        // Perbaiki mapping optgroups
+        $optgroups = $prodi->whereNotNull('fakultas')->pluck('fakultas.nama')->unique()->map(function ($name) {
+            return [
+                'value' => $name,
+                'label' => $name,
+            ];
+        })->values();
+
+        return response()->json([
+            'options' => $options,
+            'optgroups' => $optgroups,
+        ]);
+    }
 }
