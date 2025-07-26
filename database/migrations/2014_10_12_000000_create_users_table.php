@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('ket', 50);
             $table->string('email')->unique();
+            $table->string('no_induk')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('no_hp')->nullable();

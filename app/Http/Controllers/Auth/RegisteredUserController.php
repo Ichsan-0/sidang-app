@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
 class RegisteredUserController extends Controller
 {
@@ -40,7 +41,11 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'no_induk' => $request->no_induk,
+            'prodi' => $request->prodi,
         ]);
+
+        $user->assignRole('mahasiswa'); // contoh: role mahasiswa
 
         event(new Registered($user));
 
