@@ -38,10 +38,10 @@
             <form method="POST" action="{{ route('login') }}" class="space-y-5">
                 @csrf
 
-                <!-- Email Address -->
+                <!-- Email atau No. Induk -->
                 <div>
-                    <label for="email" class="block text-gray-700 font-medium mb-1">Email atau No. Induk</label>
-                    <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
+                    <label for="login" class="block text-gray-700 font-medium mb-1">Email atau No. Induk</label>
+                    <input id="login" type="text" name="login" value="{{ old('login') }}" required autofocus autocomplete="username"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" />
                 </div>
 

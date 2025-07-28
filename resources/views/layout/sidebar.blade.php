@@ -58,7 +58,7 @@
                   </g>
                 </svg>
               </span>
-              <span class="app-brand-text demo menu-text fw-bolder ms-2">Sidang-app</span>
+              <span class="app-brand-text demo menu-text fw-bolder ms-2 text-uppercase">SIGMA</span>
             </a>
 
             <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
@@ -82,7 +82,7 @@
             // daftar route untuk menu Data Master
             $dataMasterRoutes = ['tahun', 'fakultas','prodi', 'jurusan', 'mata-kuliah', 'dosen', 'mahasiswa'];
             @endphp
-
+            @role('superadmin')
             <li class="menu-item {{ in_array(request()->segment(1), $dataMasterRoutes) ? 'open active' : '' }}">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-layout"></i>
@@ -127,7 +127,7 @@
                 </li>
               </ul>
             </li>
-
+            @endrole
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Pages</span>
             </li>
