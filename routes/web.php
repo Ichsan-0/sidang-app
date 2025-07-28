@@ -36,12 +36,12 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
     Route::resource('users', UserController::class);
 
     Route::controller(DataMaster::class)->group(function () {  // Prodi CRUD
-        Route::get('/tahun', [DataMaster::class, 'tahun.index'])->name('tahun.index');
-        Route::get('/prodi', [DataMaster::class, 'prodi.index'])->name('prodi.index');
-        Route::get('/prodi/ajax', [DataMaster::class, 'ajaxProdi'])->name('prodi.ajax');
-        Route::get('/fakultas', [DataMaster::class, 'fakultas.index'])->name('fakultas.index');
-        Route::get('/fakultas/ajax', [DataMaster::class, 'ajaxFakultas'])->name('fakultas.ajax');
-        Route::get('/tahun/ajax', [DataMaster::class, 'ajaxTahun'])->name('tahun.ajax');
+        Route::get('/tahun', 'tahun')->name('tahun.index');
+        Route::get('/tahun/ajax', 'ajaxTahun')->name('tahun.ajax');
+        Route::get('/prodi', 'prodi')->name('prodi.index');
+        Route::get('/prodi/ajax', 'ajaxProdi')->name('prodi.ajax');
+        Route::get('/fakultas', 'fakultas')->name('fakultas.index');
+        Route::get('/fakultas/ajax', 'ajaxFakultas')->name('fakultas.ajax');
     });
 
     Route::resource('mahasiswa', MahasiswaController::class);
