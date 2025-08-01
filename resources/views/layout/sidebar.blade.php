@@ -105,6 +105,11 @@
                     <div data-i18n="Without menu">Data Prodi</div>
                   </a>
                 </li>
+                <li class="menu-item {{ request()->is('pimpinan') ? 'active' : '' }}">
+                  <a href="{{ route('pimpinan.index') }}" class="menu-link">
+                    <div data-i18n="Without menu">Pimpinan</div>
+                  </a>
+                </li>
                 <li class="menu-item">
                   <a href="layouts-without-navbar.html" class="menu-link">
                     <div data-i18n="Without navbar">Jenis Penelitian</div>
@@ -129,12 +134,18 @@
             </li>
             @endrole
             <li class="menu-header small text-uppercase">
-              <span class="menu-header-text">Pages</span>
+              <span class="menu-header-text">Tugas Akhir</span>
+            </li>
+            <li class="menu-item">
+              <a href="{{ route('pengajuan-judul.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-file"></i>
+                <div data-i18n="Pengajuan Judul">Pengajuan Judul</div>
+              </a>
             </li>
             <li class="menu-item">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Account Settings</div>
+                <div data-i18n="Account Settings">Pengajuan Judul</div>
               </a>
               <ul class="menu-sub">
                 <li class="menu-item">

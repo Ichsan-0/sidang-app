@@ -38,10 +38,29 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
     Route::controller(DataMaster::class)->group(function () {  // Prodi CRUD
         Route::get('/tahun', 'tahun')->name('tahun.index');
         Route::get('/tahun/ajax', 'ajaxTahun')->name('tahun.ajax');
+        // Prodi CRUD
         Route::get('/prodi', 'prodi')->name('prodi.index');
         Route::get('/prodi/ajax', 'ajaxProdi')->name('prodi.ajax');
+        Route::post('/prodi/store', 'storeProdi')->name('prodi.store');
+        Route::get('/prodi/edit/{id}', 'editProdi')->name('prodi.edit');
+        Route::post('/prodi/update/{id}', 'updateProdi')->name('prodi.update');
+        Route::delete('/prodi/delete/{id}', 'deleteProdi')->name('prodi.delete');
+        // Fakultas CRUD
         Route::get('/fakultas', 'fakultas')->name('fakultas.index');
         Route::get('/fakultas/ajax', 'ajaxFakultas')->name('fakultas.ajax');
+        Route::post('/fakultas/store', 'storeFakultas')->name('fakultas.store');
+        Route::get('/fakultas/edit/{id}', 'editFakultas')->name('fakultas.edit');
+        Route::post('/fakultas/update/{id}', 'updateFakultas')->name('fakultas.update');
+        Route::delete('/fakultas/delete/{id}', 'deleteFakultas')->name('fakultas.delete');
+        // Pimpinan CRUD
+        Route::get('/pimpinan', 'pimpinan')->name('pimpinan.index');
+        Route::get('/pimpinan/ajax', 'ajaxPimpinan')->name('pimpinan.ajax');
+        Route::post('/pimpinan/store', 'storePimpinan')->name('pimpinan.store');
+        Route::get('/pimpinan/edit/{id}', 'editPimpinan')->name('pimpinan.edit');
+        Route::post('/pimpinan/update/{id}', 'updatePimpinan')->name('pimpinan.update');
+        Route::delete('/pimpinan/delete/{id}', 'deletePimpinan')->name('pimpinan.delete');
+
+        Route::get('/pengajuan-judul', 'pengajuanJudul')->name('pengajuan-judul.index');
     });
 
     Route::resource('mahasiswa', MahasiswaController::class);
