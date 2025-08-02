@@ -10,37 +10,7 @@ use App\Models\Fakultas;
 
 class DataMaster extends Controller
 {
-    public function tahun()
-    {
-        return view('master.tahun');
-    }
-public function ajaxTahun(Request $request)
-    {
-    if ($request->ajax()) {
-        $data = TahunAjaran::query();
-
-        return DataTables::of($data)
-            ->addIndexColumn()
-            ->addColumn('action', function ($row) {
-                return '
-                <div class="dropdown">
-                    <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                        <i class="bx bx-dots-vertical-rounded"></i>
-                    </button>
-                    <div class="dropdown-menu">
-                        <button class="dropdown-item editBtn" data-id="'.$row->id.'">
-                            <i class="bx bx-edit-alt me-1"></i> Edit
-                        </button>
-                        <button class="dropdown-item deleteBtn" data-id="'.$row->id.'">
-                            <i class="bx bx-trash me-1"></i> Delete
-                        </button>
-                    </div>
-                </div>';
-            })
-            ->rawColumns(['action'])
-            ->toJson();
-    }
-}
+    
     public function fakultas()
     {
         return view('master.fakultas');
@@ -237,5 +207,90 @@ public function ajaxTahun(Request $request)
             'options' => $options,
             'optgroups' => $optgroups,
         ]);
+    }
+    public function tahun()
+    {
+        return view('master.tahun');
+    }
+    public function ajaxTahun(Request $request)
+        {
+            if ($request->ajax()) {
+            $data = TahunAjaran::query();
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    return '
+                    <div class="dropdown">
+                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                            <i class="bx bx-dots-vertical-rounded"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item editBtn" data-id="'.$row->id.'">
+                                <i class="bx bx-edit-alt me-1"></i> Edit
+                            </button>
+                            <button class="dropdown-item deleteBtn" data-id="'.$row->id.'">
+                                <i class="bx bx-trash me-1"></i> Delete
+                            </button>
+                        </div>
+                    </div>';
+                })
+                ->rawColumns(['action'])
+                ->toJson();
+        }
+    }
+
+    // Store Tahun Ajaran
+    public function storeTahun(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'periode_awal' => 'required|date',
+            'periode_akhir' => 'required|date',
+        ]);
+
+        $tahun = TahunAjaran::create([
+            'nama' => $request->nama,
+            'periode_awal' => $request->periode_awal,
+            'periode_akhir' => $request->periode_akhir,
+            'is_aktif' => $request->is_aktif ?? 'n',
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Tahun ajaran berhasil ditambahkan', 'data' => $tahun]);
+    }
+
+    // Edit Tahun Ajaran (get data)
+    public function editTahun($id)
+    {
+        $tahun = TahunAjaran::findOrFail($id);
+        return response()->json($tahun);
+    }
+
+    // Update Tahun Ajaran
+    public function updateTahun(Request $request, $id)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'periode_awal' => 'required|date',
+            'periode_akhir' => 'required|date',
+        ]);
+
+        $tahun = TahunAjaran::findOrFail($id);
+        $tahun->update([
+            'nama' => $request->nama,
+            'periode_awal' => $request->periode_awal,
+            'periode_akhir' => $request->periode_akhir,
+            'is_aktif' => $request->is_aktif ?? 'n', 
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Tahun ajaran berhasil diupdate']);
+    }
+
+    // Delete Tahun Ajaran
+    public function deleteTahun($id)
+    {
+        $tahun = TahunAjaran::findOrFail($id);
+        $tahun->delete();
+        return response()->json(['success' => true, 'message' => 'Tahun ajaran berhasil dihapus']);
     }
 }

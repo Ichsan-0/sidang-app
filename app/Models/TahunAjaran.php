@@ -10,8 +10,7 @@ class TahunAjaran extends Model
     use HasFactory;
 
     protected $fillable = [
-        'tahun',
-        'ket',
+        'nama',
         'periode_awal',
         'periode_akhir',
         'is_aktif',

@@ -33,11 +33,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
 Route::middleware(['auth', 'role:superadmin'])->group(function () {
-    Route::resource('users', UserController::class);
-
-    Route::controller(DataMaster::class)->group(function () {  // Prodi CRUD
+    Route::controller(DataMaster::class)->group(function () {  
+        // Tahun CRUD
         Route::get('/tahun', 'tahun')->name('tahun.index');
         Route::get('/tahun/ajax', 'ajaxTahun')->name('tahun.ajax');
+        Route::post('/tahun/store', 'storeTahun')->name('tahun.store');
+        Route::get('/tahun/edit/{id}', 'editTahun')->name('tahun.edit');
+        Route::post('/tahun/update/{id}', 'updateTahun')->name('tahun.update');
+        Route::delete('/tahun/delete/{id}', 'deleteTahun')->name('tahun.delete');
         // Prodi CRUD
         Route::get('/prodi', 'prodi')->name('prodi.index');
         Route::get('/prodi/ajax', 'ajaxProdi')->name('prodi.ajax');
@@ -62,7 +65,8 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
 
         Route::get('/pengajuan-judul', 'pengajuanJudul')->name('pengajuan-judul.index');
     });
-
+    
+    Route::resource('user', UserController::class);
     Route::resource('mahasiswa', MahasiswaController::class);
 
     // Tambahkan route lain yang ada di sidebar jika perlu

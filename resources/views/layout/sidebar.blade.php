@@ -132,6 +132,13 @@
                 </li>
               </ul>
             </li>
+
+            <li class="menu-item {{ request()->is('user') ? 'active' : '' }}">
+              <a href="{{ route('user.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-user"></i>
+                <div data-i18n="user">User</div>
+              </a>
+            </li>
             @endrole
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Tugas Akhir</span>
