@@ -66,7 +66,13 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
         Route::get('/pengajuan-judul', 'pengajuanJudul')->name('pengajuan-judul.index');
     });
     
-    Route::resource('user', UserController::class);
+        Route::get('/user/ajax', [UserController::class, 'ajax'])->name('user.ajax');
+    Route::post('/user/store', [UserController::class, 'store']);
+    Route::get('/user/{id}', [UserController::class, 'show']);
+    Route::post('/user/update/{id}', [UserController::class, 'update']);
+    Route::delete('/user/{id}', [UserController::class, 'destroy']);
+    Route::get('/user', [UserController::class, 'index'])->name('user.index');
+
     Route::resource('mahasiswa', MahasiswaController::class);
 
     // Tambahkan route lain yang ada di sidebar jika perlu
