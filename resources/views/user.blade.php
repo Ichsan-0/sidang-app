@@ -42,7 +42,6 @@
           <div class="mb-3">
             <label  for="defaultSelect" class="form-label">Jenis User</label>
             <select class="form-select" name="role" id="role" required>
-              <option value="">-- Pilih Jenis User --</option>
               @foreach(\Spatie\Permission\Models\Role::all() as $role)
                 <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
               @endforeach
@@ -60,8 +59,7 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label">Pilih Prodi</label>
-                <select class="form-select" name="prodi" id="prodi" required>
-                  
+                <select class="form-control" name="prodi" id="prodi" >
                 </select>
               </div>
               <div class="mb-3">
@@ -80,7 +78,6 @@
               </div>
             </div>
           </div>
-          
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Simpan</button>
@@ -92,47 +89,69 @@
 @endsection
 
 @push('styles')
-<link rel="stylesheet" href="../../assets/vendor/libs/select2/select2.css " />
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<style>
+/* Agar dropdown Tom Select selalu di atas modal Bootstrap */
+.ts-control {
+    min-height: 38px; /* sesuai Bootstrap input */
+    height: auto;
+    width: 100%;
+}
+.ts-dropdown, .ts-dropdown.form-select {
+    z-index: 1060 !important;
+}
+.ts-dropdown .optgroup-header {
+      background-color: #e8f4ff;
+      color: #007bff;
+      font-weight: 600;
+      padding: 8px 12px;
+      font-size: 14px;
+      border-bottom: 1px solid #cce5ff;
+    }
+</style>
 @endpush
 
 @push('scripts')
-<script src="../../assets/vendor/libs/select2/select2.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
-
 <script>
-  $(function () {
-    function loadProdiSelect(selectedId = null) {
-        $.getJSON('/get-prodi', function(res) {
-            const $prodi = $('#prodi');
-            $prodi.empty().append('<option value="">-- Pilih Prodi --</option>');
-            // Grouping by fakultas (optgroup)
-            let groups = {};
-            res.options.forEach(function(item) {
-                if (!groups[item.optgroup]) groups[item.optgroup] = [];
-                groups[item.optgroup].push(item);
-            });
-            for (const fakultas in groups) {
-                const $group = $('<optgroup>', { label: fakultas });
-                groups[fakultas].forEach(function(prodi) {
-                    $group.append($('<option>', {
-                        value: prodi.value,
-                        text: prodi.text,
-                        selected: selectedId == prodi.value
-                    }));
-                });
-                $prodi.append($group);
-            }
-            // Inisialisasi select2 ulang
-            $prodi.select2({
-                dropdownParent: $('#userModal'),
-                width: '100%'
-            });
+function loadProdiSelect(selectedId = null) {
+    $.getJSON('/get-prodi', function(res) {
+        const $prodi = $('#prodi');
+        $prodi.empty().append('<option value=""></option>');
+        let groups = {};
+        res.options.forEach(function(item) {
+            if (!groups[item.optgroup]) groups[item.optgroup] = [];
+            groups[item.optgroup].push(item);
         });
-    }
+        for (const fakultas in groups) {
+            const $group = $('<optgroup>', { label: fakultas });
+            groups[fakultas].forEach(function(prodi) {
+                $group.append($('<option>', {
+                    value: prodi.value,
+                    text: prodi.text,
+                    selected: selectedId == prodi.value
+                }));
+            });
+            $prodi.append($group);
+        }
+        // Destroy Tom Select jika sudah pernah diinisialisasi
+        if ($prodi[0].tomselect) {
+            $prodi[0].tomselect.destroy();
+        }
+        // Inisialisasi Tom Select
+        new TomSelect($prodi[0], {
+            create: false,
+            allowEmptyOption: true,
+            closeAfterSelect: true // <-- tambahkan ini
+        });
+    });
+}
 
+$(function () {
     // Saat modal tambah user
     $('#addBtn').on('click', function () {
         $('#userForm')[0].reset();
@@ -159,18 +178,11 @@
         });
     });
 
-    // Inisialisasi select2 saat modal dibuka (jika perlu)
-    $('#userModal').on('shown.bs.modal', function () {
-        $('#prodi').select2({
-            dropdownParent: $('#userModal'),
-            width: '100%'
-        });
-    });
-
     var table = $('#userTable').DataTable({
         processing: true,
         serverSide: true,
         ajax: '{{ route("user.ajax") }}',
+        autoWidth: false, 
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             { data: 'name', name: 'name' },
@@ -186,9 +198,8 @@
         var id = $('#user_id').val();
         var url = id ? '/user/update/' + id : '/user/store';
         var method = 'POST';
-        var $form = $(this);
 
-       $.ajax({
+        $.ajax({
             url: url,
             method: method,
             data: $(this).serialize(),
@@ -205,7 +216,6 @@
             }
         });
     });
-
 
     // delete
     $(document).on('click', '.deleteBtn', function () {
