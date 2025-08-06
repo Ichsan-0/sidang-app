@@ -31,7 +31,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'role' => 'required|exists:roles,name',
             'prodi' => 'required|exists:prodis,id',
-            'nip' => 'required|string|max:50|unique:users,nip',
+            'no_induk' => 'required|string|max:50|unique:users,no_induk',
             'no_hp' => 'required|string|max:20',
             'alamat' => 'required|string|max:255',
         ]);
@@ -40,10 +40,10 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'prodi_id' => $request->prodi,
-            'nip' => $request->nip,
+            'no_induk' => $request->no_induk,
             'no_hp' => $request->no_hp,
             'alamat' => $request->alamat,
-            'password' => Hash::make($request->nip), // password default = NIP
+            'password' => Hash::make($request->no_induk), // password default = NIP
         ]);
         $user->assignRole($request->role);
 
@@ -70,7 +70,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'roles' => $user->getRoleNames(),
                 'prodi' => $user->prodi_id,
-                'nip' => $user->nip,
+                'no_induk' => $user->no_induk,
                 'no_hp' => $user->no_hp,
                 'alamat' => $user->alamat,
             ]);
@@ -87,7 +87,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,'.$user->id,
             'role' => 'required|exists:roles,name',
             'prodi' => 'required|exists:prodis,id',
-            'nip' => 'required|string|max:50|unique:users,nip,'.$user->id,
+            'no_induk' => 'required|string|max:50|unique:users,no_induk,'.$user->id,
             'no_hp' => 'required|string|max:20',
             'alamat' => 'required|string|max:255',
             'password' => 'nullable|confirmed|min:6',
@@ -96,7 +96,7 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->prodi_id = $request->prodi;
-        $user->nip = $request->nip;
+        $user->no_induk = $request->no_induk;
         $user->no_hp = $request->no_hp;
         $user->alamat = $request->alamat;
         if ($request->password) {

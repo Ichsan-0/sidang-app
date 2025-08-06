@@ -7,6 +7,7 @@ use App\Models\Prodi;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\TahunAjaran; 
 use App\Models\Fakultas;
+use App\Models\JenisPenelitian;
 
 class DataMaster extends Controller
 {
@@ -292,5 +293,91 @@ class DataMaster extends Controller
         $tahun = TahunAjaran::findOrFail($id);
         $tahun->delete();
         return response()->json(['success' => true, 'message' => 'Tahun ajaran berhasil dihapus']);
+    }
+
+    // Tampilkan halaman jenis penelitian
+    public function jenisPenelitian()
+    {
+        return view('master.jenis_penelitian');
+    }
+
+    // DataTable AJAX Jenis Penelitian
+    public function ajaxJenisPenelitian(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = JenisPenelitian::query();
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    return '
+                    <div class="dropdown">
+                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                            <i class="bx bx-dots-vertical-rounded"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item editBtn" data-id="'.$row->id.'">
+                                <i class="bx bx-edit-alt me-1"></i> Edit
+                            </button>
+                            <button class="dropdown-item deleteBtn" data-id="'.$row->id.'">
+                                <i class="bx bx-trash me-1"></i> Delete
+                            </button>
+                        </div>
+                    </div>';
+                })
+                ->rawColumns(['action'])
+                ->toJson();
+        }
+    }
+
+    // Store Jenis Penelitian
+    public function storeJenisPenelitian(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'kode' => 'required|string|max:50',
+            'ket'  => 'nullable|string',
+        ]);
+
+        $jenis = JenisPenelitian::create([
+            'nama' => $request->nama,
+            'kode' => $request->kode,
+            'ket'  => $request->ket,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Jenis Penelitian berhasil ditambahkan', 'data' => $jenis]);
+    }
+
+    // Edit Jenis Penelitian (get data)
+    public function editJenisPenelitian($id)
+    {
+        $jenis = JenisPenelitian::findOrFail($id);
+        return response()->json($jenis);
+    }
+
+    // Update Jenis Penelitian
+    public function updateJenisPenelitian(Request $request, $id)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'kode' => 'required|string|max:50',
+            'ket'  => 'nullable|string',
+        ]);
+
+        $jenis = JenisPenelitian::findOrFail($id);
+        $jenis->update([
+            'nama' => $request->nama,
+            'kode' => $request->kode,
+            'ket'  => $request->ket,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Jenis Penelitian berhasil diupdate']);
+    }
+
+    // Delete Jenis Penelitian
+    public function deleteJenisPenelitian($id)
+    {
+        $jenis = JenisPenelitian::findOrFail($id);
+        $jenis->delete();
+        return response()->json(['success' => true, 'message' => 'Jenis Penelitian berhasil dihapus']);
     }
 }

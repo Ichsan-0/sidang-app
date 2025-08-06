@@ -39,8 +39,22 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Nama</label>
+                <input type="text" class="form-control" name="name" id="name" placeholder="Nama Lengkap" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">NIP</label>
+                <input type="number" class="form-control" name="no_induk" id="no_induk" placeholder="Nomor Induk Pegawai" required aria-label="NIP">
+              </div>
+            </div>
+          </div>
           <div class="mb-3">
-            <label  for="defaultSelect" class="form-label">Jenis User</label>
+            <label for="role" class="form-label">Jenis User</label>
             <select class="form-select" name="role" id="role" required>
               @foreach(\Spatie\Permission\Models\Role::all() as $role)
                 <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
@@ -48,23 +62,17 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Nama</label>
-            <input type="text" class="form-control" name="name" id="name" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-control" name="email" id="email" required>
+            <label class="form-label">Pilih Prodi</label>
+            <select class="form-select" name="prodi" id="prodi"></select>
           </div>
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
-                <label class="form-label">Pilih Prodi</label>
-                <select class="form-control" name="prodi" id="prodi" >
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">NIP</label>
-                <input type="text" class="form-control" name="nip" id="nip" required>
+                <label class="form-label">Email</label>
+                <div class="input-group">
+                  <span class="input-group-text" id="basic-addon11">@</span>
+                  <input type="email" class="form-control" name="email" id="email" placeholder="Email" aria-label="Email" aria-describedby="basic-addon11" required>
+                </div>
               </div>
             </div>
             <div class="col-md-6">
@@ -72,12 +80,12 @@
                 <label class="form-label">No. HP</label>
                 <input type="text" class="form-control" name="no_hp" id="no_hp" required>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Alamat</label>
-                <input type="text" class="form-control" name="alamat" id="alamat" required>
-              </div>
             </div>
           </div>
+            <div class="mb-3">
+              <label class="form-label">Alamat</label>
+              <textarea class="form-control" name="alamat" id="alamat" rows="3" required></textarea>
+            </div>
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Simpan</button>
@@ -121,7 +129,7 @@
 function loadProdiSelect(selectedId = null) {
     $.getJSON('/get-prodi', function(res) {
         const $prodi = $('#prodi');
-        $prodi.empty().append('<option value=""></option>');
+        $prodi.empty().append('<option value=""></option>'); // Placeholder
         let groups = {};
         res.options.forEach(function(item) {
             if (!groups[item.optgroup]) groups[item.optgroup] = [];
@@ -133,7 +141,7 @@ function loadProdiSelect(selectedId = null) {
                 $group.append($('<option>', {
                     value: prodi.value,
                     text: prodi.text,
-                    selected: selectedId == prodi.value
+                    selected: selectedId == prodi.value // hanya select jika edit
                 }));
             });
             $prodi.append($group);
@@ -144,10 +152,29 @@ function loadProdiSelect(selectedId = null) {
         }
         // Inisialisasi Tom Select
         new TomSelect($prodi[0], {
+            placeholder: '-- Pilih Prodi --', // Tambahkan placeholder
             create: false,
             allowEmptyOption: true,
-            closeAfterSelect: true // <-- tambahkan ini
+            closeAfterSelect: true
         });
+    });
+}
+
+function initRoleSelect(selectedRole = null) {
+    const $role = $('#role');
+    // Set selected jika ada
+    if (selectedRole) {
+        $role.val(selectedRole);
+    }
+    // Destroy Tom Select jika sudah pernah diinisialisasi
+    if ($role[0].tomselect) {
+        $role[0].tomselect.destroy();
+    }
+    // Inisialisasi Tom Select
+    new TomSelect($role[0], {
+        create: false,
+        allowEmptyOption: true,
+        closeAfterSelect: true
     });
 }
 
@@ -157,6 +184,7 @@ $(function () {
         $('#userForm')[0].reset();
         $('#user_id').val('');
         loadProdiSelect();
+        initRoleSelect();
         $('.modal-title').text('Tambah User');
         $('#userModal').modal('show');
     });
@@ -169,10 +197,11 @@ $(function () {
             $('#name').val(data.name);
             $('#email').val(data.email);
             $('#role').val(data.roles[0] ?? '');
-            $('#nip').val(data.nip);
+            $('#no_induk').val(data.no_induk);
             $('#no_hp').val(data.no_hp);
             $('#alamat').val(data.alamat);
             loadProdiSelect(data.prodi); // set selected prodi
+            initRoleSelect(data.roles[0] ?? '');
             $('.modal-title').text('Edit User');
             $('#userModal').modal('show');
         });
