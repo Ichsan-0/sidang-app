@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('bidang_peminatan', function (Blueprint $table) {
             $table->id();
             // $table->foreignId('jenis_penelitian_id')->constrained('jenis_penelitian')->onDelete('cascade');
-            $table->foreignId('id_prodi')->constrained('prodi')->onDelete('cascade');
+            $table->foreignId('id_prodi')->constrained('prodis')->onDelete('cascade');
             $table->string('kode', 50);
             $table->string('nama', 255);
             $table->text('ket')->nullable();

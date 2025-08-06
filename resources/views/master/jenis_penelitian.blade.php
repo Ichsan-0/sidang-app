@@ -92,7 +92,6 @@
     <form id="bidangForm">
       @csrf
       <input type="hidden" name="id" id="bidang_id">
-      <input type="hidden" name="jenis_penelitian_id" id="bidang_jenis_penelitian_id">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"></h5>
@@ -106,6 +105,10 @@
           <div class="mb-3">
             <label for="kode_bidang" class="form-label">Kode</label>
             <input type="text" class="form-control" name="kode" id="kode_bidang" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Pilih Prodi</label>
+            <select class="form-select" name="prodi" id="prodi_bidang" required></select>
           </div>
           <div class="mb-3">
             <label class="form-label">Keterangan</label>
@@ -123,10 +126,31 @@
 @endsection
 
 @push('styles')
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<style>
+/* Agar dropdown Tom Select selalu di atas modal Bootstrap */
+.ts-control {
+    min-height: 38px; /* sesuai Bootstrap input */
+    height: auto;
+    width: 100%;
+}
+.ts-dropdown, .ts-dropdown.form-select {
+    z-index: 1060 !important;
+}
+.ts-dropdown .optgroup-header {
+      background-color: #e8f4ff;
+      color: #007bff;
+      font-weight: 600;
+      padding: 8px 12px;
+      font-size: 14px;
+      border-bottom: 1px solid #cce5ff;
+    }
+</style>
 @endpush
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
@@ -215,7 +239,7 @@ $(function () {
     });
 
     // Bidang Peminatan
-    var bidangTable = $('#bidangTable').DataTable({
+    var bidangTable = $('#bidangPeminatanTable').DataTable({
         processing: true,
         serverSide: true,
         ajax: '{{ route("bidang-peminatan.ajax") }}',
@@ -242,18 +266,19 @@ $(function () {
     $('#addBidangBtn').on('click', function () {
         $('#bidangForm')[0].reset();
         $('#bidang_id').val('');
+        loadProdiBidang();
         $('.modal-title').text('Tambah Bidang Peminatan');
         $('#bidangModal').modal('show');
     });
 
-    // show modal for edit bidang
-    $(document).on('click', '.editBidangBtn', function () {
+      $(document).on('click', '.editBidangBtn', function () {
         var id = $(this).data('id');
         $.get('/bidang-peminatan/edit/' + id, function (data) {
             $('#bidang_id').val(data.id);
             $('#nama_bidang').val(data.nama);
             $('#kode_bidang').val(data.kode);
             $('#ket_bidang').val(data.ket);
+            loadProdiBidang(data.prodi); // set selected prodi
             $('.modal-title').text('Edit Bidang Peminatan');
             $('#bidangModal').modal('show');
         });
@@ -305,6 +330,39 @@ $(function () {
             }
         });
     });
+
+    function loadProdiBidang(selectedId = null) {
+        $.getJSON('/get-prodi', function(res) {
+            const $prodi = $('#prodi_bidang');
+            let groups = {};
+            res.options.forEach(function(item) {
+                if (!groups[item.optgroup]) groups[item.optgroup] = [];
+                groups[item.optgroup].push(item);
+            });
+            for (const fakultas in groups) {
+                const $group = $('<optgroup>', { label: fakultas });
+                groups[fakultas].forEach(function(prodi) {
+                    $group.append($('<option>', {
+                        value: prodi.value,
+                        text: prodi.text,
+                        selected: selectedId == prodi.value
+                    }));
+                });
+                $prodi.append($group);
+            }
+            // Jika pakai TomSelect:
+            if ($prodi[0].tomselect) {
+                $prodi[0].tomselect.destroy();
+            }
+            new TomSelect($prodi[0], {
+                placeholder: '-- Pilih Prodi --',
+                create: false,
+                allowEmptyOption: true,
+                closeAfterSelect: true
+            });
+        });
+    }
+
 });
 </script>
 @endpush

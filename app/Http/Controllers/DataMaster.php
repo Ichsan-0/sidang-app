@@ -8,6 +8,7 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Models\TahunAjaran; 
 use App\Models\Fakultas;
 use App\Models\JenisPenelitian;
+use App\Models\BidangPeminatan;
 
 class DataMaster extends Controller
 {
@@ -379,5 +380,94 @@ class DataMaster extends Controller
         $jenis = JenisPenelitian::findOrFail($id);
         $jenis->delete();
         return response()->json(['success' => true, 'message' => 'Jenis Penelitian berhasil dihapus']);
+    }
+
+    public function ajaxBidangPeminatan(Request $request)
+    {
+        if ($request->ajax()) {
+            $query = \App\Models\BidangPeminatan::query();
+
+            // Filter by jenis_penelitian_id jika ada
+            if ($request->has('jenis_penelitian_id') && $request->jenis_penelitian_id) {
+                $query->where('jenis_penelitian_id', $request->jenis_penelitian_id);
+            }
+
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    return '
+                    <div class="dropdown">
+                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                            <i class="bx bx-dots-vertical-rounded"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item editBidangBtn" data-id="'.$row->id.'">
+                                <i class="bx bx-edit-alt me-1"></i> Edit
+                            </button>
+                            <button class="dropdown-item deleteBidangBtn" data-id="'.$row->id.'">
+                                <i class="bx bx-trash me-1"></i> Delete
+                            </button>
+                        </div>
+                    </div>';
+                })
+                ->rawColumns(['action'])
+                ->toJson();
+        }
+    }
+
+    // Store Bidang Peminatan
+    public function storeBidangPeminatan(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'kode' => 'required|string|max:50',
+            'prodi' => 'required|exists:prodis,id', // pastikan ini ada
+            'ket'  => 'nullable|string',
+        ]);
+
+        $bidang = BidangPeminatan::create([
+            'nama' => $request->nama,
+            'kode' => $request->kode,
+            'id_prodi' => $request->prodi,
+            'ket'  => $request->ket,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Bidang Peminatan berhasil ditambahkan', 'data' => $bidang]);
+    }
+
+    // Edit Bidang Peminatan (get data)
+    public function editBidangPeminatan($id)
+    {
+        $bidang = \App\Models\BidangPeminatan::findOrFail($id);
+        return response()->json($bidang);
+    }
+
+    // Update Bidang Peminatan
+    public function updateBidangPeminatan(Request $request, $id)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'kode' => 'required|string|max:50',
+            'jenis_penelitian_id' => 'required|exists:jenis_penelitian,id',
+            'ket'  => 'nullable|string',
+        ]);
+
+        $bidang = \App\Models\BidangPeminatan::findOrFail($id);
+        $bidang->update([
+            'nama' => $request->nama,
+            'kode' => $request->kode,
+            'jenis_penelitian_id' => $request->jenis_penelitian_id,
+            'ket'  => $request->ket,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Bidang Peminatan berhasil diupdate']);
+    }
+
+    // Delete Bidang Peminatan
+    public function deleteBidangPeminatan($id)
+    {
+        $bidang = \App\Models\BidangPeminatan::findOrFail($id);
+        $bidang->delete();
+        return response()->json(['success' => true, 'message' => 'Bidang Peminatan berhasil dihapus']);
     }
 }

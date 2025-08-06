@@ -63,7 +63,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Pilih Prodi</label>
-            <select class="form-select" name="prodi" id="prodi"></select>
+            <select class="form-select" name="id_prodi" id="prodi"></select>
           </div>
           <div class="row">
             <div class="col-md-6">
@@ -129,7 +129,7 @@
 function loadProdiSelect(selectedId = null) {
     $.getJSON('/get-prodi', function(res) {
         const $prodi = $('#prodi');
-        $prodi.empty().append('<option value=""></option>'); // Placeholder
+        $prodi.empty().append('<option value="" disabled selected>Pilih Prodi</option>');
         let groups = {};
         res.options.forEach(function(item) {
             if (!groups[item.optgroup]) groups[item.optgroup] = [];
@@ -146,13 +146,10 @@ function loadProdiSelect(selectedId = null) {
             });
             $prodi.append($group);
         }
-        // Destroy Tom Select jika sudah pernah diinisialisasi
         if ($prodi[0].tomselect) {
             $prodi[0].tomselect.destroy();
         }
-        // Inisialisasi Tom Select
         new TomSelect($prodi[0], {
-            placeholder: '-- Pilih Prodi --', // Tambahkan placeholder
             create: false,
             allowEmptyOption: true,
             closeAfterSelect: true

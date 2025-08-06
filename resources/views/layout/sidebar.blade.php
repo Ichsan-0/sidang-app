@@ -70,7 +70,7 @@
 
           <ul class="menu-inner py-1">
             <!-- Dashboard -->
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('dashboard-role') ? 'active' : '' }}">
                 <a href="{{ url('/dashboard-role') }}" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-home-circle"></i>
                     <div data-i18n="Analytics">Dashboard</div>
@@ -130,9 +130,9 @@
             </li>
             
             <li class="menu-item">
-              <a href="{{ route('pengajuan-judul.index') }}" class="menu-link">
+              <a href="{{ route('tugas-akhir.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-file"></i>
-                <div data-i18n="Pengajuan Judul">Pengajuan Judul</div>
+                <div data-i18n="Pengajuan Judul">Tugas Akhir</div>
               </a>
             </li>
             <li class="menu-item">

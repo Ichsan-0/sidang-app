@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DataMaster;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DataMaster\MahasiswaController;
+use App\Http\Controllers\TugasAkhirController; 
 
 /*
 |--------------------------------------------------------------------------
@@ -89,8 +90,11 @@ Route::middleware('auth')->group(function () {
 
     });
     Route::middleware(['auth', 'role:superadmin|mahasiswa'])->group(function () {
-        Route::get('/pengajuan-judul', [DataMaster::class, 'pengajuanJudul'])->name('pengajuan-judul.index');
-        // Tambahkan route lain terkait pengajuan judul di sini
+        Route::get('/tugas-akhir', [TugasAkhirController::class, 'index'])->name('tugas-akhir.index');
+        Route::get('/dashboard-role', function () {
+            return view('dashboard');
+        })->name('dashboard.role');
+        // Tambahkan route lain terkait tugas akhir di sini
     });
 });
 
