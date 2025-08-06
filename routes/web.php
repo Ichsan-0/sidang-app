@@ -65,6 +65,17 @@ Route::middleware('auth')->group(function () {
             Route::delete('/pimpinan/delete/{id}', 'deletePimpinan')->name('pimpinan.delete');
 
             Route::get('/jenis-penelitian', 'jenisPenelitian')->name('jenis-penelitian.index');
+            Route::get('/jenis-penelitian/ajax', 'ajaxJenisPenelitian')->name('jenis-penelitian.ajax');
+            Route::post('/jenis-penelitian/store', 'storeJenisPenelitian')->name('jenis-penelitian.store');
+            Route::get('/jenis-penelitian/edit/{id}', 'editJenisPenelitian')->name('jenis-penelitian.edit');
+            Route::post('/jenis-penelitian/update/{id}', 'updateJenisPenelitian')->name('jenis-penelitian.update');
+
+            Route::get('/bidang-peminatan', 'bidangPeminatan')->name('bidang-peminatan.index');
+            Route::get('/bidang-peminatan/ajax', 'ajaxBidangPeminatan')->name('bidang-peminatan.ajax');
+            Route::post('/bidang-peminatan/store', 'storeBidangPeminatan')->name('bidang-peminatan.store');
+            Route::get('/bidang-peminatan/edit/{id}', 'editBidangPeminatan')->name('bidang-peminatan.edit');
+            Route::post('/bidang-peminatan/update/{id}', 'updateBidangPeminatan')->name('bidang-peminatan.update');
+            Route::delete('/bidang-peminatan/delete/{id}', 'deleteBidangPeminatan')->name('bidang-peminatan.delete');
         });
         
         Route::controller(UserController::class)->group(function () {

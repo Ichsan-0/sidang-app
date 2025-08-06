@@ -1,0 +1,310 @@
+@extends('layout.app')
+
+@section('content')
+
+<div class="container-xxl flex-grow-1 container-p-y">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <h5 class="mb-0">Data Jenis Penelitian</h5>
+      <button class="btn btn-primary" id="addBtn">
+        <i class="bx bx-plus"></i> Jenis Penelitian
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table id="jenisPenelitianTable" class="table table-bordered table-striped align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 5%;">No.</th>
+              <th style="width: 30%;">Nama Jenis</th>
+              <th style="width: 15%;">Kode</th>
+              <th style="width: 35%;">Keterangan</th>
+              <th style="width: 15%;">Actions</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+    
+  </div>
+  <div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <h5 class="mb-0">Data Bidang Peminatan</h5>
+      <button class="btn btn-primary" id="addBidangBtn">
+        <i class="bx bx-plus"></i> Tambah Bidang
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table id="bidangPeminatanTable" class="table table-bordered table-striped align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 5%;">No.</th>
+              <th style="width: 30%;">Nama Bidang</th>
+              <th style="width: 15%;">Kode</th>
+              <th style="width: 35%;">Keterangan</th>
+              <th style="width: 15%;">Actions</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<div class="modal fade" id="jenisPenelitianModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="jenisPenelitianForm">
+      @csrf
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" id="jenis_penelitian_id">
+          <div class="mb-3">
+            <label for="nama" class="form-label">Nama Jenis Penelitian</label>
+            <input type="text" class="form-control" name="nama" id="nama" required>
+          </div>
+          <div class="mb-3">
+            <label for="kode" class="form-label">Kode</label>
+            <input type="text" class="form-control" name="kode" id="kode" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Keterangan</label>
+            <textarea class="form-control" name="ket" id="ket"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Simpan</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="bidangModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="bidangForm">
+      @csrf
+      <input type="hidden" name="id" id="bidang_id">
+      <input type="hidden" name="jenis_penelitian_id" id="bidang_jenis_penelitian_id">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="nama_bidang" class="form-label">Nama Bidang</label>
+            <input type="text" class="form-control" name="nama" id="nama_bidang" required>
+          </div>
+          <div class="mb-3">
+            <label for="kode_bidang" class="form-label">Kode</label>
+            <input type="text" class="form-control" name="kode" id="kode_bidang" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Keterangan</label>
+            <textarea class="form-control" name="ket" id="ket_bidang"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Simpan</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+@endsection
+
+@push('styles')
+<link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+@endpush
+
+@push('scripts')
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+$(function () {
+    var table = $('#jenisPenelitianTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '{{ route("jenis-penelitian.ajax") }}',
+        autoWidth: false,
+        columns: [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+            { data: 'nama', name: 'nama' },
+            { data: 'kode', name: 'kode' },
+            { data: 'ket', name: 'ket' },
+            { data: 'action', name: 'action', orderable: false, searchable: false }
+        ]
+    });
+
+    // show modal for add
+    $('#addBtn').on('click', function () {
+        $('#jenisPenelitianForm')[0].reset();
+        $('#jenis_penelitian_id').val('');
+        $('.modal-title').text('Tambah Jenis Penelitian');
+        $('#jenisPenelitianModal').modal('show');
+    });
+
+    // show modal for edit
+    $(document).on('click', '.editBtn', function () {
+        var id = $(this).data('id');
+        $.get('/jenis-penelitian/edit/' + id, function (data) {
+            $('#jenis_penelitian_id').val(data.id);
+            $('#nama').val(data.nama);
+            $('#kode').val(data.kode);
+            $('#ket').val(data.ket);
+            $('.modal-title').text('Edit Jenis Penelitian');
+            $('#jenisPenelitianModal').modal('show');
+        });
+    });
+
+    // submit form (add/update)
+    $('#jenisPenelitianForm').on('submit', function (e) {
+        e.preventDefault();
+        var id = $('#jenis_penelitian_id').val();
+        var url = id ? '/jenis-penelitian/update/' + id : '/jenis-penelitian/store';
+        var method = 'POST';
+        $.ajax({
+            url: url,
+            method: method,
+            data: $(this).serialize(),
+            success: function (res) {
+                if (res.success) {
+                    $('#jenisPenelitianModal').modal('hide');
+                    table.ajax.reload();
+                    alert(res.message);
+                }
+            },
+            error: function (xhr) {
+                alert('Terjadi kesalahan!');
+                console.log(xhr.responseText);
+            }
+        });
+    });
+
+    // delete
+    $(document).on('click', '.deleteBtn', function () {
+        if (!confirm('Yakin ingin menghapus data ini?')) return;
+        var id = $(this).data('id');
+        $.ajax({
+            url: '/jenis-penelitian/delete/' + id,
+            method: 'DELETE',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function (res) {
+                if (res.success) {
+                    table.ajax.reload();
+                    alert(res.message);
+                }
+            },
+            error: function (xhr) {
+                alert('Terjadi kesalahan!');
+                console.log(xhr.responseText);
+            }
+        });
+    });
+
+    // Bidang Peminatan
+    var bidangTable = $('#bidangTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '{{ route("bidang-peminatan.ajax") }}',
+        autoWidth: false,
+        columns: [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+            { data: 'nama', name: 'nama' },
+            { data: 'kode', name: 'kode' },
+            { data: 'ket', name: 'ket' },
+            { data: 'action', name: 'action', orderable: false, searchable: false }
+        ]
+    });
+
+    // show/hide bidang button
+    $('#jenisPenelitianTable').on('click', '.editBtn', function () {
+        var id = $(this).data('id');
+        $('#bidang_jenis_penelitian_id').val(id);
+        $('#addBidangBtn').show();
+        $('#bidangTitle').text('(' + $(this).closest('tr').find('td:eq(1)').text() + ')');
+        bidangTable.ajax.url('{{ route("bidang-peminatan.ajax") }}?jenis_penelitian_id=' + id).load();
+    });
+
+    // show modal for add bidang
+    $('#addBidangBtn').on('click', function () {
+        $('#bidangForm')[0].reset();
+        $('#bidang_id').val('');
+        $('.modal-title').text('Tambah Bidang Peminatan');
+        $('#bidangModal').modal('show');
+    });
+
+    // show modal for edit bidang
+    $(document).on('click', '.editBidangBtn', function () {
+        var id = $(this).data('id');
+        $.get('/bidang-peminatan/edit/' + id, function (data) {
+            $('#bidang_id').val(data.id);
+            $('#nama_bidang').val(data.nama);
+            $('#kode_bidang').val(data.kode);
+            $('#ket_bidang').val(data.ket);
+            $('.modal-title').text('Edit Bidang Peminatan');
+            $('#bidangModal').modal('show');
+        });
+    });
+
+    // submit form (add/update) bidang
+    $('#bidangForm').on('submit', function (e) {
+        e.preventDefault();
+        var id = $('#bidang_id').val();
+        var url = id ? '/bidang-peminatan/update/' + id : '/bidang-peminatan/store';
+        var method = 'POST';
+        $.ajax({
+            url: url,
+            method: method,
+            data: $(this).serialize(),
+            success: function (res) {
+                if (res.success) {
+                    $('#bidangModal').modal('hide');
+                    bidangTable.ajax.reload();
+                    alert(res.message);
+                }
+            },
+            error: function (xhr) {
+                alert('Terjadi kesalahan!');
+                console.log(xhr.responseText);
+            }
+        });
+    });
+
+    // delete bidang
+    $(document).on('click', '.deleteBidangBtn', function () {
+        if (!confirm('Yakin ingin menghapus data ini?')) return;
+        var id = $(this).data('id');
+        $.ajax({
+            url: '/bidang-peminatan/delete/' + id,
+            method: 'DELETE',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function (res) {
+                if (res.success) {
+                    bidangTable.ajax.reload();
+                    alert(res.message);
+                }
+            },
+            error: function (xhr) {
+                alert('Terjadi kesalahan!');
+                console.log(xhr.responseText);
+            }
+        });
+    });
+});
+</script>
+@endpush
