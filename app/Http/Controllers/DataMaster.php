@@ -168,10 +168,28 @@ class DataMaster extends Controller
             'kode_prodi'   => 'required|string|max:50',
             'id_fakultas'  => 'required|exists:fakultas,id',
             'ket'          => 'nullable|string',
+            'draft'        => 'nullable|file|mimes:pdf,doc,docx|max:2048',
         ]);
 
-        $prodi = Prodi::findOrFail($id);
-        $prodi->update($request->all());
+        $prodi = \App\Models\Prodi::findOrFail($id);
+
+        $data = [
+            'nama_prodi' => $request->nama_prodi,
+            'kode_prodi' => $request->kode_prodi,
+            'id_fakultas' => $request->id_fakultas,
+            'ket' => $request->ket ?? null,
+        ];
+
+        if ($request->hasFile('draft')) {
+            $file = $request->file('draft');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $path = $file->storeAs('template_prodi', $filename, 'public');
+            $data['draft'] = $path;
+            // Optional: hapus file lama jika ada
+            // if ($prodi->draft) Storage::disk('public')->delete($prodi->draft);
+        }
+
+        $prodi->update($data);
 
         return response()->json(['success' => true, 'message' => 'Prodi berhasil diupdate']);
     }
@@ -210,6 +228,17 @@ class DataMaster extends Controller
             'optgroups' => $optgroups,
         ]);
     }
+
+    public function getJenisPenelitian()
+    {
+        return JenisPenelitian::select('id', 'nama', 'ket')->get();
+    }
+
+    public function getBidangPeminatan()
+    {
+        return BidangPeminatan::select('id', 'nama')->get();
+    }
+
     public function tahun()
     {
         return view('master.tahun');
@@ -295,6 +324,7 @@ class DataMaster extends Controller
         $tahun->delete();
         return response()->json(['success' => true, 'message' => 'Tahun ajaran berhasil dihapus']);
     }
+
 
     // Tampilkan halaman jenis penelitian
     public function jenisPenelitian()

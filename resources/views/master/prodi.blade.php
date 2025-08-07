@@ -62,6 +62,10 @@
             <label class="form-label">Keterangan</label>
             <textarea class="form-control" name="ket" required> </textarea>
           </div>
+          <div class="mb-3">
+            <label for="formFile" class="form-label">Upload Template Pengajuan Judul</label>
+            <input class="form-control" type="file" id="formFile" name="draft" accept=".doc,.docx,.pdf">
+          </div>
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Simpan</button>
@@ -125,10 +129,15 @@ $(function () {
         var id = $('#prodi_id').val();
         var url = id ? '/prodi/update/' + id : '/prodi/store';
         var method = 'POST';
+
+        var formData = new FormData(this);
+
         $.ajax({
             url: url,
             method: method,
-            data: $(this).serialize(),
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function (res) {
                 if (res.success) {
                     $('#prodiModal').modal('hide');

@@ -129,7 +129,7 @@
               <span class="menu-header-text">Tugas Akhir</span>
             </li>
             
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('tugas-akhir') ? 'active' : '' }}">
               <a href="{{ route('tugas-akhir.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-file"></i>
                 <div data-i18n="Pengajuan Judul">Tugas Akhir</div>

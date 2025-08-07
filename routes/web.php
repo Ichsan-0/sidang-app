@@ -94,7 +94,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard-role', function () {
             return view('dashboard');
         })->name('dashboard.role');
-        // Tambahkan route lain terkait tugas akhir di sini
+        Route::get('get-jenis-penelitian', [DataMaster::class, 'getJenisPenelitian']);
+        Route::get('get-bidang-peminatan', [DataMaster::class, 'getBidangPeminatan']);
     });
 });
 
