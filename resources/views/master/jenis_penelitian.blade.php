@@ -15,11 +15,11 @@
         <table id="jenisPenelitianTable" class="table table-bordered table-striped align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th style="width: 5%;">No.</th>
-              <th style="width: 30%;">Nama Jenis</th>
-              <th style="width: 15%;">Kode</th>
-              <th style="width: 35%;">Keterangan</th>
-              <th style="width: 15%;">Actions</th>
+              <th>No.</th>
+              <th>Nama Jenis</th>
+              <th>Kode</th>
+              <th>Keterangan</th>
+              <th></th>
             </tr>
           </thead>
         </table>
@@ -39,11 +39,11 @@
         <table id="bidangPeminatanTable" class="table table-bordered table-striped align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th style="width: 5%;">No.</th>
-              <th style="width: 30%;">Nama Bidang</th>
-              <th style="width: 15%;">Kode</th>
-              <th style="width: 35%;">Keterangan</th>
-              <th style="width: 15%;">Actions</th>
+              <th>No.</th>
+              <th>Nama Bidang</th>
+              <th>Kode</th>
+              <th>Keterangan</th>
+              <th>Actions</th>
             </tr>
           </thead>
         </table>
@@ -259,7 +259,7 @@ $(function () {
         $('#bidang_jenis_penelitian_id').val(id);
         $('#addBidangBtn').show();
         $('#bidangTitle').text('(' + $(this).closest('tr').find('td:eq(1)').text() + ')');
-        bidangTable.ajax.url('{{ route("bidang-peminatan.ajax") }}?jenis_penelitian_id=' + id).load();
+        bidangTable.ajax.url('{{ route("bidang-peminatan.ajax") }}').load();
     });
 
     // show modal for add bidang

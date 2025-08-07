@@ -112,9 +112,13 @@
                 </li>
                 <li class="menu-item {{ request()->is('jenis-penelitian') ? 'active' : '' }}">
                   <a href="{{ route('jenis-penelitian.index') }}" class="menu-link">
-                    <div data-i18n="Without menu">Jenis & Bidang</div>
+                    <div data-i18n="Without menu">Jenis Penelitian</div>
                   </a>
                 </li>
+                <li class="menu-item {{ request()->is('bidang-peminatan') ? 'active' : '' }}">
+                  <a href="{{ route('bidang-peminatan.index') }}" class="menu-link">
+                    <div data-i18n="Without menu">Bidang Penelitian</div>
+                  </a>
               </ul>
             </li>
 

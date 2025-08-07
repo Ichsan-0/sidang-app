@@ -19,7 +19,7 @@ class Prodi extends Model
         'kode_prodi',
         'id_fakultas',
         'ket',
-        'file',
+        'draft',
     ];
 
     

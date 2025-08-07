@@ -60,8 +60,14 @@
           <label for="formFile" class="form-label">Upload Draft/Lampiran</label>
           <input class="form-control" type="file" id="formFile" name="draft">
           <div class="form-text">
-            Upload file draft atau lampiran yang relevan. 
-            <span class="badge bg-primary text-white" style="cursor:pointer;">lihat template</span>
+            Upload file draft atau lampiran yang relevan.
+            @if(isset($prodi) && $prodi->draft)
+              <a href="{{ asset('storage/'.$prodi->draft) }}" target="_blank" class="badge bg-primary text-white" style="cursor:pointer;">
+                lihat template
+              </a>
+            @else
+              <span class="badge bg-secondary text-white" style="cursor:not-allowed;">template belum tersedia</span>
+            @endif
           </div>
         </div>
         

@@ -141,14 +141,26 @@ class DataMaster extends Controller
             'kode_prodi'   => 'required|string|max:50',
             'id_fakultas'  => 'required|exists:fakultas,id',
             'ket'          => 'nullable|string',
+            'draft'        => 'nullable|file|mimes:pdf,doc,docx|max:2048',
         ]);
 
-        $prodi = Prodi::create([
+        $data = [
             'nama_prodi' => $request->nama_prodi,
             'kode_prodi' => $request->kode_prodi,
             'id_fakultas' => $request->id_fakultas,
-            'ket' => $request->ket ?? null, 
-        ]);
+            'ket' => $request->ket ?? null,
+        ];
+
+        if ($request->hasFile('draft')) {
+            $file = $request->file('draft');
+            $ext = $file->getClientOriginalExtension();
+            $namaProdiSlug = \Str::slug($request->nama_prodi, '_');
+            $filename = 'template_' . $namaProdiSlug . '.' . $ext;
+            $path = $file->storeAs('template_prodi', $filename, 'public');
+            $data['draft'] = $path;
+        }
+
+        $prodi = Prodi::create($data);
 
         return response()->json(['success' => true, 'message' => 'Prodi berhasil ditambahkan', 'data' => $prodi]);
     }
@@ -182,7 +194,10 @@ class DataMaster extends Controller
 
         if ($request->hasFile('draft')) {
             $file = $request->file('draft');
-            $filename = time().'_'.$file->getClientOriginalName();
+            // Buat nama file: template_namaprodi.ext
+            $ext = $file->getClientOriginalExtension();
+            $namaProdiSlug = \Str::slug($request->nama_prodi, '_');
+            $filename = 'template_' . $namaProdiSlug . '.' . $ext;
             $path = $file->storeAs('template_prodi', $filename, 'public');
             $data['draft'] = $path;
             // Optional: hapus file lama jika ada
@@ -234,9 +249,18 @@ class DataMaster extends Controller
         return JenisPenelitian::select('id', 'nama', 'ket')->get();
     }
 
-    public function getBidangPeminatan()
+    public function getBidangPeminatan(Request $request)
     {
-        return BidangPeminatan::select('id', 'nama')->get();
+        // Ambil prodi_id dari user yang login
+        $user = auth()->user();
+        $prodi_id = $user->prodi_id;
+
+        // Filter bidang peminatan berdasarkan prodi_id user
+        $bidang = BidangPeminatan::where('id_prodi', $prodi_id)
+            ->select('id', 'nama', 'ket')
+            ->get();
+
+        return $bidang;
     }
 
     public function tahun()
@@ -478,7 +502,7 @@ class DataMaster extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'kode' => 'required|string|max:50',
-            'jenis_penelitian_id' => 'required|exists:jenis_penelitian,id',
+            'prodi' => 'required|exists:prodis,id', // pastikan ini ada
             'ket'  => 'nullable|string',
         ]);
 
@@ -486,7 +510,7 @@ class DataMaster extends Controller
         $bidang->update([
             'nama' => $request->nama,
             'kode' => $request->kode,
-            'jenis_penelitian_id' => $request->jenis_penelitian_id,
+            'id_prodi' => $request->prodi,
             'ket'  => $request->ket,
         ]);
 

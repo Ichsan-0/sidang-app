@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Prodi;
 
 class TugasAkhirController extends Controller
 {
@@ -13,6 +14,10 @@ class TugasAkhirController extends Controller
      */
     public function index()
     {
-        return view('tugas_akhir');
+        $user = auth()->user();
+        $prodi = Prodi::find($user->prodi_id);
+        return view('tugas_akhir', [
+            'prodi' => $prodi
+        ]);
     }
 }

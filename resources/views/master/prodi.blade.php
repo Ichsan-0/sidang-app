@@ -32,7 +32,7 @@
 </div>
 <div class="modal fade" id="prodiModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <form id="prodiForm">
+    <form id="prodiForm" enctype="multipart/form-data">
       @csrf
       <input type="hidden" name="id" id="prodi_id">
       <div class="modal-content">
@@ -65,6 +65,12 @@
           <div class="mb-3">
             <label for="formFile" class="form-label">Upload Template Pengajuan Judul</label>
             <input class="form-control" type="file" id="formFile" name="draft" accept=".doc,.docx,.pdf">
+            <div id="filePreview" class="mt-2"></div>
+          </div>
+          <div class="mb-3">
+            <label for="formFile" class="form-label">Upload Template Panduan Skripsi</label>
+            <input class="form-control" type="file" id="formFile" name="panduan" accept=".doc,.docx,.pdf">
+            <div id="filePreview" class="mt-2"></div>
           </div>
         </div>
         <div class="modal-footer">
@@ -105,6 +111,7 @@ $(function () {
     $('#addBtn').on('click', function () {
         $('#prodiForm')[0].reset();
         $('#prodi_id').val('');
+        $('#filePreview').html(''); // <-- tambahkan baris ini
         $('.modal-title').text('Tambah Prodi');
         $('#prodiModal').modal('show');
     });
@@ -118,6 +125,20 @@ $(function () {
             $('#kode_prodi').val(data.kode_prodi);
             $('#id_fakultas').val(data.id_fakultas);
             $('#ket').val(data.ket);
+            // Preview file jika ada
+            if (data.draft) {
+                let url = '/storage/' + data.draft;
+                let ext = url.split('.').pop().toLowerCase();
+                let html = '';
+                if (ext === 'pdf') {
+                    html = `<a href="${url}" target="_blank" class="btn btn-sm btn-info">Lihat File (PDF)</a>`;
+                } else if (ext === 'doc' || ext === 'docx') {
+                    html = `<a href="${url}" target="_blank" class="btn btn-sm btn-info">Download File (Word)</a>`;
+                }
+                $('#filePreview').html(html);
+            } else {
+                $('#filePreview').html('');
+            }
             $('.modal-title').text('Edit Prodi');
             $('#prodiModal').modal('show');
         });
@@ -142,6 +163,7 @@ $(function () {
                 if (res.success) {
                     $('#prodiModal').modal('hide');
                     table.ajax.reload();
+                    $('#formFile').val(''); // <-- reset input file
                     alert(res.message);
                 }
             },
