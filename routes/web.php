@@ -90,12 +90,16 @@ Route::middleware('auth')->group(function () {
 
     });
     Route::middleware(['auth', 'role:superadmin|mahasiswa'])->group(function () {
-        Route::get('/tugas-akhir', [TugasAkhirController::class, 'index'])->name('tugas-akhir.index');
         Route::get('/dashboard-role', function () {
             return view('dashboard');
         })->name('dashboard.role');
         Route::get('get-jenis-penelitian', [DataMaster::class, 'getJenisPenelitian']);
         Route::get('get-bidang-peminatan', [DataMaster::class, 'getBidangPeminatan']);
+        Route::get('/tugas-akhir', [TugasAkhirController::class, 'index'])->name('tugas-akhir.index');
+        Route::post('/tugas-akhir', [TugasAkhirController::class, 'store'])->name('tugas-akhir.store');
+        Route::put('/tugas-akhir/{id}', [TugasAkhirController::class, 'update'])->name('tugas-akhir.update');
+        Route::delete('/tugas-akhir/{id}', [TugasAkhirController::class, 'destroy'])->name('tugas-akhir.destroy');
+        Route::get('/tugas-akhir/last', [TugasAkhirController::class, 'last'])->name('tugas-akhir.last');
     });
 });
 

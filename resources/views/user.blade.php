@@ -54,7 +54,7 @@
             </div>
           </div>
           <div class="mb-3">
-            <label for="role" class="form-label">Jenis User</label>
+            <label class="form-label">Jenis User</label>
             <select class="form-select" name="role" id="role" required>
               @foreach(\Spatie\Permission\Models\Role::all() as $role)
                 <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
@@ -63,7 +63,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Pilih Prodi</label>
-            <select class="form-select" name="id_prodi" id="prodi"></select>
+            <select class="form-select" name="prodi" id="prodi"></select>
           </div>
           <div class="row">
             <div class="col-md-6">
@@ -84,7 +84,7 @@
           </div>
             <div class="mb-3">
               <label class="form-label">Alamat</label>
-              <textarea class="form-control" name="alamat" id="alamat" rows="3" required></textarea>
+              <textarea class="form-control" name="alamat" id="alamat" rows="3"></textarea>
             </div>
         </div>
         <div class="modal-footer">

@@ -80,7 +80,7 @@
             <!-- Layouts -->
             @php
             // daftar route untuk menu Data Master
-            $dataMasterRoutes = ['tahun', 'fakultas','prodi', 'jurusan', 'mata-kuliah', 'dosen', 'mahasiswa', 'pimpinan', 'jenis-penelitian'];
+            $dataMasterRoutes = ['tahun', 'fakultas','prodi', 'jurusan', 'mata-kuliah', 'dosen', 'mahasiswa', 'pimpinan', 'jenis-penelitian','bidang-peminatan', 'user'];
             @endphp
             @role('superadmin')
             <li class="menu-item {{ in_array(request()->segment(1), $dataMasterRoutes) ? 'open active' : '' }}">

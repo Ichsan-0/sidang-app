@@ -436,6 +436,11 @@ class DataMaster extends Controller
         return response()->json(['success' => true, 'message' => 'Jenis Penelitian berhasil dihapus']);
     }
 
+    public function bidangPeminatan()
+    {
+        return view('master.bidang_peminatan');
+    }
+
     public function ajaxBidangPeminatan(Request $request)
     {
         if ($request->ajax()) {

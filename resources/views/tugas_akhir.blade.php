@@ -5,18 +5,33 @@
 <div class="container-xxl flex-grow-1 container-p-y">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0">Informasi Tugas Akhir</h4>
-    <button class="btn btn-primary" id="addBtn">
+    <button class="btn btn-primary"
+            id="addBtn"
+            {{-- @if($tugasAkhir->count() > 0) disabled @endif --}}
+    >
       <i class="bx bx-plus"></i> Usul Tugas Akhir
     </button>
   </div>
-  <div class="row mb-4">
-    <div class="col-md-12 col-xl-12">
-      <div class="card bg-secondary text-white shadow-sm">
-        <div class="card-body">
-          <p class="card-text mb-0">Belum ada Tugas Akhir yang diusulkan</p>
+  
+
+  <div class="row" id="tugasAkhirList">
+    @forelse($tugasAkhir as $ta)
+      @include('layout._card_tugas_akhir', ['ta' => $ta])
+    @empty
+      <div class="col-12" id="noTugasAkhirRow">
+        <div class="alert alert-primary alert-dismissible" role="alert">
+          <strong>Perhatian:</strong> Pastikan untuk mengisi semua informasi yang diperlukan sebelum mengirimkan usulan Tugas Akhir.
+          <br>
+          Jika ada pertanyaan, silakan hubungi dosen pembimbing atau koordinator program studi.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div class="card bg-secondary text-white shadow-sm">
+          <div class="card-body">
+            <p class="card-text mb-0">Belum ada Tugas Akhir yang diusulkan</p>
+          </div>
         </div>
       </div>
-    </div>
+    @endforelse
   </div>
 </div>
 <!-- Modal Usul Tugas Akhir -->
@@ -43,22 +58,22 @@
         <div class="mb-3">
           <label for="selectTypeOpt" class="form-label">Jenis Tugas Akhir</label>
           <div class="d-flex gap-2 align-items-center">
-            <select id="selectTypeOpt" class="form-select" name="type" style="flex: 1;">
+            <select id="selectTypeOpt" class="form-select" name="jenis_penelitian_id" style="flex: 1;">
             </select>
           </div>
           
         </div>
         
-        <div class="mb-3">
+        <div class="mb-3" id="bidangPeminatanGroup">
           <label for="selectBidangOpt" class="form-label">Bidang Peminatan</label>
           <div class="d-flex gap-2 align-items-center">
-            <select id="selectBidangOpt" class="form-select" name="bidang" style="flex: 1;">
+            <select id="selectBidangOpt" class="form-select" name="bidang_peminatan_id" style="flex: 1;">
             </select>
           </div>
         </div>
         <div class="mb-3">
           <label for="formFile" class="form-label">Upload Draft/Lampiran</label>
-          <input class="form-control" type="file" id="formFile" name="draft">
+          <input class="form-control" type="file" id="formFile" name="file">
           <div class="form-text">
             Upload file draft atau lampiran yang relevan.
             @if(isset($prodi) && $prodi->draft)
@@ -72,12 +87,17 @@
         </div>
         
         <div class="mb-3">
-          <label for="deskripsi" class="form-label">Deskripsi / Catatan</label>
+          <label for="deskripsi" class="form-label">Catatan Usulan :</label>
           <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" required></textarea>
         </div>
         <div class="mb-3">
           <label for="pembimbing" class="form-label">Pembimbing</label>
-          <input type="text" class="form-control" id="pembimbing" name="pembimbing" placeholder="Nama Pembimbing" required>
+          <select class="form-select" id="pembimbing" name="pembimbing_id" required>
+            <option value="">-- Pilih Pembimbing --</option>
+            @foreach($dosenList as $dosen)
+              <option value="{{ $dosen->id }}">{{ $dosen->name }}</option>
+            @endforeach
+          </select>
         </div>
       </div>
       <div class="modal-footer">
@@ -212,12 +232,17 @@
   fetch('/get-bidang-peminatan')
     .then(res => res.json())
     .then(data => {
+      const bidangGroup = document.getElementById('bidangPeminatanGroup');
       const select = document.getElementById('selectBidangOpt');
-      select.innerHTML = '<option value="">--Pilih Bidang Peminatan--</option>';
-      data.forEach(item => {
-        select.innerHTML += `<option value="${item.id}" data-nama="${item.nama}" data-ket="${item.ket ?? ''}">${item.nama}</option>`;
-        bidangPeminatanData[item.id] = item;
-      });
+      if (data.length === 0) {
+        bidangGroup.style.display = 'none'; // hide seluruh blok
+      } else {
+        bidangGroup.style.display = '';
+        select.innerHTML = '<option value="">--Pilih Bidang Peminatan--</option>';
+        data.forEach(item => {
+          select.innerHTML += `<option value="${item.id}" data-nama="${item.nama}" data-ket="${item.ket ?? ''}">${item.nama}</option>`;
+        });
+      }
     });
 
   // Popover instance untuk bidang peminatan
@@ -250,6 +275,43 @@
     if (bidangPopoverInstance) {
       bidangPopoverInstance.hide();
     }
+  });
+
+  document.querySelector('#usulTAModal form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    let form = this;
+    let formData = new FormData(form);
+
+    fetch('{{ route("tugas-akhir.store") }}', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+      },
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        form.reset();
+        bootstrap.Modal.getInstance(document.getElementById('usulTAModal')).hide();
+        alert(data.message);
+
+        // Ambil data tugas akhir terbaru dari backend (misal endpoint /tugas-akhir/last)
+        fetch('/tugas-akhir/last')
+          .then(res => res.text())
+          .then(html => {
+            // Hilangkan pesan "Belum ada Tugas Akhir"
+            const noRow = document.getElementById('noTugasAkhirRow');
+            if (noRow) noRow.remove();
+
+            // Tambahkan card baru ke list
+            document.getElementById('tugasAkhirList').insertAdjacentHTML('afterbegin', html);
+          });
+      } else {
+        alert('Gagal menyimpan data!');
+      }
+    })
+    .catch(() => alert('Terjadi kesalahan!'));
   });
 });
 </script>
