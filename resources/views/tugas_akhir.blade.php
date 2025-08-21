@@ -13,7 +13,7 @@
     </button>
   </div>
   
-
+  @if(auth()->user()->hasRole('mahasiswa'))
   <div class="row" id="tugasAkhirList">
     @forelse($tugasAkhir as $ta)
       @include('layout._card_tugas_akhir', ['ta' => $ta])
@@ -33,78 +33,137 @@
       </div>
     @endforelse
   </div>
-</div>
-<!-- Modal Usul Tugas Akhir -->
-<div class="modal fade" id="usulTAModal" tabindex="-1" aria-labelledby="usulTAModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form action="#" method="POST" class="modal-content" enctype="multipart/form-data">
-      @csrf
-      <div class="modal-header">
-        <h5 class="modal-title" id="usulTAModalLabel">Pengusulan Tugas Akhir</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+  @endif
+  @if(!auth()->user()->hasRole('mahasiswa'))
+  {{-- Tampilkan daftar tugas akhir untuk dosen atau admin --}}
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="mb-0">Daftar Usulan Tugas Akhir</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Nama Mahasiswa</th>
+              <th>Judul</th>
+              <th>Jenis Tugas Akhir</th>
+              <th>Bidang Peminatan</th>
+              <th>Pembimbing</th>
+              <th>Status</th>
+              <th>Lampiran</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($tugasAkhir as $ta)
+              <tr>
+                <td>{{ $ta->mahasiswa->name ?? '-' }}</td>
+                <td>
+                  <ul>
+                    @foreach($ta->judul as $judul)
+                      <li>{{ $judul->judul }}</li>
+                    @endforeach
+                  </ul>
+                </td>
+                <td>{{ $ta->jenisPenelitian->nama ?? '-' }}</td>
+                <td>{{ $ta->bidangPeminatan->nama ?? '-' }}</td>
+                <td>{{ $ta->pembimbing->name ?? '-' }}</td>
+                <td>
+                  @php $status = $ta->status()->latest()->first(); @endphp
+                  @if($status)
+                    <span class="badge bg-info">{{ $status->status }}</span>
+                    <small>{{ $status->catatan }}</small>
+                  @else
+                    <span class="badge bg-secondary">-</span>
+                  @endif
+                </td>
+                <td>
+                  @if($ta->file)
+                    <a href="{{ asset('storage/'.$ta->file) }}" target="_blank">Lihat</a>
+                  @else
+                    <span>-</span>
+                  @endif
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
       </div>
-      <div class="modal-body">
-        <div class="mb-3 input-judul">
-          <div class="judul-group mb-2">
-            <label class="form-label">Judul Tugas Akhir Pertama</label>
-            <div class="d-flex gap-2 align-items-center">
-              <input type="text" class="form-control" name="judul[]" placeholder="Masukkan usulan judul tugas akhir" required>
-              <button type="button" class="btn btn-icon btn-primary" id="addJudulBtn" title="Tambah Judul yang diajukan">
-                <i class="bx bx-plus"></i>
-              </button>
+    </div>
+  </div>
+  @endif
+<!-- Modal Usul Tugas Akhir -->
+  <div class="modal fade" id="usulTAModal" tabindex="-1" aria-labelledby="usulTAModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form action="#" method="POST" class="modal-content" enctype="multipart/form-data">
+        @csrf
+        <div class="modal-header">
+          <h5 class="modal-title" id="usulTAModalLabel">Pengusulan Tugas Akhir</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3 input-judul">
+            <div class="judul-group mb-2">
+              <label class="form-label">Judul Tugas Akhir Pertama</label>
+              <div class="d-flex gap-2 align-items-center">
+                <input type="text" class="form-control" name="judul[]" placeholder="Masukkan usulan judul tugas akhir" required>
+                <button type="button" class="btn btn-icon btn-primary" id="addJudulBtn" title="Tambah Judul yang diajukan">
+                  <i class="bx bx-plus"></i>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="mb-3">
-          <label for="selectTypeOpt" class="form-label">Jenis Tugas Akhir</label>
-          <div class="d-flex gap-2 align-items-center">
-            <select id="selectTypeOpt" class="form-select" name="jenis_penelitian_id" style="flex: 1;">
-            </select>
+          <div class="mb-3">
+            <label for="selectTypeOpt" class="form-label">Jenis Tugas Akhir</label>
+            <div class="d-flex gap-2 align-items-center">
+              <select id="selectTypeOpt" class="form-select" name="jenis_penelitian_id" style="flex: 1;">
+              </select>
+            </div>
+            
           </div>
           
-        </div>
-        
-        <div class="mb-3" id="bidangPeminatanGroup">
-          <label for="selectBidangOpt" class="form-label">Bidang Peminatan</label>
-          <div class="d-flex gap-2 align-items-center">
-            <select id="selectBidangOpt" class="form-select" name="bidang_peminatan_id" style="flex: 1;">
+          <div class="mb-3" id="bidangPeminatanGroup">
+            <label for="selectBidangOpt" class="form-label">Bidang Peminatan</label>
+            <div class="d-flex gap-2 align-items-center">
+              <select id="selectBidangOpt" class="form-select" name="bidang_peminatan_id" style="flex: 1;">
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="formFile" class="form-label">Upload Draft/Lampiran</label>
+            <input class="form-control" type="file" id="formFile" name="file">
+            <div class="form-text">
+              Upload file draft atau lampiran yang relevan.
+              @if(isset($prodi) && $prodi->draft)
+                <a href="{{ asset('storage/'.$prodi->draft) }}" target="_blank" class="badge bg-primary text-white" style="cursor:pointer;">
+                  lihat template
+                </a>
+              @else
+                <span class="badge bg-secondary text-white" style="cursor:not-allowed;">template belum tersedia</span>
+              @endif
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="deskripsi" class="form-label">Catatan Usulan :</label>
+            <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="pembimbing" class="form-label">Pembimbing</label>
+            <select class="form-select" id="pembimbing" name="pembimbing_id" required>
+              <option value="">-- Pilih Pembimbing --</option>
+              @foreach($dosenList as $dosen)
+                <option value="{{ $dosen->id }}">{{ $dosen->name }}</option>
+              @endforeach
             </select>
           </div>
         </div>
-        <div class="mb-3">
-          <label for="formFile" class="form-label">Upload Draft/Lampiran</label>
-          <input class="form-control" type="file" id="formFile" name="file">
-          <div class="form-text">
-            Upload file draft atau lampiran yang relevan.
-            @if(isset($prodi) && $prodi->draft)
-              <a href="{{ asset('storage/'.$prodi->draft) }}" target="_blank" class="badge bg-primary text-white" style="cursor:pointer;">
-                lihat template
-              </a>
-            @else
-              <span class="badge bg-secondary text-white" style="cursor:not-allowed;">template belum tersedia</span>
-            @endif
-          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Kirim Usulan</button>
         </div>
-        
-        <div class="mb-3">
-          <label for="deskripsi" class="form-label">Catatan Usulan :</label>
-          <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" required></textarea>
-        </div>
-        <div class="mb-3">
-          <label for="pembimbing" class="form-label">Pembimbing</label>
-          <select class="form-select" id="pembimbing" name="pembimbing_id" required>
-            <option value="">-- Pilih Pembimbing --</option>
-            @foreach($dosenList as $dosen)
-              <option value="{{ $dosen->id }}">{{ $dosen->name }}</option>
-            @endforeach
-          </select>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="submit" class="btn btn-primary">Kirim Usulan</button>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
 </div>
 

@@ -21,8 +21,20 @@ class TugasAkhirController extends Controller
     {
         $user = auth()->user();
         $prodi = Prodi::find($user->prodi_id);
-        $tugasAkhir = TugasAkhir::with(['judul', 'jenisPenelitian', 'bidangPeminatan'])->where('mahasiswa_id', $user->id)->get();
 
+        if($user->hasRole('mahasiswa')) {
+            $tugasAkhir = TugasAkhir::with(['judul', 'jenisPenelitian', 'bidangPeminatan'])
+                ->where('mahasiswa_id', $user->id)
+                ->get();
+        } else {
+            $tugasAkhir = TugasAkhir::with(['judul', 'jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status', 'mahasiswa'])
+                ->whereHas('mahasiswa', function($q) use ($user) {
+                    $q->where('prodi_id', $user->prodi_id);
+                })
+                ->latest()
+                ->get();
+        }
+        
         return view('tugas_akhir', [
             'prodi' => $prodi,
             'tugasAkhir' => $tugasAkhir,

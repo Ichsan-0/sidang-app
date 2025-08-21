@@ -42,4 +42,8 @@ class TugasAkhir extends Model
     {
         return $this->belongsTo(User::class, 'pembimbing_id');
     }
+    public function mahasiswa()
+    {
+        return $this->belongsTo(User::class, 'mahasiswa_id');
+    }
 }
