@@ -133,6 +133,9 @@ class TugasAkhirController extends Controller
                     $q->where('judul', 'like', "%{$keyword}%");
                 });
             })
+            ->addColumn('jumlah_judul', function($ta) {
+                return $ta->judul->count();
+            })
             ->addColumn('jenis_tugas_akhir', function($ta) {
                 return $ta->jenisPenelitian->nama ?? '-';
             })
@@ -160,9 +163,26 @@ class TugasAkhirController extends Controller
             ->addColumn('status', function($ta) {
                 $status = $ta->status()->latest()->first();
                 if ($status) {
-                    return '<span class="badge bg-info">'.$status->status.'</span> <small>'.$status->catatan.'</small>';
+                    $statusText = '-';
+                    $badgeClass = 'bg-secondary';
+                    if ($status->status == 1) {
+                        $statusText = 'Belum Diperiksa';
+                        $badgeClass = 'bg-warning';
+                    } elseif ($status->status == 2) {
+                        $statusText = 'Disetujui';
+                        $badgeClass = 'bg-success';
+                    }
+                    return '<span class="badge '.$badgeClass.'">'.$statusText.'</span> <small>'.$status->catatan.'</small>';
                 }
                 return '<span class="badge bg-secondary">-</span>';
+            })
+            ->orderColumn('status', function($query, $order) {
+                // Urutkan berdasarkan status terakhir
+                $query->leftJoin('tugas_akhir_status as tas', function($join) {
+                    $join->on('tas.tugas_akhir_id', '=', 'tugas_akhir.id');
+                })
+                ->orderBy('tas.status', $order)
+                ->select('tugas_akhir.*');
             })
             ->addColumn('lampiran', function($ta) {
                 if ($ta->file) {

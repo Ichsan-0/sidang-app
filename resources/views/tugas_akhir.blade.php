@@ -5,12 +5,14 @@
 <div class="container-xxl flex-grow-1 container-p-y">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0">Informasi Tugas Akhir</h4>
-    <button class="btn btn-primary"
-            id="addBtn"
-            {{-- @if($tugasAkhir->count() > 0) disabled @endif --}}
-    >
-      <i class="bx bx-plus"></i> Usul Tugas Akhir
-    </button>
+    @if(auth()->user()->hasRole('mahasiswa'))
+      <button class="btn btn-primary"
+          id="addBtn"
+          {{-- @if($tugasAkhir->count() > 0) disabled @endif --}}
+      >
+        <i class="bx bx-plus"></i> Usul Tugas Akhir
+      </button>
+    @endif
   </div>
   
   @if(auth()->user()->hasRole('mahasiswa'))
@@ -46,13 +48,12 @@
           <thead class="table-light">
             <tr>
               <th>No</th>
+              <th>Status</th>
               <th>Nama Mahasiswa</th>
-              <th>Judul</th>
+              <th>Judul Diajukan</th>
               <th>Jenis Tugas Akhir</th>
               <th>Bidang Peminatan</th>
-              <th>Pembimbing</th>
-              <th>Status</th>
-              <th>Lampiran</th>
+              
             </tr>
           </thead>
         </table>
@@ -153,13 +154,11 @@ $(function () {
     ajax: '{{ route("tugas-akhir.ajax") }}',
     columns: [
       { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-      { data: 'nama_mahasiswa', name: 'nama_mahasiswa' },
-      { data: 'judul', name: 'judul' },
-      { data: 'jenis_tugas_akhir', name: 'jenis_tugas_akhir' },
-      { data: 'bidang_peminatan', name: 'bidang_peminatan' },
-      { data: 'pembimbing', name: 'pembimbing' },
-      { data: 'status', name: 'status', orderable: false, searchable: false },
-      { data: 'lampiran', name: 'lampiran', orderable: false, searchable: false }
+      { data: 'status', name: 'status', orderable: true},
+      { data: 'nama_mahasiswa', name: 'nama_mahasiswa', orderable: false, searchable: false },
+      { data: 'jumlah_judul', name: 'jumlah_judul', orderable: false, searchable: false },
+      { data: 'jenis_tugas_akhir', name: 'jenis_tugas_akhir', orderable: false, searchable: false },
+      { data: 'bidang_peminatan', name: 'bidang_peminatan', orderable: false, searchable: false },
     ]
   });
   @endif
