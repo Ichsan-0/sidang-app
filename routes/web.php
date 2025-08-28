@@ -100,6 +100,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/tugas-akhir/{id}', [TugasAkhirController::class, 'update'])->name('tugas-akhir.update');
         Route::delete('/tugas-akhir/{id}', [TugasAkhirController::class, 'destroy'])->name('tugas-akhir.destroy');
         Route::get('/tugas-akhir/last', [TugasAkhirController::class, 'last'])->name('tugas-akhir.last');
+        Route::get('/tugas-akhir/ajax', [TugasAkhirController::class, 'ajax'])->name('tugas-akhir.ajax');
     });
 });
 

@@ -41,10 +41,11 @@
       <h5 class="mb-0">Daftar Usulan Tugas Akhir</h5>
     </div>
     <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle mb-0">
+      <div class="table-responsive text-nowrap">
+        <table id="TugasAkhir" class="table table-hover">
           <thead class="table-light">
             <tr>
+              <th>No</th>
               <th>Nama Mahasiswa</th>
               <th>Judul</th>
               <th>Jenis Tugas Akhir</th>
@@ -54,39 +55,6 @@
               <th>Lampiran</th>
             </tr>
           </thead>
-          <tbody>
-            @foreach($tugasAkhir as $ta)
-              <tr>
-                <td>{{ $ta->mahasiswa->name ?? '-' }}</td>
-                <td>
-                  <ul>
-                    @foreach($ta->judul as $judul)
-                      <li>{{ $judul->judul }}</li>
-                    @endforeach
-                  </ul>
-                </td>
-                <td>{{ $ta->jenisPenelitian->nama ?? '-' }}</td>
-                <td>{{ $ta->bidangPeminatan->nama ?? '-' }}</td>
-                <td>{{ $ta->pembimbing->name ?? '-' }}</td>
-                <td>
-                  @php $status = $ta->status()->latest()->first(); @endphp
-                  @if($status)
-                    <span class="badge bg-info">{{ $status->status }}</span>
-                    <small>{{ $status->catatan }}</small>
-                  @else
-                    <span class="badge bg-secondary">-</span>
-                  @endif
-                </td>
-                <td>
-                  @if($ta->file)
-                    <a href="{{ asset('storage/'.$ta->file) }}" target="_blank">Lihat</a>
-                  @else
-                    <span>-</span>
-                  @endif
-                </td>
-              </tr>
-            @endforeach
-          </tbody>
         </table>
       </div>
     </div>
@@ -174,6 +142,29 @@
 @endpush
 
 @push('scripts')
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script>
+$(function () {
+  @if(!auth()->user()->hasRole('mahasiswa'))
+  $('#TugasAkhir').DataTable({
+    processing: true,
+    serverSide: true,
+    ajax: '{{ route("tugas-akhir.ajax") }}',
+    columns: [
+      { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+      { data: 'nama_mahasiswa', name: 'nama_mahasiswa' },
+      { data: 'judul', name: 'judul' },
+      { data: 'jenis_tugas_akhir', name: 'jenis_tugas_akhir' },
+      { data: 'bidang_peminatan', name: 'bidang_peminatan' },
+      { data: 'pembimbing', name: 'pembimbing' },
+      { data: 'status', name: 'status', orderable: false, searchable: false },
+      { data: 'lampiran', name: 'lampiran', orderable: false, searchable: false }
+    ]
+  });
+  @endif
+});
+</script>
 <script>
   document.getElementById('addBtn').addEventListener('click', function() {
     var modal = new bootstrap.Modal(document.getElementById('usulTAModal'));

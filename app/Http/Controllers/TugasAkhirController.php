@@ -9,6 +9,7 @@ use App\Models\TugasAkhirJudul;
 use App\Models\TugasAkhirStatus;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class TugasAkhirController extends Controller
 {
@@ -27,12 +28,7 @@ class TugasAkhirController extends Controller
                 ->where('mahasiswa_id', $user->id)
                 ->get();
         } else {
-            $tugasAkhir = TugasAkhir::with(['judul', 'jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status', 'mahasiswa'])
-                ->whereHas('mahasiswa', function($q) use ($user) {
-                    $q->where('prodi_id', $user->prodi_id);
-                })
-                ->latest()
-                ->get();
+            $tugasAkhir = collect(); // kosongkan, DataTables akan handle via AJAX
         }
         
         return view('tugas_akhir', [
@@ -103,5 +99,78 @@ class TugasAkhirController extends Controller
             DB::rollBack();
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
+    }
+
+    public function ajax(Request $request)
+    {
+        $user = auth()->user();
+
+        if ($user->hasRole('mahasiswa')) {
+            // Tidak perlu DataTables untuk mahasiswa
+            return response()->json([]);
+        }
+
+        $query = TugasAkhir::with(['judul', 'jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status', 'mahasiswa'])
+            ->whereHas('mahasiswa', function($q) use ($user) {
+                $q->where('prodi_id', $user->prodi_id);
+            });
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('nama_mahasiswa', function($ta) {
+                return $ta->mahasiswa->name ?? '-';
+            })
+            ->filterColumn('nama_mahasiswa', function($query, $keyword) {
+                $query->whereHas('mahasiswa', function($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%");
+                });
+            })
+            ->addColumn('judul', function($ta) {
+                return '<ul>' . collect($ta->judul)->pluck('judul')->map(fn($j) => "<li>$j</li>")->implode('') . '</ul>';
+            })
+            ->filterColumn('judul', function($query, $keyword) {
+                $query->whereHas('judul', function($q) use ($keyword) {
+                    $q->where('judul', 'like', "%{$keyword}%");
+                });
+            })
+            ->addColumn('jenis_tugas_akhir', function($ta) {
+                return $ta->jenisPenelitian->nama ?? '-';
+            })
+            ->filterColumn('jenis_tugas_akhir', function($query, $keyword) {
+                $query->whereHas('jenisPenelitian', function($q) use ($keyword) {
+                    $q->where('nama', 'like', "%{$keyword}%");
+                });
+            })
+            ->addColumn('bidang_peminatan', function($ta) {
+                return $ta->bidangPeminatan->nama ?? '-';
+            })
+            ->filterColumn('bidang_peminatan', function($query, $keyword) {
+                $query->whereHas('bidangPeminatan', function($q) use ($keyword) {
+                    $q->where('nama', 'like', "%{$keyword}%");
+                });
+            })
+            ->addColumn('pembimbing', function($ta) {
+                return $ta->pembimbing->name ?? '-';
+            })
+            ->filterColumn('pembimbing', function($query, $keyword) {
+                $query->whereHas('pembimbing', function($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%");
+                });
+            })
+            ->addColumn('status', function($ta) {
+                $status = $ta->status()->latest()->first();
+                if ($status) {
+                    return '<span class="badge bg-info">'.$status->status.'</span> <small>'.$status->catatan.'</small>';
+                }
+                return '<span class="badge bg-secondary">-</span>';
+            })
+            ->addColumn('lampiran', function($ta) {
+                if ($ta->file) {
+                    return '<a href="'.asset('storage/'.$ta->file).'" target="_blank">Lihat</a>';
+                }
+                return '-';
+            })
+            ->rawColumns(['judul', 'status', 'lampiran'])
+            ->toJson();
     }
 }
