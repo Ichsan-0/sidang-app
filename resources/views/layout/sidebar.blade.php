@@ -132,10 +132,15 @@
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Tugas Akhir</span>
             </li>
-            
+            <li class="menu-item {{ request()->is('usulkan') ? 'active' : '' }}">
+              <a href="{{ route('usulkan.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-upload"></i>
+                <div data-i18n="Pengajuan Judul">Bank Judul</div>
+              </a>
+            </li>
             <li class="menu-item {{ request()->is('tugas-akhir') ? 'active' : '' }}">
               <a href="{{ route('tugas-akhir.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-file"></i>
+                <i class="menu-icon tf-icons bx bx-book"></i>
                 <div data-i18n="Pengajuan Judul">Tugas Akhir</div>
               </a>
             </li>

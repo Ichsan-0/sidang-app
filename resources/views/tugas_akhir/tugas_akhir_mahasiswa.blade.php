@@ -18,7 +18,7 @@
   @if(auth()->user()->hasRole('mahasiswa'))
   <div class="row" id="tugasAkhirList">
     @forelse($tugasAkhir as $ta)
-      @include('layout._card_tugas_akhir', ['ta' => $ta])
+      @include('tugas_akhir._card_tugas_akhir', ['ta' => $ta])
     @empty
       <div class="col-12" id="noTugasAkhirRow">
         <div class="alert alert-primary alert-dismissible" role="alert">
@@ -36,31 +36,7 @@
     @endforelse
   </div>
   @endif
-  @if(!auth()->user()->hasRole('mahasiswa'))
-  {{-- Tampilkan daftar tugas akhir untuk dosen atau admin --}}
-  <div class="card mt-4">
-    <div class="card-header">
-      <h5 class="mb-0">Daftar Usulan Tugas Akhir</h5>
-    </div>
-    <div class="card-body">
-      <div class="table-responsive text-nowrap">
-        <table id="TugasAkhir" class="table table-hover">
-          <thead class="table-light">
-            <tr>
-              <th>No</th>
-              <th>Status</th>
-              <th>Nama Mahasiswa</th>
-              <th>Judul Diajukan</th>
-              <th>Jenis Tugas Akhir</th>
-              <th>Bidang Peminatan</th>
-              
-            </tr>
-          </thead>
-        </table>
-      </div>
-    </div>
-  </div>
-  @endif
+  
 <!-- Modal Usul Tugas Akhir -->
   <div class="modal fade" id="usulTAModal" tabindex="-1" aria-labelledby="usulTAModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -71,16 +47,9 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3 input-judul">
-            <div class="judul-group mb-2">
-              <label class="form-label">Judul Tugas Akhir Pertama</label>
-              <div class="d-flex gap-2 align-items-center">
-                <input type="text" class="form-control" name="judul[]" placeholder="Masukkan usulan judul tugas akhir" required>
-                <button type="button" class="btn btn-icon btn-primary" id="addJudulBtn" title="Tambah Judul yang diajukan">
-                  <i class="bx bx-plus"></i>
-                </button>
-              </div>
-            </div>
+          <div class="mb-3">
+            <label for="judul" class="form-label">Judul Tugas Akhir</label>
+            <input type="text" name="judul" id="judul" class="form-control" placeholder="Masukkan judul tugas akhir" required maxlength="255">
           </div>
           <div class="mb-3">
             <label for="selectTypeOpt" class="form-label">Jenis Tugas Akhir</label>
@@ -97,6 +66,18 @@
               <select id="selectBidangOpt" class="form-select" name="bidang_peminatan_id" style="flex: 1;">
               </select>
             </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Latar Belakang Masalah (ringkas)</label>
+            <textarea class="form-control" id="latar_belakang" name="latar_belakang" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Permasalahan (ringkas)</label>
+            <textarea class="form-control" id="permasalahan" name="permasalahan" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Metode Penelitian (ringkas)</label>
+            <textarea class="form-control" id="metode" name="metodess" rows="3"></textarea>
           </div>
           <div class="mb-3">
             <label for="formFile" class="form-label">Upload Draft/Lampiran</label>
@@ -145,91 +126,30 @@
 @push('scripts')
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-<script>
-$(function () {
-  @if(!auth()->user()->hasRole('mahasiswa'))
-  $('#TugasAkhir').DataTable({
-    processing: true,
-    serverSide: true,
-    ajax: '{{ route("tugas-akhir.ajax") }}',
-    columns: [
-      { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-      { data: 'status', name: 'status', orderable: true},
-      { data: 'nama_mahasiswa', name: 'nama_mahasiswa', orderable: false, searchable: false },
-      { data: 'jumlah_judul', name: 'jumlah_judul', orderable: false, searchable: false },
-      { data: 'jenis_tugas_akhir', name: 'jenis_tugas_akhir', orderable: false, searchable: false },
-      { data: 'bidang_peminatan', name: 'bidang_peminatan', orderable: false, searchable: false },
-    ]
-  });
-  @endif
-});
-</script>
+
 <script>
   document.getElementById('addBtn').addEventListener('click', function() {
-    var modal = new bootstrap.Modal(document.getElementById('usulTAModal'));
-    modal.show();
-  });
+  // Reset form sebelum show modal
+  const form = document.querySelector('#usulTAModal form');
+  form.reset();
+  form.action = '{{ route("tugas-akhir.store") }}';
+  form.method = 'POST';
+  let methodInput = form.querySelector('input[name="_method"]');
+  if (methodInput) methodInput.remove();
 
-  document.addEventListener('DOMContentLoaded', function () {
-  const addJudulBtn = document.getElementById('addJudulBtn');
-  const inputContainer = document.querySelector('.input-judul');
+  document.getElementById('judul').value = '';
+  document.getElementById('selectTypeOpt').value = '';
+  document.getElementById('selectBidangOpt').value = '';
+  document.getElementById('deskripsi').value = '';
+  document.getElementById('latar_belakang').value = '';
+  document.getElementById('permasalahan').value = '';
+  document.getElementById('metode').value = '';
+  document.getElementById('pembimbing').value = '';
+  document.getElementById('formFile').value = '';
 
-  const labelList = [
-    "Judul Tugas Akhir Pertama",
-    "Judul Tugas Akhir Kedua",
-    "Judul Tugas Akhir Ketiga",
-    "Judul Tugas Akhir Keempat",
-    "Judul Tugas Akhir Kelima"
-  ];
-
-  function updateLabels() {
-    const inputGroups = inputContainer.querySelectorAll('.judul-group');
-    inputGroups.forEach((group, index) => {
-      const label = group.querySelector('label');
-      label.textContent = labelList[index] || `Judul Tugas Akhir Ke-${index + 1}`;
-    });
-  }
-
-  addJudulBtn.addEventListener('click', function () {
-    const total = inputContainer.querySelectorAll('.judul-group').length;
-    const inputGroup = document.createElement('div');
-    inputGroup.classList.add('judul-group', 'mb-2');
-
-    const label = document.createElement('label');
-    label.classList.add('form-label');
-
-    const row = document.createElement('div');
-    row.classList.add('d-flex', 'gap-2', 'align-items-center');
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.name = 'judul[]';
-    input.classList.add('form-control');
-    input.placeholder = 'Masukkan Usulan Judul Tugas Akhir';
-    input.required = true;
-
-    const removeBtn = document.createElement('button');
-    removeBtn.type = 'button';
-    removeBtn.classList.add('btn', 'btn-icon', 'btn-danger');
-    removeBtn.title = 'Hapus judul ini';
-    removeBtn.innerHTML = '<i class="bx bx-minus"></i>';
-
-    removeBtn.addEventListener('click', function () {
-      inputContainer.removeChild(inputGroup);
-      updateLabels();
-    });
-
-    row.appendChild(input);
-    row.appendChild(removeBtn);
-    inputGroup.appendChild(label);
-    inputGroup.appendChild(row);
-
-    inputContainer.appendChild(inputGroup);
-    updateLabels();
-  });
-
-  // Inisialisasi label pertama
-  updateLabels();
+  var modal = new bootstrap.Modal(document.getElementById('usulTAModal'));
+  modal.show();
+});
 
   // Ambil data jenis penelitian dari DB
   let jenisPenelitianData = {};
@@ -246,10 +166,7 @@ $(function () {
 
   // Popover instance
   let popoverInstance = null;
-
-  // Tampilkan popover saat select diubah
   document.getElementById('selectTypeOpt').addEventListener('change', function(e) {
-    // Hapus popover lama jika ada
     if (popoverInstance) {
       popoverInstance.dispose();
       popoverInstance = null;
@@ -268,8 +185,6 @@ $(function () {
       popoverInstance.show();
     }
   });
-
-  // Sembunyikan popover jika select kehilangan fokus
   document.getElementById('selectTypeOpt').addEventListener('blur', function() {
     if (popoverInstance) {
       popoverInstance.hide();
@@ -277,14 +192,13 @@ $(function () {
   });
 
   // Ambil data bidang peminatan dari DB
-  let bidangPeminatanData = {};
   fetch('/get-bidang-peminatan')
     .then(res => res.json())
     .then(data => {
       const bidangGroup = document.getElementById('bidangPeminatanGroup');
       const select = document.getElementById('selectBidangOpt');
       if (data.length === 0) {
-        bidangGroup.style.display = 'none'; // hide seluruh blok
+        bidangGroup.style.display = 'none';
       } else {
         bidangGroup.style.display = '';
         select.innerHTML = '<option value="">--Pilih Bidang Peminatan--</option>';
@@ -294,12 +208,8 @@ $(function () {
       }
     });
 
-  // Popover instance untuk bidang peminatan
   let bidangPopoverInstance = null;
-
-  // Tampilkan popover saat select bidang diubah
   document.getElementById('selectBidangOpt').addEventListener('change', function(e) {
-    // Hapus popover lama jika ada
     if (bidangPopoverInstance) {
       bidangPopoverInstance.dispose();
       bidangPopoverInstance = null;
@@ -318,8 +228,6 @@ $(function () {
       bidangPopoverInstance.show();
     }
   });
-
-  // Sembunyikan popover jika select kehilangan fokus
   document.getElementById('selectBidangOpt').addEventListener('blur', function() {
     if (bidangPopoverInstance) {
       bidangPopoverInstance.hide();
@@ -331,7 +239,7 @@ $(function () {
     let form = this;
     let formData = new FormData(form);
 
-    fetch('{{ route("tugas-akhir.store") }}', {
+    fetch(form.action, {
       method: 'POST',
       headers: {
         'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
@@ -345,15 +253,11 @@ $(function () {
         bootstrap.Modal.getInstance(document.getElementById('usulTAModal')).hide();
         alert(data.message);
 
-        // Ambil data tugas akhir terbaru dari backend (misal endpoint /tugas-akhir/last)
         fetch('/tugas-akhir/last')
           .then(res => res.text())
           .then(html => {
-            // Hilangkan pesan "Belum ada Tugas Akhir"
             const noRow = document.getElementById('noTugasAkhirRow');
             if (noRow) noRow.remove();
-
-            // Tambahkan card baru ke list
             document.getElementById('tugasAkhirList').insertAdjacentHTML('afterbegin', html);
           });
       } else {
@@ -362,7 +266,84 @@ $(function () {
     })
     .catch(() => alert('Terjadi kesalahan!'));
   });
-});
+
+  // Edit Tugas Akhir
+  document.querySelectorAll('.editTugasAkhirBtn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = this.getAttribute('data-id');
+      fetch('/tugas-akhir/' + id + '/edit')
+        .then(res => res.json())
+        .then(data => {
+          const modal = new bootstrap.Modal(document.getElementById('usulTAModal'));
+          modal.show();
+
+          document.getElementById('judul').value = data.judul;
+          document.getElementById('selectTypeOpt').value = data.jenis_penelitian_id;
+          document.getElementById('selectBidangOpt').value = data.bidang_peminatan_id;
+          document.getElementById('deskripsi').value = data.deskripsi ?? '';
+          document.getElementById('pembimbing').value = data.pembimbing_id ?? '';
+
+          const form = document.querySelector('#usulTAModal form');
+          form.action = '/tugas-akhir/' + id + '/update';
+          form.method = 'POST';
+
+          let methodInput = form.querySelector('input[name="_method"]');
+          if (!methodInput) {
+            methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            form.appendChild(methodInput);
+          }
+          methodInput.value = 'POST';
+        });
+    });
+  });
+
+  // Delete Tugas Akhir
+  document.querySelectorAll('.deleteTugasAkhirBtn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (!confirm('Yakin ingin menghapus Tugas Akhir ini?')) return;
+      var id = this.getAttribute('data-id');
+      fetch('/tugas-akhir/' + id, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          btn.closest('.tugas-akhir-card').remove();
+          alert(data.message);
+        } else {
+          alert('Gagal menghapus!');
+        }
+      });
+    });
+  });
+
+  document.getElementById('usulTAModal').addEventListener('hidden.bs.modal', function () {
+    const form = this.querySelector('form');
+    if (form) {
+      form.reset();
+      form.action = '{{ route("tugas-akhir.store") }}';
+      form.method = 'POST';
+      // Hapus input _method jika ada
+      let methodInput = form.querySelector('input[name="_method"]');
+      if (methodInput) methodInput.remove();
+
+      // Reset semua select dan textarea
+      document.getElementById('judul').value = '';
+      document.getElementById('selectTypeOpt').value = '';
+      document.getElementById('selectBidangOpt').value = '';
+      document.getElementById('deskripsi').value = '';
+      document.getElementById('latar_belakang').value = '';
+      document.getElementById('permasalahan').value = '';
+      document.getElementById('metode').value = '';
+      document.getElementById('pembimbing').value = '';
+      document.getElementById('formFile').value = '';
+    }
+  });
 </script>
 @endpush
 @endsection

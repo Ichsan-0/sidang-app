@@ -24,18 +24,21 @@ class TugasAkhirController extends Controller
         $prodi = Prodi::find($user->prodi_id);
 
         if($user->hasRole('mahasiswa')) {
-            $tugasAkhir = TugasAkhir::with(['judul', 'jenisPenelitian', 'bidangPeminatan'])
+            $tugasAkhir = TugasAkhir::with(['jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status'])
                 ->where('mahasiswa_id', $user->id)
                 ->get();
+
+            return view('tugas_akhir/tugas_akhir_mahasiswa', [
+                'prodi' => $prodi,
+                'tugasAkhir' => $tugasAkhir,
+                'dosenList' => User::role('dosen')->get(),
+            ]);
         } else {
-            $tugasAkhir = collect(); // kosongkan, DataTables akan handle via AJAX
+            return view('tugas_akhir/tugas_akhir_admin', [
+                'prodi' => $prodi,
+                'dosenList' => User::role('dosen')->get(),
+            ]);
         }
-        
-        return view('tugas_akhir', [
-            'prodi' => $prodi,
-            'tugasAkhir' => $tugasAkhir,
-            'dosenList' => User::role('dosen')->get(),
-        ]);
     }
     public function last()
     {
@@ -48,8 +51,7 @@ class TugasAkhirController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'judul' => 'required|array|min:1',
-            'judul.*' => 'required|string|max:255',
+            'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'jenis_penelitian_id' => 'required|exists:jenis_penelitians,id',
             'bidang_peminatan_id' => 'nullable|exists:bidang_peminatans,id',
@@ -62,6 +64,7 @@ class TugasAkhirController extends Controller
             $user = auth()->user();
             $data = [
                 'mahasiswa_id' => $user->id,
+                'judul' => $request->judul,
                 'deskripsi' => $request->deskripsi,
                 'jenis_penelitian_id' => $request->jenis_penelitian_id,
                 'bidang_peminatan_id' => $request->bidang_peminatan_id,
@@ -77,19 +80,10 @@ class TugasAkhirController extends Controller
 
             $ta = TugasAkhir::create($data);
 
-            // Simpan semua judul
-            foreach ($request->judul as $judul) {
-                TugasAkhirJudul::create([
-                    'tugas_akhir_id' => $ta->id,
-                    'judul' => $judul
-                ]);
-            }
-
-            // Simpan status awal (misal 1 = diajukan)
             TugasAkhirStatus::create([
                 'tugas_akhir_id' => $ta->id,
-                'status' => 1, // atau 'diajukan' jika pakai string
-                'catatan' => "Diajukan ",
+                'status' => 1,
+                'catatan' => "Diajukan",
                 'user_id' => $user->id
             ]);
 
@@ -123,14 +117,6 @@ class TugasAkhirController extends Controller
             ->filterColumn('nama_mahasiswa', function($query, $keyword) {
                 $query->whereHas('mahasiswa', function($q) use ($keyword) {
                     $q->where('name', 'like', "%{$keyword}%");
-                });
-            })
-            ->addColumn('judul', function($ta) {
-                return '<ul>' . collect($ta->judul)->pluck('judul')->map(fn($j) => "<li>$j</li>")->implode('') . '</ul>';
-            })
-            ->filterColumn('judul', function($query, $keyword) {
-                $query->whereHas('judul', function($q) use ($keyword) {
-                    $q->where('judul', 'like', "%{$keyword}%");
                 });
             })
             ->addColumn('jumlah_judul', function($ta) {
@@ -184,13 +170,75 @@ class TugasAkhirController extends Controller
                 ->orderBy('tas.status', $order)
                 ->select('tugas_akhir.*');
             })
-            ->addColumn('lampiran', function($ta) {
-                if ($ta->file) {
-                    return '<a href="'.asset('storage/'.$ta->file).'" target="_blank">Lihat</a>';
-                }
-                return '-';
+            ->addColumn('action', function($ta) {
+                return '
+                    <button class="btn btn-icon btn-primary editBtn" data-id="'.$ta->id.'">
+                        <i class="bx bx-show-alt me-1"></i>
+                    </button>
+                ';
             })
-            ->rawColumns(['judul', 'status', 'lampiran'])
+            ->rawColumns(['judul', 'status', 'lampiran', 'action'])
             ->toJson();
+    }
+
+    public function edit($id)
+    {
+        $ta = TugasAkhir::with(['jenisPenelitian', 'bidangPeminatan', 'pembimbing'])->findOrFail($id);
+        return response()->json([
+            'id' => $ta->id,
+            'judul' => $ta->judul,
+            'jenis_penelitian_id' => $ta->jenis_penelitian_id,
+            'bidang_peminatan_id' => $ta->bidang_peminatan_id,
+            'pembimbing_id' => $ta->pembimbing_id,
+            'deskripsi' => $ta->deskripsi,
+            'file' => $ta->file,
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'judul' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'jenis_penelitian_id' => 'required|exists:jenis_penelitians,id',
+            'bidang_peminatan_id' => 'nullable|exists:bidang_peminatans,id',
+            'pembimbing_id' => 'nullable|string|max:255',
+            'file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $ta = TugasAkhir::findOrFail($id);
+            $ta->update([
+                'judul' => $request->judul,
+                'deskripsi' => $request->deskripsi,
+                'jenis_penelitian_id' => $request->jenis_penelitian_id,
+                'bidang_peminatan_id' => $request->bidang_peminatan_id,
+                'pembimbing_id' => $request->pembimbing_id,
+            ]);
+
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = 'draft_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('tugas_akhir', $filename, 'public');
+                $ta->file = $path;
+                $ta->save();
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Tugas Akhir berhasil diupdate!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function destroy($id)
+    {
+        $ta = TugasAkhir::findOrFail($id);
+        $ta->judul()->delete();
+        $ta->status()->delete();
+        $ta->delete();
+        return response()->json(['success' => true, 'message' => 'Tugas Akhir berhasil dihapus!']);
     }
 }

@@ -87,6 +87,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/user/{id}', 'destroy');
             Route::get('/user', 'index')->name('user.index');
         });
+        Route::get('/usulkan', [TugasAkhirController::class, 'usulkan'])->name('usulkan.index');
 
     });
     Route::middleware(['auth', 'role:superadmin|mahasiswa'])->group(function () {
@@ -101,6 +102,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/tugas-akhir/{id}', [TugasAkhirController::class, 'destroy'])->name('tugas-akhir.destroy');
         Route::get('/tugas-akhir/last', [TugasAkhirController::class, 'last'])->name('tugas-akhir.last');
         Route::get('/tugas-akhir/ajax', [TugasAkhirController::class, 'ajax'])->name('tugas-akhir.ajax');
+        Route::get('/tugas-akhir/{id}/edit', [TugasAkhirController::class, 'edit'])->name('tugas-akhir.edit');
+        Route::post('/tugas-akhir/{id}/update', [TugasAkhirController::class, 'update'])->name('tugas-akhir.update');
+        Route::delete('/tugas-akhir/{id}', [TugasAkhirController::class, 'destroy'])->name('tugas-akhir.destroy');
     });
 });
 

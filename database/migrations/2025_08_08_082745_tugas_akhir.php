@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tugas_akhir', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('mahasiswa_id');
+            $table->string('judul');
             $table->text('deskripsi')->nullable();
             $table->foreignId('jenis_penelitian_id')->constrained()->onDelete('cascade');
             $table->foreignId('bidang_peminatan_id')->nullable()->constrained()->onDelete('cascade');

@@ -77,7 +77,7 @@
                           </div>
                           <div class="flex-grow-1">
                             <span class="fw-semibold d-block">{{ Auth::user()->name }}</span>
-                            <small class="text-muted">{{ Auth::user()->getRoleNames()->implode(', ') }}</small>
+                            <small class="text-muted">{{ Auth::user()->getRoleNames()->implode(', ') }} | {{ Auth::user()->prodi->kode_prodi ?? '-' }}</small>
                           </div>
                         </div>
                       </a>
