@@ -21,7 +21,6 @@
               <th>No</th>
               <th>Status</th>
               <th>Nama Mahasiswa</th>
-              <th>Judul Diajukan</th>
               <th>Jenis Tugas Akhir</th>
               <th>Bidang Peminatan</th>
               <th>Aksi</th>
@@ -51,7 +50,6 @@ $(function () {
       { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
       { data: 'status', name: 'status', orderable: true},
       { data: 'nama_mahasiswa', name: 'nama_mahasiswa', orderable: false, searchable: false },
-      { data: 'jumlah_judul', name: 'jumlah_judul', orderable: false, searchable: false },
       { data: 'jenis_tugas_akhir', name: 'jenis_tugas_akhir', orderable: false, searchable: false },
       { data: 'bidang_peminatan', name: 'bidang_peminatan', orderable: false, searchable: false },
       { data: 'action', name: 'action', orderable: false, searchable: false }

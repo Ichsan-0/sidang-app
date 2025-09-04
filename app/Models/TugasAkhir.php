@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\TugasAkhirJudul;
 use App\Models\TugasAkhirStatus;
 use App\Models\JenisPenelitian;
 use App\Models\BidangPeminatan;
@@ -16,14 +15,9 @@ class TugasAkhir extends Model
 
     protected $table = 'tugas_akhir';
     protected $fillable = [
-        'mahasiswa_id', 'deskripsi', 'jenis_penelitian_id', 'bidang_peminatan_id', 'pembimbing_id', 'file'
+        'mahasiswa_id', 'judul', 'latar_belakang', 'permasalahan', 'metode_penelitian', 'deskripsi', 'jenis_penelitian_id', 'bidang_peminatan_id', 'pembimbing_id', 'file'
     ];
 
-    public function judul()
-    {
-        return $this->hasMany(TugasAkhirJudul::class, 'tugas_akhir_id');
-    }
-    
     public function status()
     {
         return $this->hasMany(TugasAkhirStatus::class, 'tugas_akhir_id');

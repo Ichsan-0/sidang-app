@@ -48,7 +48,7 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label for="judul" class="form-label">Judul Tugas Akhir</label>
+            <label class="form-label">Judul Tugas Akhir</label>
             <input type="text" name="judul" id="judul" class="form-control" placeholder="Masukkan judul tugas akhir" required maxlength="255">
           </div>
           <div class="mb-3">
@@ -77,7 +77,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Metode Penelitian (ringkas)</label>
-            <textarea class="form-control" id="metode" name="metodess" rows="3"></textarea>
+            <textarea class="form-control" id="metode" name="metode" rows="3"></textarea>
           </div>
           <div class="mb-3">
             <label for="formFile" class="form-label">Upload Draft/Lampiran</label>

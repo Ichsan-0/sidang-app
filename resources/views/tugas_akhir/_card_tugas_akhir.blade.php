@@ -2,7 +2,7 @@
 
 <div class="col-md-12 col-xl-6 mb-4 tugas-akhir-card">
   <div class="card shadow-sm">
-      <h5 class="card-header">
+      <h5 class="fw-bold mb-0 p-3">
         Tugas Akhir ( {{ $ta->jenisPenelitian->nama ?? '-' }} )
       </h5>
       <div class="card-body">
@@ -16,7 +16,7 @@
         <strong>Pembimbing :</strong> {{ $ta->pembimbing->name ?? '-' }}
       </div>
       <div class="mb-3">
-        <strong>Catatan Usulan :</strong> {{ $ta->deskripsi ?? '-' }}
+        <strong>Catatan Usulan :<d/strong> {{ $ta->deskripsi ?? '-' }}
       </div>
       <div class="mb-3">
         <strong>Draft :</strong>

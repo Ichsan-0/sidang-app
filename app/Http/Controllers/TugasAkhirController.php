@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Prodi;
 use App\Models\TugasAkhir;
-use App\Models\TugasAkhirJudul;
 use App\Models\TugasAkhirStatus;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -44,7 +43,7 @@ class TugasAkhirController extends Controller
     {
         $user = auth()->user();
         $dosenList = User::role('dosen')->get();
-        $ta = TugasAkhir::with('judul')->where('mahasiswa_id', $user->id)->latest()->first();
+        $ta = TugasAkhir::where('mahasiswa_id', $user->id)->latest()->first();
         return view('layout._card_tugas_akhir', ['ta' => $ta]);
     }
 
@@ -68,6 +67,9 @@ class TugasAkhirController extends Controller
                 'deskripsi' => $request->deskripsi,
                 'jenis_penelitian_id' => $request->jenis_penelitian_id,
                 'bidang_peminatan_id' => $request->bidang_peminatan_id,
+                'latar_belakang' => $request->latar_belakang,
+                'permasalahan' => $request->permasalahan,
+                'metode' => $request->metode,
                 'pembimbing_id' => $request->pembimbing_id,
             ];
 
@@ -104,7 +106,7 @@ class TugasAkhirController extends Controller
             return response()->json([]);
         }
 
-        $query = TugasAkhir::with(['judul', 'jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status', 'mahasiswa'])
+        $query = TugasAkhir::with(['jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status', 'mahasiswa'])
             ->whereHas('mahasiswa', function($q) use ($user) {
                 $q->where('prodi_id', $user->prodi_id);
             });
@@ -118,9 +120,6 @@ class TugasAkhirController extends Controller
                 $query->whereHas('mahasiswa', function($q) use ($keyword) {
                     $q->where('name', 'like', "%{$keyword}%");
                 });
-            })
-            ->addColumn('jumlah_judul', function($ta) {
-                return $ta->judul->count();
             })
             ->addColumn('jenis_tugas_akhir', function($ta) {
                 return $ta->jenisPenelitian->nama ?? '-';
@@ -176,6 +175,9 @@ class TugasAkhirController extends Controller
                         <i class="bx bx-show-alt me-1"></i>
                     </button>
                 ';
+            })
+            ->addColumn('judul', function($ta) {
+                return $ta->judul ?? '-';
             })
             ->rawColumns(['judul', 'status', 'lampiran', 'action'])
             ->toJson();
@@ -236,7 +238,7 @@ class TugasAkhirController extends Controller
     public function destroy($id)
     {
         $ta = TugasAkhir::findOrFail($id);
-        $ta->judul()->delete();
+        //$ta->judul()->delete();
         $ta->status()->delete();
         $ta->delete();
         return response()->json(['success' => true, 'message' => 'Tugas Akhir berhasil dihapus!']);
