@@ -15,7 +15,16 @@ class TugasAkhir extends Model
 
     protected $table = 'tugas_akhir';
     protected $fillable = [
-        'mahasiswa_id', 'judul', 'latar_belakang', 'permasalahan', 'metode_penelitian', 'deskripsi', 'jenis_penelitian_id', 'bidang_peminatan_id', 'pembimbing_id', 'file'
+        'mahasiswa_id',
+        'judul',
+        'latar_belakang',
+        'permasalahan',
+        'metode_penelitian',
+        'deskripsi',
+        'jenis_penelitian_id',
+        'bidang_peminatan_id',
+        'pembimbing_id',
+        'file'
     ];
 
     public function status()

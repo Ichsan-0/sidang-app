@@ -17,7 +17,7 @@
   
   @if(auth()->user()->hasRole('mahasiswa'))
   <div class="row" id="tugasAkhirList">
-    @forelse($tugasAkhir as $ta)
+   @forelse($tugasAkhir as $ta)
       @include('tugas_akhir._card_tugas_akhir', ['ta' => $ta])
     @empty
       <div class="col-12" id="noTugasAkhirRow">
@@ -47,10 +47,10 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
+            <div class="mb-3">
             <label class="form-label">Judul Tugas Akhir</label>
-            <input type="text" name="judul" id="judul" class="form-control" placeholder="Masukkan judul tugas akhir" required maxlength="255">
-          </div>
+            <textarea name="judul" id="judul" class="form-control" placeholder="Masukkan judul tugas akhir" required maxlength="255" rows="2"></textarea>
+            </div>
           <div class="mb-3">
             <label for="selectTypeOpt" class="form-label">Jenis Tugas Akhir</label>
             <div class="d-flex gap-2 align-items-center">
@@ -63,7 +63,7 @@
           <div class="mb-3" id="bidangPeminatanGroup">
             <label for="selectBidangOpt" class="form-label">Bidang Peminatan</label>
             <div class="d-flex gap-2 align-items-center">
-              <select id="selectBidangOpt" class="form-select" name="bidang_peminatan_id" style="flex: 1;">
+              <select id="selectBidangOpt" class="form-select" id="bidang_peminatan_id" name="bidang_peminatan_id" style="flex: 1;">
               </select>
             </div>
           </div>
@@ -77,7 +77,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Metode Penelitian (ringkas)</label>
-            <textarea class="form-control" id="metode" name="metode" rows="3"></textarea>
+            <textarea class="form-control" id="metode_penelitian" name="metode_penelitian" rows="3"></textarea>
           </div>
           <div class="mb-3">
             <label for="formFile" class="form-label">Upload Draft/Lampiran</label>
@@ -143,7 +143,7 @@
   document.getElementById('deskripsi').value = '';
   document.getElementById('latar_belakang').value = '';
   document.getElementById('permasalahan').value = '';
-  document.getElementById('metode').value = '';
+  document.getElementById('metode_penelitian').value = '';
   document.getElementById('pembimbing').value = '';
   document.getElementById('formFile').value = '';
 
@@ -253,13 +253,12 @@
         bootstrap.Modal.getInstance(document.getElementById('usulTAModal')).hide();
         alert(data.message);
 
-        fetch('/tugas-akhir/last')
-          .then(res => res.text())
-          .then(html => {
-            const noRow = document.getElementById('noTugasAkhirRow');
-            if (noRow) noRow.remove();
-            document.getElementById('tugasAkhirList').insertAdjacentHTML('afterbegin', html);
-          });
+       fetch('/tugas-akhir/all')
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById('tugasAkhirList').innerHTML = html;
+          bindTugasAkhirCardEvents(); // <-- panggil di sini!
+        });
       } else {
         alert('Gagal menyimpan data!');
       }
@@ -267,7 +266,7 @@
     .catch(() => alert('Terjadi kesalahan!'));
   });
 
-  // Edit Tugas Akhir
+  function bindTugasAkhirCardEvents() {
   document.querySelectorAll('.editTugasAkhirBtn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var id = this.getAttribute('data-id');
@@ -280,6 +279,9 @@
           document.getElementById('judul').value = data.judul;
           document.getElementById('selectTypeOpt').value = data.jenis_penelitian_id;
           document.getElementById('selectBidangOpt').value = data.bidang_peminatan_id;
+          document.getElementById('latar_belakang').value = data.latar_belakang ?? '';
+          document.getElementById('permasalahan').value = data.permasalahan ?? '';
+          document.getElementById('metode_penelitian').value = data.metode_penelitian ?? '';
           document.getElementById('deskripsi').value = data.deskripsi ?? '';
           document.getElementById('pembimbing').value = data.pembimbing_id ?? '';
 
@@ -299,7 +301,6 @@
     });
   });
 
-  // Delete Tugas Akhir
   document.querySelectorAll('.deleteTugasAkhirBtn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       if (!confirm('Yakin ingin menghapus Tugas Akhir ini?')) return;
@@ -321,6 +322,7 @@
       });
     });
   });
+}
 
   document.getElementById('usulTAModal').addEventListener('hidden.bs.modal', function () {
     const form = this.querySelector('form');
@@ -339,11 +341,13 @@
       document.getElementById('deskripsi').value = '';
       document.getElementById('latar_belakang').value = '';
       document.getElementById('permasalahan').value = '';
-      document.getElementById('metode').value = '';
+      document.getElementById('metode_penelitian').value = '';
       document.getElementById('pembimbing').value = '';
       document.getElementById('formFile').value = '';
     }
   });
+
+  bindTugasAkhirCardEvents();
 </script>
 @endpush
 @endsection

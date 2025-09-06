@@ -90,7 +90,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/usulkan', [TugasAkhirController::class, 'usulkan'])->name('usulkan.index');
 
     });
-    Route::middleware(['auth', 'role:superadmin|mahasiswa'])->group(function () {
+    Route::middleware(['auth', 'role:superadmin|mahasiswa|dosen'])->group(function () {
         Route::get('/dashboard-role', function () {
             return view('dashboard');
         })->name('dashboard.role');
@@ -98,9 +98,10 @@ Route::middleware('auth')->group(function () {
         Route::get('get-bidang-peminatan', [DataMaster::class, 'getBidangPeminatan']);
         Route::get('/tugas-akhir', [TugasAkhirController::class, 'index'])->name('tugas-akhir.index');
         Route::post('/tugas-akhir', [TugasAkhirController::class, 'store'])->name('tugas-akhir.store');
-        Route::put('/tugas-akhir/{id}', [TugasAkhirController::class, 'update'])->name('tugas-akhir.update');
+        //Route::put('/tugas-akhir/{id}', [TugasAkhirController::class, 'update'])->name('tugas-akhir.update');
         Route::delete('/tugas-akhir/{id}', [TugasAkhirController::class, 'destroy'])->name('tugas-akhir.destroy');
         Route::get('/tugas-akhir/last', [TugasAkhirController::class, 'last'])->name('tugas-akhir.last');
+        Route::get('/tugas-akhir/all', [TugasAkhirController::class, 'all'])->name('tugas-akhir.all');
         Route::get('/tugas-akhir/ajax', [TugasAkhirController::class, 'ajax'])->name('tugas-akhir.ajax');
         Route::get('/tugas-akhir/{id}/edit', [TugasAkhirController::class, 'edit'])->name('tugas-akhir.edit');
         Route::post('/tugas-akhir/{id}/update', [TugasAkhirController::class, 'update'])->name('tugas-akhir.update');

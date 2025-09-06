@@ -19,10 +19,10 @@
           <thead class="table-light">
             <tr>
               <th>No</th>
-              <th>Status</th>
               <th>Nama Mahasiswa</th>
-              <th>Jenis Tugas Akhir</th>
-              <th>Bidang Peminatan</th>
+              <th>Judul Diajukan</th>
+              <th>Prodi</th>
+              <th>Status</th>
               <th>Aksi</th>
             </tr>
           </thead>
@@ -48,10 +48,10 @@ $(function () {
     ajax: '{{ route("tugas-akhir.ajax") }}',
     columns: [
       { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-      { data: 'status', name: 'status', orderable: true},
-      { data: 'nama_mahasiswa', name: 'nama_mahasiswa', orderable: false, searchable: false },
-      { data: 'jenis_tugas_akhir', name: 'jenis_tugas_akhir', orderable: false, searchable: false },
-      { data: 'bidang_peminatan', name: 'bidang_peminatan', orderable: false, searchable: false },
+      { data: 'nama_mahasiswa', name: 'users.name' },
+      { data: 'jumlah_judul', name: 'jumlah_judul', searchable: false },
+      { data: 'kode_prodi', name: 'kode_prodi', orderable: false, searchable: false },
+      { data: 'status', name: 'status', orderable: true, searchable: false },
       { data: 'action', name: 'action', orderable: false, searchable: false }
     ]
   });

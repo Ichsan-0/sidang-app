@@ -42,9 +42,18 @@ class TugasAkhirController extends Controller
     public function last()
     {
         $user = auth()->user();
-        $dosenList = User::role('dosen')->get();
         $ta = TugasAkhir::where('mahasiswa_id', $user->id)->latest()->first();
-        return view('layout._card_tugas_akhir', ['ta' => $ta]);
+        return view('tugas_akhir._card_tugas_akhir', ['ta' => $ta]);
+    }
+
+    public function all()
+    {
+        $user = auth()->user();
+        $tugasAkhir = TugasAkhir::with(['jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status'])
+            ->where('mahasiswa_id', $user->id)
+            ->get();
+
+        return view('tugas_akhir._list_card_tugas_akhir', ['tugasAkhir' => $tugasAkhir]);
     }
 
     public function store(Request $request)
@@ -53,7 +62,7 @@ class TugasAkhirController extends Controller
             'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'jenis_penelitian_id' => 'required|exists:jenis_penelitians,id',
-            'bidang_peminatan_id' => 'nullable|exists:bidang_peminatans,id',
+            'bidang_peminatan_id' => 'nullable|exists:bidang_peminatan,id',
             'pembimbing_id' => 'nullable|string|max:255',
             'file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
         ]);
@@ -69,7 +78,7 @@ class TugasAkhirController extends Controller
                 'bidang_peminatan_id' => $request->bidang_peminatan_id,
                 'latar_belakang' => $request->latar_belakang,
                 'permasalahan' => $request->permasalahan,
-                'metode' => $request->metode,
+                'metode_penelitian' => $request->metode_penelitian,
                 'pembimbing_id' => $request->pembimbing_id,
             ];
 
@@ -101,85 +110,59 @@ class TugasAkhirController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->hasRole('mahasiswa')) {
-            // Tidak perlu DataTables untuk mahasiswa
-            return response()->json([]);
-        }
+        $query = TugasAkhir::select(
+                'tugas_akhir.mahasiswa_id',
+                DB::raw('COUNT(*) as jumlah_judul'),
+                'users.name as nama_mahasiswa'
+            )
+            ->join('users', 'users.id', '=', 'tugas_akhir.mahasiswa_id')
+            ->groupBy('tugas_akhir.mahasiswa_id', 'users.name');
 
-        $query = TugasAkhir::with(['jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status', 'mahasiswa'])
-            ->whereHas('mahasiswa', function($q) use ($user) {
-                $q->where('prodi_id', $user->prodi_id);
-            });
+        // Filter sesuai role
+        if ($user->hasRole('admin prodi')) {
+            $query->where('users.prodi_id', $user->prodi_id);
+        } elseif ($user->hasRole('dosen')) {
+            $query->where('tugas_akhir.pembimbing_id', $user->id);
+        }
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('nama_mahasiswa', function($ta) {
-                return $ta->mahasiswa->name ?? '-';
+            ->editColumn('nama_mahasiswa', function($row) {
+                return $row->nama_mahasiswa;
             })
-            ->filterColumn('nama_mahasiswa', function($query, $keyword) {
-                $query->whereHas('mahasiswa', function($q) use ($keyword) {
-                    $q->where('name', 'like', "%{$keyword}%");
-                });
+            ->editColumn('jumlah_judul', function($row) {
+                return $row->jumlah_judul;
             })
-            ->addColumn('jenis_tugas_akhir', function($ta) {
-                return $ta->jenisPenelitian->nama ?? '-';
+            ->addColumn('kode_prodi', function($row) {
+                $kode = TugasAkhir::where('mahasiswa_id', $row->mahasiswa_id)
+                    ->join('users', 'users.id', '=', 'tugas_akhir.mahasiswa_id')
+                    ->join('prodis', 'prodis.id', '=', 'users.prodi_id')
+                    ->value('prodis.kode_prodi');
+                return $kode ?? '-';
             })
-            ->filterColumn('jenis_tugas_akhir', function($query, $keyword) {
-                $query->whereHas('jenisPenelitian', function($q) use ($keyword) {
-                    $q->where('nama', 'like', "%{$keyword}%");
-                });
-            })
-            ->addColumn('bidang_peminatan', function($ta) {
-                return $ta->bidangPeminatan->nama ?? '-';
-            })
-            ->filterColumn('bidang_peminatan', function($query, $keyword) {
-                $query->whereHas('bidangPeminatan', function($q) use ($keyword) {
-                    $q->where('nama', 'like', "%{$keyword}%");
-                });
-            })
-            ->addColumn('pembimbing', function($ta) {
-                return $ta->pembimbing->name ?? '-';
-            })
-            ->filterColumn('pembimbing', function($query, $keyword) {
-                $query->whereHas('pembimbing', function($q) use ($keyword) {
-                    $q->where('name', 'like', "%{$keyword}%");
-                });
-            })
-            ->addColumn('status', function($ta) {
-                $status = $ta->status()->latest()->first();
-                if ($status) {
-                    $statusText = '-';
-                    $badgeClass = 'bg-secondary';
-                    if ($status->status == 1) {
-                        $statusText = 'Belum Diperiksa';
-                        $badgeClass = 'bg-warning';
-                    } elseif ($status->status == 2) {
-                        $statusText = 'Disetujui';
-                        $badgeClass = 'bg-success';
-                    }
-                    return '<span class="badge '.$badgeClass.'">'.$statusText.'</span> <small>'.$status->catatan.'</small>';
+            ->addColumn('status', function($row) {
+                $tugasAkhirIds = TugasAkhir::where('mahasiswa_id', $row->mahasiswa_id)->pluck('id');
+                $statusList = TugasAkhirStatus::whereIn('tugas_akhir_id', $tugasAkhirIds)->pluck('status');
+                if ($statusList->count() > 0 && $statusList->every(fn($s) => $s == 1)) {
+                    return '<span class="badge bg-warning text-dark">Belum diperiksa</span>';
                 }
-                return '<span class="badge bg-secondary">-</span>';
+                $lastStatus = TugasAkhirStatus::whereIn('tugas_akhir_id', $tugasAkhirIds)->latest()->first();
+                if ($lastStatus && $lastStatus->status == 1) {
+                    return '<span class="badge bg-warning text-dark">Belum diperiksa</span>';
+                } elseif ($lastStatus) {
+                    return '<span class="badge bg-success">Sudah diperiksa</span>';
+                } else {
+                    return '<span class="badge bg-secondary">-</span>';
+                }
             })
-            ->orderColumn('status', function($query, $order) {
-                // Urutkan berdasarkan status terakhir
-                $query->leftJoin('tugas_akhir_status as tas', function($join) {
-                    $join->on('tas.tugas_akhir_id', '=', 'tugas_akhir.id');
-                })
-                ->orderBy('tas.status', $order)
-                ->select('tugas_akhir.*');
-            })
-            ->addColumn('action', function($ta) {
+            ->addColumn('action', function($row) {
                 return '
-                    <button class="btn btn-icon btn-primary editBtn" data-id="'.$ta->id.'">
+                    <button class="btn btn-sm btn-icon btn-primary detailBtn" data-id="'.$row->mahasiswa_id.'">
                         <i class="bx bx-show-alt me-1"></i>
                     </button>
                 ';
             })
-            ->addColumn('judul', function($ta) {
-                return $ta->judul ?? '-';
-            })
-            ->rawColumns(['judul', 'status', 'lampiran', 'action'])
+            ->rawColumns(['status', 'action'])
             ->toJson();
     }
 
@@ -193,6 +176,9 @@ class TugasAkhirController extends Controller
             'bidang_peminatan_id' => $ta->bidang_peminatan_id,
             'pembimbing_id' => $ta->pembimbing_id,
             'deskripsi' => $ta->deskripsi,
+            'latar_belakang' => $ta->latar_belakang,
+            'permasalahan' => $ta->permasalahan,
+            'metode_penelitian' => $ta->metode_penelitian,
             'file' => $ta->file,
         ]);
     }
@@ -217,6 +203,9 @@ class TugasAkhirController extends Controller
                 'jenis_penelitian_id' => $request->jenis_penelitian_id,
                 'bidang_peminatan_id' => $request->bidang_peminatan_id,
                 'pembimbing_id' => $request->pembimbing_id,
+                'latar_belakang' => $request->latar_belakang,
+                'permasalahan' => $request->permasalahan,
+                'metode_penelitian' => $request->metode_penelitian,
             ]);
 
             if ($request->hasFile('file')) {
@@ -243,4 +232,6 @@ class TugasAkhirController extends Controller
         $ta->delete();
         return response()->json(['success' => true, 'message' => 'Tugas Akhir berhasil dihapus!']);
     }
+
+    
 }
