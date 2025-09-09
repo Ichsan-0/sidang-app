@@ -106,6 +106,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/tugas-akhir/{id}/edit', [TugasAkhirController::class, 'edit'])->name('tugas-akhir.edit');
         Route::post('/tugas-akhir/{id}/update', [TugasAkhirController::class, 'update'])->name('tugas-akhir.update');
         Route::delete('/tugas-akhir/{id}', [TugasAkhirController::class, 'destroy'])->name('tugas-akhir.destroy');
+        Route::get('/tugas-akhir/detail/{mahasiswaId}', [TugasAkhirController::class, 'detail']);
+        Route::post('/tugas-akhir/{id}/revisi', [TugasAkhirController::class, 'revisi'])->name('tugas-akhir.revisi');
+
+        Route::get('/seminar', [TugasAkhirController::class, 'seminar'])->name('seminar.index');
+        Route::get('/sidang', [TugasAkhirController::class, 'sidang'])->name('sidang.index');
     });
 });
 

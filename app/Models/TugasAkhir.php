@@ -49,4 +49,9 @@ class TugasAkhir extends Model
     {
         return $this->belongsTo(User::class, 'mahasiswa_id');
     }
+    
+    public function revisi()
+    {
+        return $this->hasMany(TugasAkhirRevisi::class, 'tugas_akhir_id');
+    }
 }

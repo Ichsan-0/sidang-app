@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Prodi;
 use App\Models\TugasAkhir;
 use App\Models\TugasAkhirStatus;
+use App\Models\TugasAkhirRevisi;
 use App\Models\User;
+use App\Models\JenisPenelitian;
+use App\Models\BidangPeminatan;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -113,7 +116,8 @@ class TugasAkhirController extends Controller
         $query = TugasAkhir::select(
                 'tugas_akhir.mahasiswa_id',
                 DB::raw('COUNT(*) as jumlah_judul'),
-                'users.name as nama_mahasiswa'
+                'users.name as nama_mahasiswa',
+                'users.no_induk as nim_mahasiswa'
             )
             ->join('users', 'users.id', '=', 'tugas_akhir.mahasiswa_id')
             ->groupBy('tugas_akhir.mahasiswa_id', 'users.name');
@@ -189,7 +193,6 @@ class TugasAkhirController extends Controller
             'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'jenis_penelitian_id' => 'required|exists:jenis_penelitians,id',
-            'bidang_peminatan_id' => 'nullable|exists:bidang_peminatans,id',
             'pembimbing_id' => 'nullable|string|max:255',
             'file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
         ]);
@@ -233,5 +236,69 @@ class TugasAkhirController extends Controller
         return response()->json(['success' => true, 'message' => 'Tugas Akhir berhasil dihapus!']);
     }
 
-    
+    public function detail($mahasiswaId)
+    {
+        $user = auth()->user();
+        $usulan = TugasAkhir::with(['jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status'])
+            ->where('mahasiswa_id', $mahasiswaId)
+            ->get();
+
+        $JenisPenelitianList = JenisPenelitian::all();
+        $BidangPeminatanList = BidangPeminatan::all();
+
+        $editableIds = [];
+        if ($user->hasAnyRole(['admin prodi', 'superadmin', 'pimpinan'])) {
+            // Full akses: semua usulan bisa diedit
+            $editableIds = $usulan->pluck('id')->toArray();
+        } elseif ($user->hasRole('dosen')) {
+            // Dosen hanya bisa edit usulan yang dibimbingnya
+            foreach ($usulan as $ta) {
+            if ($ta->pembimbing_id == $user->id) {
+                $editableIds[] = $ta->id;
+            }
+            }
+        }
+
+        return view('tugas_akhir._detail_tugas_akhir', compact('usulan', 'JenisPenelitianList', 'BidangPeminatanList', 'editableIds'));
+    }
+
+    public function revisi(Request $request, $id)
+    {
+        $user = auth()->user();
+        $ta = TugasAkhir::findOrFail($id);
+
+        // Validasi hanya dosen pembimbing yang boleh update
+        if ($user->hasRole('dosen') && $ta->pembimbing_id != $user->id) {
+            return response()->json(['success' => false, 'message' => 'Anda tidak berhak mengedit usulan ini.']);
+        }
+
+        DB::beginTransaction();
+        try {
+            // Simpan revisi jika ada
+            if ($request->filled('judul')) {
+                DB::table('tugas_akhir_revisi')->insert([
+                    'tugas_akhir_id' => $ta->id,
+                    'judul' => $request->judul,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+            // Tambahkan status baru
+            $statusData = $request->input('status', []);
+            foreach ($statusData as $st) {
+                TugasAkhirStatus::create([
+                    'tugas_akhir_id' => $ta->id,
+                    'status' => $st['status'],
+                    'catatan' => $st['catatan'],
+                    'user_id' => $user->id
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Revisi dan status berhasil disimpan!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
 }

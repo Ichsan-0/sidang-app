@@ -127,6 +127,103 @@
     <!-- Page JS -->
     <script src="{{ asset('assets/assets/js/dashboards-analytics.js')}}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      window.jenisPenelitianData = {};
+      window.getJenisPenelitian = function(selectId, callback) {
+        fetch('/get-jenis-penelitian')
+          .then(res => res.json())
+          .then(data => {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            select.innerHTML = '<option value="">--Pilih Jenis Tugas Akhir--</option>';
+            data.forEach(item => {
+              select.innerHTML += `<option value="${item.id}" data-nama="${item.nama}" data-ket="${item.ket ?? ''}">${item.nama}</option>`;
+              window.jenisPenelitianData[item.id] = item;
+            });
+            if (typeof callback === 'function') callback(select);
+          });
+      };
+
+      window.initSelectPopover = function(selectId) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        let popoverInstance = null;
+        select.addEventListener('change', function() {
+          if (popoverInstance) {
+            popoverInstance.dispose();
+            popoverInstance = null;
+          }
+          const selected = this.options[this.selectedIndex];
+          const nama = selected.getAttribute('data-nama');
+          const ket = selected.getAttribute('data-ket');
+          if (this.value && nama) {
+            popoverInstance = new bootstrap.Popover(this, {
+              title: nama,
+              content: ket || 'Tidak ada deskripsi.',
+              placement: 'right',
+              trigger: 'manual',
+              html: true
+            });
+            popoverInstance.show();
+          }
+        });
+        select.addEventListener('blur', function() {
+          if (popoverInstance) {
+            popoverInstance.hide();
+          }
+        });
+      };
+
+      window.getBidangPeminatan = function(selectId, groupId, callback) {
+        fetch('/get-bidang-peminatan')
+          .then(res => res.json())
+          .then(data => {
+            const bidangGroup = document.getElementById(groupId);
+            const select = document.getElementById(selectId);
+            if (!select || !bidangGroup) return;
+            if (data.length === 0) {
+              bidangGroup.style.display = 'none';
+            } else {
+              bidangGroup.style.display = '';
+              select.innerHTML = '<option value="">--Pilih Bidang Peminatan--</option>';
+              data.forEach(item => {
+                select.innerHTML += `<option value="${item.id}" data-nama="${item.nama}" data-ket="${item.ket ?? ''}">${item.nama}</option>`;
+              });
+              if (typeof callback === 'function') callback(select);
+            }
+          });
+      };
+
+      window.initBidangPopover = function(selectId) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        let bidangPopoverInstance = null;
+        select.addEventListener('change', function() {
+          if (bidangPopoverInstance) {
+            bidangPopoverInstance.dispose();
+            bidangPopoverInstance = null;
+          }
+          const selected = this.options[this.selectedIndex];
+          const nama = selected.getAttribute('data-nama');
+          const ket = selected.getAttribute('data-ket');
+          if (this.value && nama) {
+            bidangPopoverInstance = new bootstrap.Popover(this, {
+              title: nama,
+              content: ket || 'Tidak ada deskripsi.',
+              placement: 'right',
+              trigger: 'manual',
+              html: true
+            });
+            bidangPopoverInstance.show();
+          }
+        });
+        select.addEventListener('blur', function() {
+          if (bidangPopoverInstance) {
+            bidangPopoverInstance.hide();
+          }
+        });
+      };
+      </script>
     @stack('scripts')
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>

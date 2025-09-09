@@ -130,110 +130,26 @@
 <script>
   document.getElementById('addBtn').addEventListener('click', function() {
   // Reset form sebelum show modal
-  const form = document.querySelector('#usulTAModal form');
-  form.reset();
-  form.action = '{{ route("tugas-akhir.store") }}';
-  form.method = 'POST';
-  let methodInput = form.querySelector('input[name="_method"]');
-  if (methodInput) methodInput.remove();
+    const form = document.querySelector('#usulTAModal form');
+    form.reset();
+    form.action = '{{ route("tugas-akhir.store") }}';
+    form.method = 'POST';
+    let methodInput = form.querySelector('input[name="_method"]');
+    if (methodInput) methodInput.remove();
 
-  document.getElementById('judul').value = '';
-  document.getElementById('selectTypeOpt').value = '';
-  document.getElementById('selectBidangOpt').value = '';
-  document.getElementById('deskripsi').value = '';
-  document.getElementById('latar_belakang').value = '';
-  document.getElementById('permasalahan').value = '';
-  document.getElementById('metode_penelitian').value = '';
-  document.getElementById('pembimbing').value = '';
-  document.getElementById('formFile').value = '';
+    document.getElementById('judul').value = '';
+    document.getElementById('selectTypeOpt').value = '';
+    document.getElementById('selectBidangOpt').value = '';
+    document.getElementById('deskripsi').value = '';
+    document.getElementById('latar_belakang').value = '';
+    document.getElementById('permasalahan').value = '';
+    document.getElementById('metode_penelitian').value = '';
+    document.getElementById('pembimbing').value = '';
+    document.getElementById('formFile').value = '';
 
-  var modal = new bootstrap.Modal(document.getElementById('usulTAModal'));
-  modal.show();
-});
-
-  // Ambil data jenis penelitian dari DB
-  let jenisPenelitianData = {};
-  fetch('/get-jenis-penelitian')
-    .then(res => res.json())
-    .then(data => {
-      const select = document.getElementById('selectTypeOpt');
-      select.innerHTML = '<option value="">--Pilih Jenis Tugas Akhir--</option>';
-      data.forEach(item => {
-        select.innerHTML += `<option value="${item.id}" data-nama="${item.nama}" data-ket="${item.ket ?? ''}">${item.nama}</option>`;
-        jenisPenelitianData[item.id] = item;
-      });
-    });
-
-  // Popover instance
-  let popoverInstance = null;
-  document.getElementById('selectTypeOpt').addEventListener('change', function(e) {
-    if (popoverInstance) {
-      popoverInstance.dispose();
-      popoverInstance = null;
-    }
-    const selected = this.options[this.selectedIndex];
-    const nama = selected.getAttribute('data-nama');
-    const ket = selected.getAttribute('data-ket');
-    if (this.value && nama) {
-      popoverInstance = new bootstrap.Popover(this, {
-        title: nama,
-        content: ket || 'Tidak ada deskripsi.',
-        placement: 'right',
-        trigger: 'manual',
-        html: true
-      });
-      popoverInstance.show();
-    }
+    var modal = new bootstrap.Modal(document.getElementById('usulTAModal'));
+    modal.show();
   });
-  document.getElementById('selectTypeOpt').addEventListener('blur', function() {
-    if (popoverInstance) {
-      popoverInstance.hide();
-    }
-  });
-
-  // Ambil data bidang peminatan dari DB
-  fetch('/get-bidang-peminatan')
-    .then(res => res.json())
-    .then(data => {
-      const bidangGroup = document.getElementById('bidangPeminatanGroup');
-      const select = document.getElementById('selectBidangOpt');
-      if (data.length === 0) {
-        bidangGroup.style.display = 'none';
-      } else {
-        bidangGroup.style.display = '';
-        select.innerHTML = '<option value="">--Pilih Bidang Peminatan--</option>';
-        data.forEach(item => {
-          select.innerHTML += `<option value="${item.id}" data-nama="${item.nama}" data-ket="${item.ket ?? ''}">${item.nama}</option>`;
-        });
-      }
-    });
-
-  let bidangPopoverInstance = null;
-  document.getElementById('selectBidangOpt').addEventListener('change', function(e) {
-    if (bidangPopoverInstance) {
-      bidangPopoverInstance.dispose();
-      bidangPopoverInstance = null;
-    }
-    const selected = this.options[this.selectedIndex];
-    const nama = selected.getAttribute('data-nama');
-    const ket = selected.getAttribute('data-ket');
-    if (this.value && nama) {
-      bidangPopoverInstance = new bootstrap.Popover(this, {
-        title: nama,
-        content: ket || 'Tidak ada deskripsi.',
-        placement: 'right',
-        trigger: 'manual',
-        html: true
-      });
-      bidangPopoverInstance.show();
-    }
-  });
-  document.getElementById('selectBidangOpt').addEventListener('blur', function() {
-    if (bidangPopoverInstance) {
-      bidangPopoverInstance.hide();
-    }
-  });
-
   document.querySelector('#usulTAModal form').addEventListener('submit', function(e) {
     e.preventDefault();
     let form = this;
@@ -346,7 +262,14 @@
       document.getElementById('formFile').value = '';
     }
   });
+  getJenisPenelitian('selectTypeOpt', function() {
+    initSelectPopover('selectTypeOpt');
+  });
 
+  // Untuk bidang peminatan
+  getBidangPeminatan('selectBidangOpt', 'bidangPeminatanGroup', function() {
+    initBidangPopover('selectBidangOpt');
+  });
   bindTugasAkhirCardEvents();
 </script>
 @endpush

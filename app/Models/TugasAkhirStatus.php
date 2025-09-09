@@ -11,7 +11,7 @@ class TugasAkhirStatus extends Model
     
     protected $table = 'tugas_akhir_status';
     protected $fillable = [
-        'id', 'tugas_akhir_id', 'status', 'keterangan','user_id'
+        'id', 'tugas_akhir_id', 'status', 'catatan','user_id'
     ];
 
     public function tugasAkhir()
