@@ -156,8 +156,9 @@ class DataMaster extends Controller
             $ext = $file->getClientOriginalExtension();
             $namaProdiSlug = \Str::slug($request->nama_prodi, '_');
             $filename = 'template_' . $namaProdiSlug . '.' . $ext;
-            $path = $file->storeAs('template_prodi', $filename, 'public');
-            $data['draft'] = $path;
+            // Simpan langsung ke public/storage/template_prodi
+            $file->move(public_path('storage/template_prodi'), $filename);
+            $data['draft'] = 'template_prodi/' . $filename;
         }
 
         $prodi = Prodi::create($data);
@@ -198,8 +199,9 @@ class DataMaster extends Controller
             $ext = $file->getClientOriginalExtension();
             $namaProdiSlug = \Str::slug($request->nama_prodi, '_');
             $filename = 'template_' . $namaProdiSlug . '.' . $ext;
-            $path = $file->storeAs('template_prodi', $filename, 'public');
-            $data['draft'] = $path;
+            // Simpan langsung ke public/storage/template_prodi
+            $file->move(public_path('storage/template_prodi'), $filename);
+            $data['draft'] = 'template_prodi/' . $filename;
             // Optional: hapus file lama jika ada
             // if ($prodi->draft) Storage::disk('public')->delete($prodi->draft);
         }

@@ -21,7 +21,7 @@
               <th>No</th>
               <th>Nama Mahasiswa</th>
               <th>NIM</th>
-              <th>Judul Diajukan</th>
+              <th>Judul Dituliskan</th>
               <th>Prodi</th>
               <th>Status</th>
               <th>Aksi</th>
@@ -123,17 +123,6 @@ $(function () {
         });
       });
 
-      // Tampilkan/hide catatan sesuai status
-      $('#detailTAContent').find('select[name^="status"]').on('change', function() {
-        const val = $(this).val();
-        const parent = $(this).closest('.mb-3').next('.mb-3');
-        if (val == 2 || val == 4) {
-          parent.show();
-          parent.find('label').text(val == 2 ? 'Catatan Revisi' : 'Catatan Penolakan');
-        } else {
-          parent.hide();
-        }
-      }).trigger('change');
 
       $('#detailTAContent').find('.form-update-ta').each(function() {
         $(this).on('submit', function(e) {
@@ -174,6 +163,27 @@ $(function () {
       var modal = new bootstrap.Modal(document.getElementById('detailTAModal'));
       modal.show();
     });
+  });
+
+  $(document).on('click', '[id^="buatSkBtn-"]', function() {
+    const taId = $(this).attr('id').replace('buatSkBtn-', '');
+    // Lakukan proses pembuatan SK, misal AJAX ke endpoint khusus
+    fetch('/tugas-akhir/' + taId + '/buat-sk', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert('SK berhasil dibuat!');
+        // Bisa reload DataTables atau update tampilan
+      } else {
+        alert(data.message || 'Gagal membuat SK!');
+      }
+    })
+    .catch(() => alert('Terjadi kesalahan saat membuat SK!'));
   });
 });
 

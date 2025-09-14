@@ -65,7 +65,6 @@ class TugasAkhirController extends Controller
             'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'jenis_penelitian_id' => 'required|exists:jenis_penelitians,id',
-            'bidang_peminatan_id' => 'nullable|exists:bidang_peminatan,id',
             'pembimbing_id' => 'nullable|string|max:255',
             'file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
         ]);
@@ -87,17 +86,23 @@ class TugasAkhirController extends Controller
 
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
-                $filename = 'draft_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('tugas_akhir', $filename, 'public');
-                $data['file'] = $path;
+                $user = auth()->user();
+                $namaMahasiswa = preg_replace('/[^A-Za-z0-9]/', '_', $user->name);
+                $nimMahasiswa = $user->no_induk ?? 'nim';
+                $noUnik = substr(str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT), 0, 3);
+                $filename = 'draft_usulan_' . $namaMahasiswa . '_' . $nimMahasiswa . '_' . $noUnik . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('storage/usulan'), $filename);
+                $ta->file = 'usulan/' . $filename;
+                $ta->save();
             }
 
             $ta = TugasAkhir::create($data);
 
+            $statusValue = $request->input('status', 0); // default 0
             TugasAkhirStatus::create([
                 'tugas_akhir_id' => $ta->id,
-                'status' => 1,
-                'catatan' => "Diajukan",
+                'status' => $statusValue,
+                'catatan' => $statusValue == 1 ? "Diajukan" : "Disimpan",
                 'user_id' => $user->id
             ]);
 
@@ -120,6 +125,10 @@ class TugasAkhirController extends Controller
                 'users.no_induk as nim_mahasiswa'
             )
             ->join('users', 'users.id', '=', 'tugas_akhir.mahasiswa_id')
+            // Join status terakhir
+            ->join(DB::raw('(SELECT tugas_akhir_id, MAX(id) as last_status_id FROM tugas_akhir_status GROUP BY tugas_akhir_id) as tas'), 'tugas_akhir.id', '=', 'tas.tugas_akhir_id')
+            ->join('tugas_akhir_status as status_akhir', 'status_akhir.id', '=', 'tas.last_status_id')
+            ->where('status_akhir.status', '>', 0) // hanya status akhir > 0
             ->groupBy('tugas_akhir.mahasiswa_id', 'users.name');
 
         // Filter sesuai role
@@ -148,13 +157,13 @@ class TugasAkhirController extends Controller
                 $tugasAkhirIds = TugasAkhir::where('mahasiswa_id', $row->mahasiswa_id)->pluck('id');
                 $statusList = TugasAkhirStatus::whereIn('tugas_akhir_id', $tugasAkhirIds)->pluck('status');
                 if ($statusList->count() > 0 && $statusList->every(fn($s) => $s == 1)) {
-                    return '<span class="badge bg-warning text-dark">Belum diperiksa</span>';
+                    return '<span class="badge bg-warning text-white">Belum diperiksa</span>';
                 }
                 $lastStatus = TugasAkhirStatus::whereIn('tugas_akhir_id', $tugasAkhirIds)->latest()->first();
                 if ($lastStatus && $lastStatus->status == 1) {
                     return '<span class="badge bg-warning text-dark">Belum diperiksa</span>';
                 } elseif ($lastStatus) {
-                    return '<span class="badge bg-success">Sudah diperiksa</span>';
+                    return '<span class="badge bg-secondary">Belum selesai Pengajuan</span>';
                 } else {
                     return '<span class="badge bg-secondary">-</span>';
                 }
@@ -213,10 +222,24 @@ class TugasAkhirController extends Controller
 
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
-                $filename = 'draft_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('tugas_akhir', $filename, 'public');
-                $ta->file = $path;
+                $user = auth()->user();
+                $namaMahasiswa = preg_replace('/[^A-Za-z0-9]/', '_', $user->name);
+                $nimMahasiswa = $user->no_induk ?? 'nim';
+                $noUnik = substr(str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT), 0, 3);
+                $filename = 'draft_usulan_' . $namaMahasiswa . '_' . $nimMahasiswa . '_' . $noUnik . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('storage/usulan'), $filename);
+                $ta->file = 'usulan/' . $filename;
                 $ta->save();
+            }
+
+            // Update status jika ada
+            if ($request->has('status')) {
+                TugasAkhirStatus::create([
+                    'tugas_akhir_id' => $ta->id,
+                    'status' => $request->status,
+                    'catatan' => $request->status == 1 ? "Diajukan" : "Disimpan",
+                    'user_id' => auth()->id()
+                ]);
             }
 
             DB::commit();
@@ -239,23 +262,48 @@ class TugasAkhirController extends Controller
     public function detail($mahasiswaId)
     {
         $user = auth()->user();
-        $usulan = TugasAkhir::with(['jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status'])
-            ->where('mahasiswa_id', $mahasiswaId)
-            ->get();
+        // Ambil semua usulan tugas akhir mahasiswa
+        $usulan = TugasAkhir::with([
+            'jenisPenelitian',
+            'bidangPeminatan',
+            'pembimbing',
+            // Ambil status terakhir
+            'status' => function($q) {
+                $q->orderByDesc('created_at');
+            }
+        ])
+        ->where('mahasiswa_id', $mahasiswaId)
+        // Filter hanya usulan dengan status akhir > 0
+        ->whereIn('id', function($sub) {
+            $sub->select('tugas_akhir_id')
+                ->from('tugas_akhir_status')
+                ->whereRaw('tugas_akhir_status.id = (
+                    select max(id) from tugas_akhir_status as tas2
+                    where tas2.tugas_akhir_id = tugas_akhir_status.tugas_akhir_id
+                )')
+                ->where('status', '>', 0);
+        })
+        ->get();
+
+        // Ambil revisi terakhir untuk setiap usulan
+        foreach ($usulan as $ta) {
+            $ta->revisi = \DB::table('tugas_akhir_revisi')
+                ->where('tugas_akhir_id', $ta->id)
+                ->orderByDesc('created_at')
+                ->first();
+        }
 
         $JenisPenelitianList = JenisPenelitian::all();
         $BidangPeminatanList = BidangPeminatan::all();
 
         $editableIds = [];
         if ($user->hasAnyRole(['admin prodi', 'superadmin', 'pimpinan'])) {
-            // Full akses: semua usulan bisa diedit
             $editableIds = $usulan->pluck('id')->toArray();
         } elseif ($user->hasRole('dosen')) {
-            // Dosen hanya bisa edit usulan yang dibimbingnya
             foreach ($usulan as $ta) {
-            if ($ta->pembimbing_id == $user->id) {
-                $editableIds[] = $ta->id;
-            }
+                if ($ta->pembimbing_id == $user->id) {
+                    $editableIds[] = $ta->id;
+                }
             }
         }
 

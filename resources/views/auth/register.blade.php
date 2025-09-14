@@ -40,7 +40,7 @@
                 </div>
                 <div>
                     <label for="nim" class="block text-gray-700 font-medium mb-1">NIM</label>
-                    <input id="nim" type="text" name="no_induk" value="{{ old('name') }}" required autofocus autocomplete="nim"
+                    <input id="nim" type="text" name="no_induk" value="{{ old('no_induk') }}" required autofocus autocomplete="no_induk"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" />
                 </div>
                 <!-- Email Address -->

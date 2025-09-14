@@ -111,6 +111,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/seminar', [TugasAkhirController::class, 'seminar'])->name('seminar.index');
         Route::get('/sidang', [TugasAkhirController::class, 'sidang'])->name('sidang.index');
+        //Route::get('/tugas-akhir/{id}/cetak-sk', [TugasAkhirController::class, 'cetakSk'])->name('tugas-akhir.cetakSk');
+        Route::post('/tugas-akhir/{id}/buat-sk', [TugasAkhirController::class, 'buatSk'])->name('tugas-akhir.buatSk');
     });
 });
 

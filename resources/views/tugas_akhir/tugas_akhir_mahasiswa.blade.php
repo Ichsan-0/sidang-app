@@ -17,6 +17,15 @@
   
   @if(auth()->user()->hasRole('mahasiswa'))
   <div class="row" id="tugasAkhirList">
+    
+    <div class="col-12">
+      <div class="alert alert-warning alert-dismissible" role="alert">
+        <strong>Perhatikan :</strong> <br>1. Disarankan memilih satu dosen pembimbing saja. Jika memilih lebih dari satu, judul Anda harus divalidasi oleh lebih dari satu dosen tersebut sebelum disetujui.
+        <br>2. Setelah <strong>" Kirim Usulan"</strong>, Anda tidak dapat mengedit atau menghapusnya. Pastikan semua informasi sudah benar sebelum mengirim.
+        <br>3. Setelah mengirimkan usulan, Silahkan menghubungi dosen pembimbing untuk mempercepat proses persetujuan.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    </div>
    @forelse($tugasAkhir as $ta)
       @include('tugas_akhir._card_tugas_akhir', ['ta' => $ta])
     @empty
@@ -38,6 +47,7 @@
   @endif
   
 <!-- Modal Usul Tugas Akhir -->
+
   <div class="modal fade" id="usulTAModal" tabindex="-1" aria-labelledby="usulTAModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <form action="#" method="POST" class="modal-content" enctype="multipart/form-data">
@@ -47,6 +57,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
         </div>
         <div class="modal-body">
+         
             <div class="mb-3">
             <label class="form-label">Judul Tugas Akhir</label>
             <textarea name="judul" id="judul" class="form-control" placeholder="Masukkan judul tugas akhir" required maxlength="255" rows="2"></textarea>
@@ -85,7 +96,7 @@
             <div class="form-text">
               Upload file draft atau lampiran yang relevan.
               @if(isset($prodi) && $prodi->draft)
-                <a href="{{ asset('storage/'.$prodi->draft) }}" target="_blank" class="badge bg-primary text-white" style="cursor:pointer;">
+                <a href="{{ asset('storage/' . $prodi->draft) }}" target="_blank" class="badge bg-primary text-white" style="cursor:pointer;">
                   lihat template
                 </a>
               @else
@@ -108,14 +119,21 @@
             </select>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-          <button type="submit" class="btn btn-primary">Kirim Usulan</button>
+        
+        <div class="modal-footer d-flex flex-row flex-nowrap justify-content-between gap-2">
+          <button type="submit" class="btn btn-info flex-fill" id="btnSimpanData">
+            Simpan data
+          </button>
+          <button type="button" class="btn btn-primary flex-fill" id="btnKirimUsulan">
+            Kirim Usulan
+          </button>
         </div>
       </form>
     </div>
   </div>
 </div>
+
+
 
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
@@ -168,19 +186,58 @@
         form.reset();
         bootstrap.Modal.getInstance(document.getElementById('usulTAModal')).hide();
         alert(data.message);
-
-       fetch('/tugas-akhir/all')
-        .then(res => res.text())
-        .then(html => {
-          document.getElementById('tugasAkhirList').innerHTML = html;
-          bindTugasAkhirCardEvents(); // <-- panggil di sini!
-        });
+        // Live refresh list usulan
+        fetch('/tugas-akhir/all')
+          .then(res => res.text())
+          .then(html => {
+            document.getElementById('tugasAkhirList').innerHTML = html;
+            bindTugasAkhirCardEvents();
+          });
       } else {
-        alert('Gagal menyimpan data!');
+        document.getElementById('responseAlert').innerHTML = `
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            ${data.message || 'Gagal menyimpan data!'}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        `;
       }
     })
     .catch(() => alert('Terjadi kesalahan!'));
   });
+
+  
+
+function submitUsulan(statusValue) {
+  const form = document.querySelector('#usulTAModal form');
+  const formData = new FormData(form);
+  formData.append('status', statusValue);
+
+  fetch(form.action, {
+    method: 'POST',
+    headers: {
+      'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+    },
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      form.reset();
+      bootstrap.Modal.getInstance(document.getElementById('usulTAModal')).hide();
+      alert(data.message); // Ini alert bawaan Windows
+      // Refresh list, hilangkan tombol edit/hapus jika status=1
+      fetch('/tugas-akhir/all')
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById('tugasAkhirList').innerHTML = html;
+          bindTugasAkhirCardEvents();
+        });
+    } else {
+      alert(data.message || 'Gagal menyimpan data!');
+    }
+  })
+  .catch(() => alert('Terjadi kesalahan!'));
+}
 
   function bindTugasAkhirCardEvents() {
   document.querySelectorAll('.editTugasAkhirBtn').forEach(function(btn) {
@@ -271,6 +328,13 @@
     initBidangPopover('selectBidangOpt');
   });
   bindTugasAkhirCardEvents();
+
+  document.getElementById('btnKirimUsulan').addEventListener('click', function() {
+  if (confirm('Judul yang sudah diusulkan terkunci (tidak dapat diedit/dihapus) sampai diperiksa dan disetujui oleh dosen pembimbing.\n\nKlik OK untuk mengusulkan, atau Cancel untuk membatalkan.')) {
+    submitUsulan(1); // Kirim usulan dengan status=1
+  }
+  // Jika Cancel, tidak melakukan apa-apa
+});
 </script>
 @endpush
 @endsection

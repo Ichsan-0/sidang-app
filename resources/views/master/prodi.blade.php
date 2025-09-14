@@ -127,7 +127,7 @@ $(function () {
             $('#ket').val(data.ket);
             // Preview file jika ada
             if (data.draft) {
-                let url = '/storage/' + data.draft;
+                let url = window.location.origin + '/storage/' + data.draft;
                 let ext = url.split('.').pop().toLowerCase();
                 let html = '';
                 if (ext === 'pdf') {

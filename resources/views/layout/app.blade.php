@@ -123,6 +123,7 @@
 
     <!-- Main JS -->
     <script src="{{ asset('assets/assets/js/main.js')}}"></script>
+    <script src="{{ asset('assets/assets/js/ui-popover.js')}}"></script>
 
     <!-- Page JS -->
     <script src="{{ asset('assets/assets/js/dashboards-analytics.js')}}"></script>
