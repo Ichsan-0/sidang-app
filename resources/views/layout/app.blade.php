@@ -224,6 +224,17 @@
           }
         });
       };
+
+      $(document).on('click', '.role-switcher-item', function(e) {
+        e.preventDefault();
+        var role = $(this).data('role');
+        $.post("{{ route('set-active-role') }}", {
+          role: role,
+          _token: "{{ csrf_token() }}"
+        }, function() {
+          location.reload();
+        });
+      });
       </script>
     @stack('scripts')
     <!-- Place this tag in your head or just before your close body tag. -->

@@ -6,6 +6,7 @@ use App\Http\Controllers\DataMaster;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DataMaster\MahasiswaController;
 use App\Http\Controllers\TugasAkhirController; 
+use App\Http\Controllers\SkProposalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,7 +91,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/usulkan', [TugasAkhirController::class, 'usulkan'])->name('usulkan.index');
 
     });
-    Route::middleware(['auth', 'role:superadmin|mahasiswa|dosen'])->group(function () {
+    Route::middleware(['auth', 'role:superadmin|admin prodi|mahasiswa|dosen'])->group(function () {
         Route::get('/dashboard-role', function () {
             return view('dashboard');
         })->name('dashboard.role');
@@ -112,9 +113,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/seminar', [TugasAkhirController::class, 'seminar'])->name('seminar.index');
         Route::get('/sidang', [TugasAkhirController::class, 'sidang'])->name('sidang.index');
         //Route::get('/tugas-akhir/{id}/cetak-sk', [TugasAkhirController::class, 'cetakSk'])->name('tugas-akhir.cetakSk');
+        Route::get('/tugas-akhir/{id}/revisi-detail', [TugasAkhirController::class, 'revisiDetail']);
         Route::post('/tugas-akhir/{id}/buat-sk', [TugasAkhirController::class, 'buatSk'])->name('tugas-akhir.buatSk');
     });
 });
 
+
+Route::post('/set-active-role', function(\Illuminate\Http\Request $request) {
+    $role = $request->role;
+    if (Auth::user()->hasRole($role)) {
+        session(['active_role' => $role]);
+    }
+    return response()->json(['success' => true]);
+})->name('set-active-role');
+
+Route::post('/sk-proposal/create', [SkProposalController::class, 'create'])->name('sk-proposal.create');
 
 require __DIR__.'/auth.php';

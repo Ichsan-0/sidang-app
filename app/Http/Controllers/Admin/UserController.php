@@ -29,7 +29,8 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
-            'role' => 'required|exists:roles,name',
+            'role' => 'required|array',
+            'role.*' => 'exists:roles,name',
             'prodi' => 'required|exists:prodis,id',
             'no_induk' => 'required|string|max:50|unique:users,no_induk',
             'no_hp' => 'required|string|max:20',
@@ -85,11 +86,11 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$user->id,
-            'role' => 'required|exists:roles,name',
+            'role' => 'required|array',
+            'role.*' => 'exists:roles,name',
             'prodi' => 'required|exists:prodis,id',
             'no_induk' => 'required|string|max:50|unique:users,no_induk,'.$user->id,
             'no_hp' => 'required|string|max:20',
-            'alamat' => 'required|string|max:255',
             'password' => 'nullable|confirmed|min:6',
         ]);
 
@@ -104,7 +105,7 @@ class UserController extends Controller
         }
         $user->save();
 
-        $user->syncRoles([$request->role]);
+        $user->syncRoles($request->role);
 
         if ($request->ajax()) {
             return response()->json(['success' => true, 'message' => 'User berhasil diupdate']);

@@ -19,7 +19,7 @@
   <div class="row" id="tugasAkhirList">
     
     <div class="col-12">
-      <div class="alert alert-warning alert-dismissible" role="alert">
+      <div class="alert alert-warning alert-dismissible" id="alert-perhatian" role="alert">
         <strong>Perhatikan :</strong> <br>1. Disarankan memilih satu dosen pembimbing saja. Jika memilih lebih dari satu, judul Anda harus divalidasi oleh lebih dari satu dosen tersebut sebelum disetujui.
         <br>2. Setelah <strong>" Kirim Usulan"</strong>, Anda tidak dapat mengedit atau menghapusnya. Pastikan semua informasi sudah benar sebelum mengirim.
         <br>3. Setelah mengirimkan usulan, Silahkan menghubungi dosen pembimbing untuk mempercepat proses persetujuan.
@@ -133,6 +133,23 @@
   </div>
 </div>
 
+
+
+<!-- Modal Detail Revisi -->
+
+<div class="modal fade" id="detailRevisiModal" tabindex="-1" aria-labelledby="detailRevisiModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailRevisiModalLabel">Detail Validasi / Revisi Dosen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <div class="modal-body" id="detailRevisiContent">
+        <!-- Isi detail revisi akan diisi via JS -->
+      </div>
+    </div>
+  </div>
+</div>
 
 
 @push('styles')
@@ -332,9 +349,63 @@ function submitUsulan(statusValue) {
   document.getElementById('btnKirimUsulan').addEventListener('click', function() {
   if (confirm('Judul yang sudah diusulkan terkunci (tidak dapat diedit/dihapus) sampai diperiksa dan disetujui oleh dosen pembimbing.\n\nKlik OK untuk mengusulkan, atau Cancel untuk membatalkan.')) {
     submitUsulan(1); // Kirim usulan dengan status=1
+    window.location.reload();
   }
   // Jika Cancel, tidak melakukan apa-apa
 });
+
+  document.querySelectorAll('.detailRevisiBtn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = this.getAttribute('data-id');
+      fetch('/tugas-akhir/' + id + '/revisi-detail')
+        .then(res => res.json())
+        .then(data => {
+          let html = `
+            <div class="mb-3">
+              <label class="form-label"><strong>Judul Diajukan:</strong></label>
+              <p>${data.tugasAkhir && data.tugasAkhir.judul ? data.tugasAkhir.judul : '-'}</p>
+            </div>
+          `;
+          if (data.status_revisi != 3) {
+            html += `
+              <div class="mb-3">
+                <label class="form-label"><strong>Judul Revisi:</strong></label>
+                <p>${data.judul_revisi ?? '-'}</p>
+              </div>
+            `;
+          }
+          html += `
+            <div class="mb-3">
+              <label class="form-label"><strong>Status Revisi:</strong></label>
+              <span class="badge 
+                ${
+                  data.status_revisi == 2
+                    ? 'bg-primary'
+                    : data.status_revisi == 3
+                      ? 'bg-danger'
+                      : 'bg-secondary'
+                }">
+                ${
+                  data.status_revisi == 2
+                    ? 'Pengajuan disetujui'
+                    : data.status_revisi == 3
+                      ? 'Pengajuan ditolak'
+                      : (data.status_revisi ?? '-')
+                }
+              </span>
+            </div>
+            <div class="mb-3">
+              <label class="form-label"><strong>Catatan Dosen:</strong></label>
+              <p>${data.catatan_revisi ?? '-'}</p>
+            </div>
+          `;
+          document.getElementById('detailRevisiContent').innerHTML = html;
+          var modal = new bootstrap.Modal(document.getElementById('detailRevisiModal'));
+          modal.show();
+        });
+    });
+  });
+
 </script>
 @endpush
 @endsection

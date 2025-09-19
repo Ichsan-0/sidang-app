@@ -29,7 +29,10 @@ class TugasAkhirController extends Controller
             $tugasAkhir = TugasAkhir::with(['jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status'])
                 ->where('mahasiswa_id', $user->id)
                 ->get();
-
+            foreach ($tugasAkhir as $ta) {
+                $revisi = TugasAkhirRevisi::where('tugas_akhir_id', $ta->id)->latest()->first();
+                $ta->has_revisi = $revisi ? true : false;
+            }
             return view('tugas_akhir/tugas_akhir_mahasiswa', [
                 'prodi' => $prodi,
                 'tugasAkhir' => $tugasAkhir,
@@ -46,6 +49,10 @@ class TugasAkhirController extends Controller
     {
         $user = auth()->user();
         $ta = TugasAkhir::where('mahasiswa_id', $user->id)->latest()->first();
+        $revisi = $ta ? TugasAkhirRevisi::where('tugas_akhir_id', $ta->id)->latest()->first() : null;
+        if ($ta) {
+            $ta->has_revisi = $revisi ? true : false;
+        }
         return view('tugas_akhir._card_tugas_akhir', ['ta' => $ta]);
     }
 
@@ -55,7 +62,10 @@ class TugasAkhirController extends Controller
         $tugasAkhir = TugasAkhir::with(['jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status'])
             ->where('mahasiswa_id', $user->id)
             ->get();
-
+        foreach ($tugasAkhir as $ta) {
+            $revisi = TugasAkhirRevisi::where('tugas_akhir_id', $ta->id)->latest()->first();
+            $ta->has_revisi = $revisi ? true : false;
+        }
         return view('tugas_akhir._list_card_tugas_akhir', ['tugasAkhir' => $tugasAkhir]);
     }
 
@@ -84,6 +94,8 @@ class TugasAkhirController extends Controller
                 'pembimbing_id' => $request->pembimbing_id,
             ];
 
+            $ta = TugasAkhir::create($data);
+            
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
                 $user = auth()->user();
@@ -95,8 +107,6 @@ class TugasAkhirController extends Controller
                 $ta->file = 'usulan/' . $filename;
                 $ta->save();
             }
-
-            $ta = TugasAkhir::create($data);
 
             $statusValue = $request->input('status', 0); // default 0
             TugasAkhirStatus::create([
@@ -116,7 +126,8 @@ class TugasAkhirController extends Controller
 
     public function ajax(Request $request)
     {
-        $user = auth()->user();
+         $user = auth()->user();
+        $activeRole = session('active_role', $user->getRoleNames()->first());
 
         $query = TugasAkhir::select(
                 'tugas_akhir.mahasiswa_id',
@@ -125,26 +136,39 @@ class TugasAkhirController extends Controller
                 'users.no_induk as nim_mahasiswa'
             )
             ->join('users', 'users.id', '=', 'tugas_akhir.mahasiswa_id')
-            // Join status terakhir
             ->join(DB::raw('(SELECT tugas_akhir_id, MAX(id) as last_status_id FROM tugas_akhir_status GROUP BY tugas_akhir_id) as tas'), 'tugas_akhir.id', '=', 'tas.tugas_akhir_id')
             ->join('tugas_akhir_status as status_akhir', 'status_akhir.id', '=', 'tas.last_status_id')
-            ->where('status_akhir.status', '>', 0) // hanya status akhir > 0
+            ->where('status_akhir.status', '>', 0)
             ->groupBy('tugas_akhir.mahasiswa_id', 'users.name');
 
-        // Filter sesuai role
-        if ($user->hasRole('admin prodi')) {
+        // Filter sesuai role aktif
+        if ($activeRole == 'admin prodi' || $activeRole == 'pimpinan') {
             $query->where('users.prodi_id', $user->prodi_id);
-        } elseif ($user->hasRole('dosen')) {
+        } elseif ($activeRole == 'dosen') {
             $query->where('tugas_akhir.pembimbing_id', $user->id);
         }
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->editColumn('nama_mahasiswa', function($row) {
-                return $row->nama_mahasiswa;
+            ->addColumn('status_value', function($row) {
+                // Ambil status terakhir (int)
+                $lastStatus = TugasAkhirStatus::where('tugas_akhir_id', $row->id)
+                    ->orderByDesc('created_at')
+                    ->first();
+                return $lastStatus ? $lastStatus->status : 0;
             })
-            ->editColumn('jumlah_judul', function($row) {
-                return $row->jumlah_judul;
+            ->editColumn('status', function($row) {
+                // Tampilkan badge seperti sebelumnya
+                $lastStatus = TugasAkhirStatus::where('tugas_akhir_id', $row->id)
+                    ->orderByDesc('created_at')
+                    ->first();
+                if ($lastStatus && $lastStatus->status == 2) {
+                    return '<span class="badge bg-primary">Disetujui</span>';
+                } elseif ($lastStatus && $lastStatus->status == 3) {
+                    return '<span class="badge bg-danger">Ditolak</span>';
+                } else {
+                    return '<span class="badge bg-warning">Belum diperiksa</span>';
+                }
             })
             ->addColumn('kode_prodi', function($row) {
                 $kode = TugasAkhir::where('mahasiswa_id', $row->mahasiswa_id)
@@ -153,20 +177,63 @@ class TugasAkhirController extends Controller
                     ->value('prodis.kode_prodi');
                 return $kode ?? '-';
             })
-            ->addColumn('status', function($row) {
-                $tugasAkhirIds = TugasAkhir::where('mahasiswa_id', $row->mahasiswa_id)->pluck('id');
-                $statusList = TugasAkhirStatus::whereIn('tugas_akhir_id', $tugasAkhirIds)->pluck('status');
-                if ($statusList->count() > 0 && $statusList->every(fn($s) => $s == 1)) {
-                    return '<span class="badge bg-warning text-white">Belum diperiksa</span>';
+            ->editColumn('status', function($row) {
+                $user = auth()->user();
+
+                // Untuk admin prodi dan superadmin
+                if ($user->hasAnyRole(['admin prodi', 'superadmin'])) {
+                    // Ambil semua tugas akhir untuk mahasiswa ini
+                    $tugasAkhirIds = TugasAkhir::where('mahasiswa_id', $row->mahasiswa_id)->pluck('id');
+
+                    // Hanya hitung judul dengan status terakhir > 1
+                    $jumlahJudul = TugasAkhir::where('mahasiswa_id', $row->mahasiswa_id)
+                        ->whereIn('id', function($query) {
+                            $query->select('tugas_akhir_id')
+                                ->from('tugas_akhir_status')
+                                ->where('status', '!=', 0);
+                        })
+                        ->count();
+
+                    $jumlahRevisi = TugasAkhirRevisi::whereIn('tugas_akhir_id', $tugasAkhirIds)->count();
+
+                    if ($jumlahRevisi == 0) {
+                        return '<span class="badge bg-danger text-white">Belum Validasi</span>';
+                    } elseif ($jumlahJudul == $jumlahRevisi) {
+                        return '<span class="badge bg-primary">Selesai Validasi</span>';
+                    } elseif ($jumlahJudul > $jumlahRevisi) {
+                        return '<span class="badge bg-warning text-white">'.$jumlahJudul-$jumlahRevisi.' Belum Divalidasi</span>';
+                    } else {
+                        return '<span class="badge bg-warning text-white">Belum Diperiksa</span>';
+                    }
                 }
-                $lastStatus = TugasAkhirStatus::whereIn('tugas_akhir_id', $tugasAkhirIds)->latest()->first();
-                if ($lastStatus && $lastStatus->status == 1) {
-                    return '<span class="badge bg-warning text-dark">Belum diperiksa</span>';
-                } elseif ($lastStatus) {
-                    return '<span class="badge bg-secondary">Belum selesai Pengajuan</span>';
-                } else {
-                    return '<span class="badge bg-secondary">-</span>';
+
+                // Untuk dosen
+                if ($user->hasRole('dosen')) {
+                    $query = TugasAkhir::where('mahasiswa_id', $row->mahasiswa_id)
+                        ->where('pembimbing_id', $user->id);
+                    $tugasAkhirIds = $query->pluck('id');
+
+                    $lastStatus = TugasAkhirStatus::whereIn('tugas_akhir_id', $tugasAkhirIds)
+                        ->where('status', '>', 0)
+                        ->latest()
+                        ->first();
+
+                    $jumlahJudul = $query->count();
+                    $jumlahRevisi = TugasAkhirRevisi::whereIn('tugas_akhir_id', $tugasAkhirIds)->count();
+
+                    if ($lastStatus && $lastStatus->status == 1) {
+                        return '<span class="badge bg-warning text-white">Belum diperiksa</span>';
+                    } elseif ($jumlahJudul == $jumlahRevisi) {
+                        return '<span class="badge bg-primary">Selesai Validasi</span>';
+                    } elseif ($jumlahJudul > $jumlahRevisi) {
+                        return '<span class="badge bg-info text-white">'.($jumlahJudul - $jumlahRevisi).' Belum Diperiksa</span>';
+                    } else {
+                        return '<span class="badge bg-warning text-white">Belum Diperiksa</span>';
+                    }
                 }
+
+                // Untuk role lain (default)
+                return '<span class="badge bg-secondary">-</span>';
             })
             ->addColumn('action', function($row) {
                 return '
@@ -262,18 +329,15 @@ class TugasAkhirController extends Controller
     public function detail($mahasiswaId)
     {
         $user = auth()->user();
-        // Ambil semua usulan tugas akhir mahasiswa
         $usulan = TugasAkhir::with([
             'jenisPenelitian',
             'bidangPeminatan',
             'pembimbing',
-            // Ambil status terakhir
             'status' => function($q) {
                 $q->orderByDesc('created_at');
             }
         ])
         ->where('mahasiswa_id', $mahasiswaId)
-        // Filter hanya usulan dengan status akhir > 0
         ->whereIn('id', function($sub) {
             $sub->select('tugas_akhir_id')
                 ->from('tugas_akhir_status')
@@ -287,23 +351,26 @@ class TugasAkhirController extends Controller
 
         // Ambil revisi terakhir untuk setiap usulan
         foreach ($usulan as $ta) {
-            $ta->revisi = \DB::table('tugas_akhir_revisi')
+            $revisi = \DB::table('tugas_akhir_revisi')
                 ->where('tugas_akhir_id', $ta->id)
                 ->orderByDesc('created_at')
                 ->first();
+            $ta->has_revisi = $revisi ? true : false;
+            $ta->catatan_revisi = $revisi ? $revisi->catatan : '';
+            $ta->judul_revisi = $revisi ? $revisi->judul : $ta->judul;
+            $ta->status_revisi = $revisi ? $revisi->status_revisi : null;
+            $ta->created_at_revisi = $revisi && $revisi->created_at ? \Carbon\Carbon::parse($revisi->created_at)->format('d/m/Y') : null;
         }
 
         $JenisPenelitianList = JenisPenelitian::all();
         $BidangPeminatanList = BidangPeminatan::all();
 
         $editableIds = [];
-        if ($user->hasAnyRole(['admin prodi', 'superadmin', 'pimpinan'])) {
-            $editableIds = $usulan->pluck('id')->toArray();
-        } elseif ($user->hasRole('dosen')) {
+        if ($user->hasRole('dosen')) {
             foreach ($usulan as $ta) {
-                if ($ta->pembimbing_id == $user->id) {
-                    $editableIds[] = $ta->id;
-                }
+            if ($ta->pembimbing_id == $user->id) {
+                $editableIds[] = $ta->id;
+            }
             }
         }
 
@@ -324,20 +391,43 @@ class TugasAkhirController extends Controller
         try {
             // Simpan revisi jika ada
             if ($request->filled('judul')) {
-                DB::table('tugas_akhir_revisi')->insert([
-                    'tugas_akhir_id' => $ta->id,
+                $existingRevisi = DB::table('tugas_akhir_revisi')
+                    ->where('tugas_akhir_id', $ta->id)
+                    ->orderByDesc('created_at')
+                    ->first();
+
+                $dataRevisi = [
                     'judul' => $request->judul,
-                    'created_at' => now(),
+                    'catatan' => $request->input('status')[0]['catatan'] ?? '',
+                    'status_revisi' => $request->input('status')[0]['status'] ?? null,
                     'updated_at' => now()
-                ]);
+                ];
+
+                if ($existingRevisi) {
+                    // Update revisi yang sudah ada
+                    DB::table('tugas_akhir_revisi')
+                        ->where('id', $existingRevisi->id)
+                        ->update($dataRevisi);
+                } else {
+                    // Insert revisi baru
+                    $dataRevisi['tugas_akhir_id'] = $ta->id;
+                    $dataRevisi['created_at'] = now();
+                    DB::table('tugas_akhir_revisi')->insert($dataRevisi);
+                }
             }
             // Tambahkan status baru
             $statusData = $request->input('status', []);
             foreach ($statusData as $st) {
+                $catatan = $st['catatan'];
+                if ($st['status'] == 2) {
+                    $catatan = 'Disetujui';
+                } elseif ($st['status'] == 3) {
+                    $catatan = 'Ditolak';
+                }
                 TugasAkhirStatus::create([
                     'tugas_akhir_id' => $ta->id,
                     'status' => $st['status'],
-                    'catatan' => $st['catatan'],
+                    'catatan' => $catatan,
                     'user_id' => $user->id
                 ]);
             }
@@ -348,5 +438,21 @@ class TugasAkhirController extends Controller
             DB::rollBack();
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
+    }
+    public function revisiDetail($id)
+    {
+        $revisi = \DB::table('tugas_akhir_revisi')
+            ->where('tugas_akhir_id', $id)
+            ->orderByDesc('created_at')
+            ->first();
+
+        $tugasAkhir = TugasAkhir::find($id);
+
+        return response()->json([
+            'tugasAkhir' => $tugasAkhir,
+            'judul_revisi' => $revisi ? $revisi->judul : '',
+            'catatan_revisi' => $revisi ? $revisi->catatan : '',
+            'status_revisi' => $revisi ? $revisi->status_revisi : '',
+        ]);
     }
 }

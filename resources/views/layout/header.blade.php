@@ -27,6 +27,31 @@
 
               <ul class="navbar-nav flex-row align-items-center ms-auto">
                 <!-- Notification Button -->
+                @php
+                  $roles = Auth::user()->getRoleNames();
+                  $activeRole = session('active_role', Auth::user()->getRoleNames()->first());
+                @endphp
+                @if($roles->count() > 1)
+                  <li class="nav-item dropdown">
+                    <a class="nav-link icon" href="#" id="roleSwitcherDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="bx bx-user fs-4"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="roleSwitcherDropdown">
+                      <li><h6 class="dropdown-header">Pilih Role User</h6></li>
+                      @foreach($roles as $role)
+                        <li>
+                          <a href="#" class="dropdown-item role-switcher-item{{ $activeRole == $role ? ' active' : '' }}" data-role="{{ $role }}">
+                            {{ ucfirst($role) }}
+                            @if($activeRole == $role)
+                              <span class="badge bg-primary ms-2">Aktif</span>
+                            @endif
+                          </a>
+                        </li>
+                      @endforeach
+                      <li><hr class="dropdown-divider"></li>
+                    </ul>
+                  </li>
+                @endif
                 <li class="nav-item dropdown">
                   <a class="nav-link icon" href="#" id="navbarDropdownNotification" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bx bx-bell fs-4"></i>
@@ -91,21 +116,7 @@
                         <span class="align-middle">My Profile</span>
                       </a>
                     </li>
-                    <li>
-                      <a class="dropdown-item" href="#">
-                        <i class="bx bx-cog me-2"></i>
-                        <span class="align-middle">Settings</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="#">
-                        <span class="d-flex align-items-center align-middle">
-                          <i class="flex-shrink-0 bx bx-credit-card me-2"></i>
-                          <span class="flex-grow-1 align-middle">Billing</span>
-                          <span class="flex-shrink-0 badge badge-center rounded-pill bg-danger w-px-20 h-px-20">4</span>
-                        </span>
-                      </a>
-                    </li>
+                    
                     <li>
                       <div class="dropdown-divider"></div>
                     </li>

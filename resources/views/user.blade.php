@@ -55,7 +55,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Jenis User</label>
-            <select class="form-select" name="role" id="role" required>
+            <select class="form-select" name="role[]" id="role" multiple required>
               @foreach(\Spatie\Permission\Models\Role::all() as $role)
                 <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
               @endforeach
@@ -78,7 +78,7 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label">No. HP</label>
-                <input type="text" class="form-control" name="no_hp" id="no_hp" required>
+                <input type="text" class="form-control" name="no_hp" id="no_hp">
               </div>
             </div>
           </div>
@@ -157,21 +157,21 @@ function loadProdiSelect(selectedId = null) {
     });
 }
 
-function initRoleSelect(selectedRole = null) {
+function initRoleSelect(selectedRoles = []) {
     const $role = $('#role');
-    // Set selected jika ada
-    if (selectedRole) {
-        $role.val(selectedRole);
-    }
-    // Destroy Tom Select jika sudah pernah diinisialisasi
+    // Destroy TomSelect jika sudah pernah diinisialisasi
     if ($role[0].tomselect) {
         $role[0].tomselect.destroy();
     }
-    // Inisialisasi Tom Select
+    // Set selected value sebelum inisialisasi TomSelect
+    $role.val(selectedRoles);
+    // Inisialisasi TomSelect multiple
     new TomSelect($role[0], {
         create: false,
         allowEmptyOption: true,
-        closeAfterSelect: true
+        closeAfterSelect: true,
+        plugins: ['remove_button'],
+        maxItems: null // unlimited
     });
 }
 
@@ -181,7 +181,7 @@ $(function () {
         $('#userForm')[0].reset();
         $('#user_id').val('');
         loadProdiSelect();
-        initRoleSelect();
+        initRoleSelect([]); // kosongkan role
         $('.modal-title').text('Tambah User');
         $('#userModal').modal('show');
     });
@@ -193,12 +193,11 @@ $(function () {
             $('#user_id').val(data.id);
             $('#name').val(data.name);
             $('#email').val(data.email);
-            $('#role').val(data.roles[0] ?? '');
             $('#no_induk').val(data.no_induk);
             $('#no_hp').val(data.no_hp);
             $('#alamat').val(data.alamat);
-            loadProdiSelect(data.prodi); // set selected prodi
-            initRoleSelect(data.roles[0] ?? '');
+            loadProdiSelect(data.prodi);
+            initRoleSelect(data.roles); // set role sesuai user
             $('.modal-title').text('Edit User');
             $('#userModal').modal('show');
         });
@@ -264,6 +263,15 @@ $(function () {
                 console.log(xhr.responseText);
             }
         });
+    });
+
+    $('#userModal').on('hidden.bs.modal', function () {
+        $('#userForm')[0].reset();
+        $('#user_id').val('');
+        // Clear TomSelect role
+        if ($('#role')[0].tomselect) {
+        $('#role')[0].tomselect.clear();
+        }
     });
 });
 </script>

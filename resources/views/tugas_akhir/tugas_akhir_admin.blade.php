@@ -74,8 +74,8 @@ $(function () {
       { data: 'nim_mahasiswa', name: 'users.no_induk' },
       { data: 'jumlah_judul', name: 'jumlah_judul', searchable: false },
       { data: 'kode_prodi', name: 'kode_prodi', orderable: false, searchable: false },
-      { data: 'status', name: 'status', orderable: true, searchable: false },
-      { data: 'action', name: 'action', orderable: false, searchable: false }
+      { data: 'status', name: 'status', orderable: false, searchable: false },
+      { data: 'action', name: 'action', searchable: false }
     ]
   });
 
@@ -88,30 +88,7 @@ $(function () {
       $('#detailTAContent').html(html);
       $('#detailTAModalLabel').text('Detail Usulan Tugas Akhir - ' + namaMahasiswa + ' (' + nimMahasiswa + ')');
 
-      // Untuk setiap tab judul
-      $('#detailTAContent').find('.tab-pane').each(function() {
-        const taId = $(this).attr('id').replace('content-', '');
-        const selectTypeId = 'selectTypeOpt-' + taId;
-        const selectBidangId = 'selectBidangOpt-' + taId;
-
-        // Isi select jenis penelitian dan inisialisasi popover
-        getJenisPenelitian(selectTypeId, function() {
-          initSelectPopover(selectTypeId);
-          // Ambil value dari atribut data-value
-          const selectTypeOpt = document.getElementById(selectTypeId);
-          const selectedValue = selectTypeOpt.getAttribute('data-value');
-          if (selectedValue) selectTypeOpt.value = selectedValue;
-        }.bind(this));
-
-        // Isi select bidang peminatan dan inisialisasi popover
-        getBidangPeminatan(selectBidangId, 'bidangPeminatanGroup', function() {
-          initBidangPopover(selectBidangId);
-          const selectBidangOpt = document.getElementById(selectBidangId);
-          const selectedValue = selectBidangOpt.getAttribute('data-value');
-          if (selectedValue) selectBidangOpt.value = selectedValue;
-        });
-      });
-
+       
       // Inisialisasi Quill untuk setiap catatan
       $('#detailTAContent').find('.quill-editor').each(function() {
         const editorId = $(this).attr('id');
@@ -123,12 +100,24 @@ $(function () {
         });
       });
 
+      // Inisialisasi Quill untuk editor dengan class .quill-editor-adminprodi
+      $('#detailTAContent').find('.quill-editor-adminprodi').each(function() {
+        const editorId = $(this).attr('id');
+        const inputId = editorId + '-input';
+        const quill = new Quill('#' + editorId, { theme: 'snow' });
+        $(this).closest('form').on('submit', function() {
+          document.getElementById(inputId).value = quill.root.innerHTML;
+        });
+      });
 
       $('#detailTAContent').find('.form-update-ta').each(function() {
         $(this).on('submit', function(e) {
           e.preventDefault();
           const form = this;
           const formData = new FormData(form);
+
+          // Simpan id tab aktif sebelum reload
+          const activeTabId = $('#detailTAContent .nav-link.active').attr('id');
 
           // Set value Quill ke input hidden
           $(form).find('.quill-editor').each(function() {
@@ -151,7 +140,60 @@ $(function () {
           .then(data => {
             if (data.success) {
               alert(data.message);
-              $('#TugasAkhir').DataTable().ajax.reload(null, false);
+              // Refresh list usulan di background
+              $.get('/tugas-akhir/all', function(listHtml) {
+                $('#tugasAkhirList').html(listHtml);
+              });
+              // Ambil data detail terbaru dan update isi modal
+              $.get('/tugas-akhir/detail/' + mahasiswaId, function(html) {
+                $('#detailTAContent').html(html);
+
+                // Aktifkan kembali tab yang sebelumnya aktif
+                if (activeTabId) {
+                  setTimeout(function() {
+                    $('#' + activeTabId).tab('show');
+                  }, 100);
+                }
+
+                // Inisialisasi ulang Quill editor
+                $('#detailTAContent').find('.quill-editor').each(function() {
+                  const editorId = $(this).attr('id');
+                  const inputId = editorId.replace('editor', 'input');
+                  const quill = new Quill('#' + editorId, { theme: 'snow' });
+                  $(this).closest('form').on('submit', function() {
+                    document.getElementById(inputId).value = quill.root.innerHTML;
+                  });
+                });
+
+                // Inisialisasi ulang Quill untuk editor dengan class .quill-editor-adminprodi
+                $('#detailTAContent').find('.quill-editor-adminprodi').each(function() {
+                  const editorId = $(this).attr('id');
+                  const inputId = editorId + '-input';
+                  const quill = new Quill('#' + editorId, { theme: 'snow' });
+                  $(this).closest('form').on('submit', function() {
+                    document.getElementById(inputId).value = quill.root.innerHTML;
+                  });
+                });
+
+                // Inisialisasi ulang select status
+                $('#detailTAContent').find('.status-select').on('change', function() {
+                  const taid = $(this).data('taid');
+                  const label = document.getElementById('catatan-label-' + taid);
+                  const val = $(this).val();
+                  if (val == '3') {
+                    label.innerHTML = '<strong>Alasan Penolakan:</strong>';
+                  } else if (val == '2') {
+                    label.innerHTML = '<strong>Catatan / Revisi Pembimbing:</strong>';
+                  } else {
+                    label.innerHTML = '<strong>Catatan </strong>';
+                  }
+                });
+
+                $('#detailTAContent').find('.status-select').each(function() {
+                  const selectedValue = $(this).attr('data-selected');
+                  if (selectedValue) $(this).val(selectedValue);
+                });
+              });
             } else {
               alert(data.message || 'Gagal update!');
             }
@@ -160,35 +202,49 @@ $(function () {
         });
       });
 
+      // Live update label catatan/revisi saat status select berubah
+      $('#detailTAContent').find('.status-select').on('change', function() {
+        const taid = $(this).data('taid');
+        const label = document.getElementById('catatan-label-' + taid);
+        const val = $(this).val();
+        if (val == '3') {
+            label.innerHTML = '<strong>Alasan Penolakan:</strong>';
+          } else if (val == '2') {
+            label.innerHTML = '<strong>Catatan / Revisi Pembimbing:</strong>';
+          } else {
+            label.innerHTML = '<strong>Catatan </strong>';
+          }
+        });
+
+      $('#detailTAContent').find('.status-select').each(function() {
+        const selectedValue = $(this).attr('data-selected');
+        if (selectedValue) $(this).val(selectedValue);
+      });
+
       var modal = new bootstrap.Modal(document.getElementById('detailTAModal'));
       modal.show();
+      var modalEl = document.getElementById('detailTAModal');
+      modalEl.addEventListener('hidden.bs.modal', function () {
+        $('#TugasAkhir').DataTable().ajax.reload(null, false);
+      });
     });
   });
 
-  $(document).on('click', '[id^="buatSkBtn-"]', function() {
-    const taId = $(this).attr('id').replace('buatSkBtn-', '');
-    // Lakukan proses pembuatan SK, misal AJAX ke endpoint khusus
-    fetch('/tugas-akhir/' + taId + '/buat-sk', {
-      method: 'POST',
-      headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        alert('SK berhasil dibuat!');
-        // Bisa reload DataTables atau update tampilan
-      } else {
-        alert(data.message || 'Gagal membuat SK!');
-      }
-    })
-    .catch(() => alert('Terjadi kesalahan saat membuat SK!'));
-  });
+  $(document).on('click', '[id^=SkBtn-]', function() {
+    var taId = $(this).attr('id').replace('SkBtn-', '');
+    $.post("{{ route('sk-proposal.create') }}", {
+        tugas_akhir_id: taId,
+        _token: "{{ csrf_token() }}"
+    }, function(res) {
+        if(res.success) {
+            alert('SK Proposal berhasil dibuat!');
+            // reload atau update tampilan jika perlu
+        }
+    });
+});
 });
 
 </script>
 
 @endpush
 @endsection
-

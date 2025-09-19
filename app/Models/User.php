@@ -20,6 +20,8 @@ class User extends Authenticatable
         'email',
         'password',
         'no_induk',
+        'no_hp',
+        'alamat',
         'prodi_id',
     ];
 
