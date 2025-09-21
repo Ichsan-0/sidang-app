@@ -62,24 +62,27 @@
           <span class="badge bg-secondary">Tidak ada</span>
         @endif
       </div>
+      @php
+        $status = $ta->status()->latest()->first();
+      @endphp
       <div class="mb-3">
         <span class="fw-semibold ">Status:</span>
-        @php
-          $status = $ta->status()->latest()->first();
-        @endphp
         @if($status && $status->status == 0)
           <span class="badge bg-secondary text-white">Usulan Disimpan, Belum diajukan</span>
         @elseif($status && $status->status == 1)
-          <span class="badge bg-warning text-white">Telah diajukan, Belum Diperiksa</span>
+          <span class="badge bg-warning text-white">Telah diajukan, tanggal : {{ $status->created_at->format('d-m-Y') }}</span>
         @elseif($status && $status->status == 2)
-          <span class="badge bg-primary">Pengusulan Disetujui</span>
+          <span class="badge bg-primary">Pengusulan Disetujui tanggal : {{ $status->created_at->format('d-m-Y') }}</span>
         @elseif($status && $status->status == 3)
-          <span class="badge bg-danger">Pengusulan Ditolak</span>
+          <span class="badge bg-danger">Pengusulan Ditolak tanggal : {{ $status->created_at->format('d-m-Y') }}</span>
         @else
           <span class="badge bg-info">{{ $status->status ?? '-' }}</span>
         @endif
       </div>
-     
+      @if($status && $status->status == 2)
+        <span class="fw-semibold ">Status Prodi:</span>
+        <span class="badge bg-warning text-white">Menunggu Tinjauan Prodi</span>
+      @endif
     </div>
   </div>
 </div>

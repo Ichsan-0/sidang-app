@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DataMaster\MahasiswaController;
 use App\Http\Controllers\TugasAkhirController; 
 use App\Http\Controllers\SkProposalController;
+use App\Http\Controllers\ValidasiSKController;
 
 /*
 |--------------------------------------------------------------------------
@@ -114,7 +115,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/sidang', [TugasAkhirController::class, 'sidang'])->name('sidang.index');
         //Route::get('/tugas-akhir/{id}/cetak-sk', [TugasAkhirController::class, 'cetakSk'])->name('tugas-akhir.cetakSk');
         Route::get('/tugas-akhir/{id}/revisi-detail', [TugasAkhirController::class, 'revisiDetail']);
-        Route::post('/tugas-akhir/{id}/buat-sk', [TugasAkhirController::class, 'buatSk'])->name('tugas-akhir.buatSk');
     });
 });
 
@@ -127,6 +127,7 @@ Route::post('/set-active-role', function(\Illuminate\Http\Request $request) {
     return response()->json(['success' => true]);
 })->name('set-active-role');
 
-Route::post('/sk-proposal/create', [SkProposalController::class, 'create'])->name('sk-proposal.create');
+Route::post('/validasi-sk/create', [ValidasiSKController::class, 'create'])->name('validasi-sk.create');
+Route::get('/validasi-sk/cetak/{id}', [ValidasiSKController::class, 'cetak'])->name('validasi-sk.cetak');
 
 require __DIR__.'/auth.php';

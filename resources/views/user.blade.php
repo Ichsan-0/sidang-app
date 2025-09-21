@@ -140,8 +140,7 @@ function loadProdiSelect(selectedId = null) {
             groups[fakultas].forEach(function(prodi) {
                 $group.append($('<option>', {
                     value: prodi.value,
-                    text: prodi.text,
-                    selected: selectedId == prodi.value // hanya select jika edit
+                    text: prodi.text
                 }));
             });
             $prodi.append($group);
@@ -149,11 +148,15 @@ function loadProdiSelect(selectedId = null) {
         if ($prodi[0].tomselect) {
             $prodi[0].tomselect.destroy();
         }
-        new TomSelect($prodi[0], {
+        const ts = new TomSelect($prodi[0], {
             create: false,
             allowEmptyOption: true,
             closeAfterSelect: true
         });
+        // Set value selected setelah TomSelect diinisialisasi
+        if (selectedId) {
+            ts.setValue(selectedId.toString());
+        }
     });
 }
 

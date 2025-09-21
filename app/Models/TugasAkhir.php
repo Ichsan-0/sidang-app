@@ -54,4 +54,8 @@ class TugasAkhir extends Model
     {
         return $this->hasMany(TugasAkhirRevisi::class, 'tugas_akhir_id');
     }
+    public function sk_proposal()
+    {
+        return $this->hasOne(SkProposal::class, 'tugas_akhir_id');
+    }
 }

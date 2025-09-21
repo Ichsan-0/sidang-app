@@ -20,9 +20,11 @@
     
     <div class="col-12">
       <div class="alert alert-warning alert-dismissible" id="alert-perhatian" role="alert">
-        <strong>Perhatikan :</strong> <br>1. Disarankan memilih satu dosen pembimbing saja. Jika memilih lebih dari satu, judul Anda harus divalidasi oleh lebih dari satu dosen tersebut sebelum disetujui.
-        <br>2. Setelah <strong>" Kirim Usulan"</strong>, Anda tidak dapat mengedit atau menghapusnya. Pastikan semua informasi sudah benar sebelum mengirim.
-        <br>3. Setelah mengirimkan usulan, Silahkan menghubungi dosen pembimbing untuk mempercepat proses persetujuan.
+        <strong>Perhatikan :</strong> 
+        <br>1. Diskusikan judul dengan dosen pembimbing sebelum mengajukan.
+        <br>2. Pilih satu dosen pembimbing agar proses validasi lebih mudah.
+        <br>3. Setelah <strong>"Kirim Usulan"</strong>, data tidak bisa diedit/hapus.
+        <br>4. Hubungi dosen pembimbing untuk mempercepat persetujuan.
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     </div>
@@ -112,9 +114,8 @@
           <div class="mb-3">
             <label for="pembimbing" class="form-label">Pembimbing</label>
             <select class="form-select" id="pembimbing" name="pembimbing_id" required>
-              <option value="">-- Pilih Pembimbing --</option>
               @foreach($dosenList as $dosen)
-                <option value="{{ $dosen->id }}">{{ $dosen->name }}</option>
+                <option value="{{ $dosen->id }}">{{ $dosen->name }} - {{ $dosen->no_induk }}</option>
               @endforeach
             </select>
           </div>
@@ -155,12 +156,14 @@
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 
 @endpush
 
 @push('scripts')
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
 <script>
   document.getElementById('addBtn').addEventListener('click', function() {
@@ -184,7 +187,9 @@
 
     var modal = new bootstrap.Modal(document.getElementById('usulTAModal'));
     modal.show();
+    initPembimbingSelect('');
   });
+
   document.querySelector('#usulTAModal form').addEventListener('submit', function(e) {
     e.preventDefault();
     let form = this;
@@ -287,6 +292,7 @@ function submitUsulan(statusValue) {
             form.appendChild(methodInput);
           }
           methodInput.value = 'POST';
+          initPembimbingSelect(data.pembimbing_id ?? '');
         });
     });
   });
@@ -406,6 +412,21 @@ function submitUsulan(statusValue) {
     });
   });
 
+  function initPembimbingSelect(selectedId = '') {
+  const $pembimbing = document.getElementById('pembimbing');
+  // Destroy TomSelect jika sudah pernah diinisialisasi
+  if ($pembimbing.tomselect) {
+    $pembimbing.tomselect.destroy();
+  }
+  // Set value selected jika ada
+  $pembimbing.value = selectedId;
+  // Inisialisasi TomSelect
+  new TomSelect($pembimbing, {
+    create: false,
+    allowEmptyOption: true,
+    closeAfterSelect: true
+  });
+}
 </script>
 @endpush
 @endsection

@@ -56,12 +56,14 @@
 <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 @endpush
 
 @push('scripts')
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 <script>
 $(function () {
   $('#TugasAkhir').DataTable({
@@ -74,7 +76,7 @@ $(function () {
       { data: 'nim_mahasiswa', name: 'users.no_induk' },
       { data: 'jumlah_judul', name: 'jumlah_judul', searchable: false },
       { data: 'kode_prodi', name: 'kode_prodi', orderable: false, searchable: false },
-      { data: 'status', name: 'status', orderable: false, searchable: false },
+      { data: 'status', name: 'status', orderable: false },
       { data: 'action', name: 'action', searchable: false }
     ]
   });
@@ -221,6 +223,17 @@ $(function () {
         if (selectedValue) $(this).val(selectedValue);
       });
 
+      $('#detailTAContent').find('select[id^="pembimbing_id_"]').each(function() {
+        if (this.tomselect) {
+          this.tomselect.destroy();
+        }
+        new TomSelect(this, {
+          create: false,
+          allowEmptyOption: true,
+          closeAfterSelect: true
+        });
+      });
+
       var modal = new bootstrap.Modal(document.getElementById('detailTAModal'));
       modal.show();
       var modalEl = document.getElementById('detailTAModal');
@@ -230,18 +243,45 @@ $(function () {
     });
   });
 
-  $(document).on('click', '[id^=SkBtn-]', function() {
-    var taId = $(this).attr('id').replace('SkBtn-', '');
-    $.post("{{ route('sk-proposal.create') }}", {
-        tugas_akhir_id: taId,
-        _token: "{{ csrf_token() }}"
-    }, function(res) {
-        if(res.success) {
-            alert('SK Proposal berhasil dibuat!');
-            // reload atau update tampilan jika perlu
-        }
-    });
-});
+$(document).on('click', '[id^=setujuBtn-]', function() {
+  var taId = $(this).attr('id').replace('setujuBtn-', '');
+  var pembimbingId = $('#pembimbing_id_' + taId).val();
+  var keteranganSK = $('#quill-adminprodi-input-' + taId).val();
+  $.post("{{ route('validasi-sk.create') }}", {
+    tugas_akhir_id: taId,
+    pembimbing_id: pembimbingId,
+    keterangan_sk: keteranganSK,
+    status_sk: 'Y',
+    _token: "{{ csrf_token() }}"
+  }, function(res) {
+    if(res.success) {
+    alert('SK Proposal berhasil dibuat!');
+    var modal = bootstrap.Modal.getInstance(document.getElementById('detailTAModal'));
+    if (modal) modal.hide();
+    // reload atau update tampilan jika perlu
+    }
+  });
+  });
+
+  $(document).on('click', '[id^=tolakBtn-]', function() {
+  var taId = $(this).attr('id').replace('tolakBtn-', '');
+  var pembimbingId = $('#pembimbing_id_' + taId).val();
+  var keteranganSK = $('#quill-adminprodi-input-' + taId).val();
+  $.post("{{ route('validasi-sk.create') }}", {
+    tugas_akhir_id: taId,
+    pembimbing_id: pembimbingId,
+    keterangan_sk: keteranganSK,
+    status_sk: 'N',
+    _token: "{{ csrf_token() }}"
+  }, function(res) {
+    if(res.success) {
+    alert('Usulan berhasil ditolak!');
+    var modal = bootstrap.Modal.getInstance(document.getElementById('detailTAModal'));
+    if (modal) modal.hide();
+    // reload atau update tampilan jika perlu
+    }
+  });
+  });
 });
 
 </script>

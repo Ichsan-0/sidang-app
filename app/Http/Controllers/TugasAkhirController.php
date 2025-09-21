@@ -10,6 +10,8 @@ use App\Models\TugasAkhirRevisi;
 use App\Models\User;
 use App\Models\JenisPenelitian;
 use App\Models\BidangPeminatan;
+use App\Models\ta_validasi_prodi;
+use App\Models\SkProposal;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -150,26 +152,6 @@ class TugasAkhirController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('status_value', function($row) {
-                // Ambil status terakhir (int)
-                $lastStatus = TugasAkhirStatus::where('tugas_akhir_id', $row->id)
-                    ->orderByDesc('created_at')
-                    ->first();
-                return $lastStatus ? $lastStatus->status : 0;
-            })
-            ->editColumn('status', function($row) {
-                // Tampilkan badge seperti sebelumnya
-                $lastStatus = TugasAkhirStatus::where('tugas_akhir_id', $row->id)
-                    ->orderByDesc('created_at')
-                    ->first();
-                if ($lastStatus && $lastStatus->status == 2) {
-                    return '<span class="badge bg-primary">Disetujui</span>';
-                } elseif ($lastStatus && $lastStatus->status == 3) {
-                    return '<span class="badge bg-danger">Ditolak</span>';
-                } else {
-                    return '<span class="badge bg-warning">Belum diperiksa</span>';
-                }
-            })
             ->addColumn('kode_prodi', function($row) {
                 $kode = TugasAkhir::where('mahasiswa_id', $row->mahasiswa_id)
                     ->join('users', 'users.id', '=', 'tugas_akhir.mahasiswa_id')
@@ -195,13 +177,20 @@ class TugasAkhirController extends Controller
                         ->count();
 
                     $jumlahRevisi = TugasAkhirRevisi::whereIn('tugas_akhir_id', $tugasAkhirIds)->count();
+                    $skProposal = SkProposal::whereIn('tugas_akhir_id', $tugasAkhirIds)
+                        ->where('status_aktif', 1)
+                        ->first();
 
-                    if ($jumlahRevisi == 0) {
-                        return '<span class="badge bg-danger text-white">Belum Validasi</span>';
+                    if ($skProposal) {
+                        return '<span class="badge bg-success">Disetujui & SK Aktif</span>';
+                    } elseif ($jumlahJudul == 0) {
+                        return '<span class="badge bg-secondary">Belum Mengajukan</span>';
+                    } elseif ($jumlahJudul > 0 && $jumlahRevisi == 0) {
+                        return '<span class="badge bg-warning text-white">Belum Validasi Dosen</span>';
                     } elseif ($jumlahJudul == $jumlahRevisi) {
-                        return '<span class="badge bg-primary">Selesai Validasi</span>';
+                        return '<span class="badge bg-danger">Perlu Tinjauan Prodi</span>';
                     } elseif ($jumlahJudul > $jumlahRevisi) {
-                        return '<span class="badge bg-warning text-white">'.$jumlahJudul-$jumlahRevisi.' Belum Divalidasi</span>';
+                        return '<span class="badge bg-warning text-white">'.($jumlahJudul - $jumlahRevisi).' Belum Divalidasi</span>';
                     } else {
                         return '<span class="badge bg-warning text-white">Belum Diperiksa</span>';
                     }
@@ -333,6 +322,7 @@ class TugasAkhirController extends Controller
             'jenisPenelitian',
             'bidangPeminatan',
             'pembimbing',
+            'sk_proposal',
             'status' => function($q) {
                 $q->orderByDesc('created_at');
             }
@@ -364,7 +354,9 @@ class TugasAkhirController extends Controller
 
         $JenisPenelitianList = JenisPenelitian::all();
         $BidangPeminatanList = BidangPeminatan::all();
-
+        $sk_proposal = SkProposal::whereIn('tugas_akhir_id', $usulan->pluck('id'))->latest()->first();
+        $dosenList = User::role('dosen')->get();
+        
         $editableIds = [];
         if ($user->hasRole('dosen')) {
             foreach ($usulan as $ta) {
@@ -374,7 +366,14 @@ class TugasAkhirController extends Controller
             }
         }
 
-        return view('tugas_akhir._detail_tugas_akhir', compact('usulan', 'JenisPenelitianList', 'BidangPeminatanList', 'editableIds'));
+        return view('tugas_akhir._detail_tugas_akhir', compact(
+            'usulan',
+            'JenisPenelitianList',
+            'BidangPeminatanList',
+            'editableIds',
+            'dosenList',
+            'sk_proposal' 
+        ));
     }
 
     public function revisi(Request $request, $id)
