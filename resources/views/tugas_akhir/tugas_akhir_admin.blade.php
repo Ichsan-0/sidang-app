@@ -71,14 +71,14 @@ $(function () {
     serverSide: true,
     ajax: '{{ route("tugas-akhir.ajax") }}',
     columns: [
-      { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-      { data: 'nama_mahasiswa', name: 'users.name' },
-      { data: 'nim_mahasiswa', name: 'users.no_induk' },
-      { data: 'jumlah_judul', name: 'jumlah_judul', searchable: false },
-      { data: 'kode_prodi', name: 'kode_prodi', orderable: false, searchable: false },
-      { data: 'status', name: 'status', orderable: false },
-      { data: 'action', name: 'action', searchable: false }
-    ]
+        { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+        { data: 'nama_mahasiswa', name: 'users.name' },
+        { data: 'nim_mahasiswa', name: 'users.no_induk' },
+        { data: 'jumlah_judul', name: 'jumlah_judul', searchable: false },
+        { data: 'kode_prodi', name: 'kode_prodi', orderable: false, searchable: false },
+        { data: 'status', name: 'status', orderable: false, searchable: false }, // tambahkan searchable: false
+        { data: 'action', name: 'action', searchable: false }
+      ]
   });
 
   $('#TugasAkhir').on('click', '.detailBtn', function() {

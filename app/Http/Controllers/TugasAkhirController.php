@@ -152,6 +152,9 @@ class TugasAkhirController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn()
+            ->editColumn('nama_mahasiswa', function($row) {
+                return $row->nama_mahasiswa ?? '-';
+            })
             ->addColumn('kode_prodi', function($row) {
                 $kode = TugasAkhir::where('mahasiswa_id', $row->mahasiswa_id)
                     ->join('users', 'users.id', '=', 'tugas_akhir.mahasiswa_id')

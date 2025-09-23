@@ -6,27 +6,54 @@ use Illuminate\Http\Request;
 use App\Models\SkProposal;
 use App\Models\TugasAkhir;
 use App\Models\ta_validasi_prodi;
+use App\Models\User;
 use PDF; // alias dari Niklasravnsborg\LaravelPdf\Facades\Pdf
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 class ValidasiSKController extends Controller
 {
     public function cetak($id)
     {
-        $sk = SkProposal::with(['tugasAkhir.pembimbing'])->findOrFail($id);
+        \Carbon\Carbon::setLocale('id');
+         $sk = SkProposal::with([
+            'tugasAkhir.pembimbing',
+            'tugasAkhir.bidangPeminatan'
+        ])->findOrFail($id);
+         $penandatangan = $sk->ttd ? User::find($sk->ttd) : null;
+
+          // Generate QR Code
+        $url = url('cek/' . $sk->kode_sk);
+        $qrCode = QrCode::create($url)->setSize(90)->setMargin(5);
+        $writer = new PngWriter();
+        $qrPng = $writer->write($qrCode)->getString();
+        $qrBase64 = 'data:image/png;base64,' . base64_encode($qrPng);
 
         return PDF::loadView('tugas_akhir.sk_proposal', [
             'sk' => $sk,
             'ta' => $sk->tugasAkhir,
-            'pembimbing' => $sk->tugasAkhir->pembimbing,
-        ], [], [  // <== param 3 untuk data tambahan, param 4 untuk config mPDF
-            'format' => 'A4',
-            'orientation' => 'P',   // P = portrait, L = landscape
-            'margin_top' => 15,
-            'margin_right' => 15,
-            'margin_bottom' => 15,
-            'margin_left' => 15
+            'pembimbing' => $sk->pembimbing,
+            'bidangPeminatan' => $sk->tugasAkhir->bidangPeminatan,
+            'penandatangan' => $penandatangan,
+            'qrBase64' => $qrBase64
+        ], [], [
+            'format' => 'legal',
+            'orientation' => 'P',
+            'margin_top' => 5,
+            'margin_right' => 10,
+            'margin_bottom' => 10,
+            'margin_left' => 10
         ])
-        ->download('SK_Proposal_'.$sk->id.'.pdf');
+        ->download('SK_Proposal_' . ($sk->tugasAkhir->mahasiswa->name ?? 'Mahasiswa') . '.pdf');
+
+        /*return view('tugas_akhir.sk_proposal', [
+            'sk' => $sk,
+            'ta' => $sk->tugasAkhir,
+            'pembimbing' => $sk->pembimbing,
+            'bidangPeminatan' => $sk->tugasAkhir->bidangPeminatan,
+            'penandatangan' => $penandatangan,
+            'qrBase64' => $qrBase64
+        ]);*/
     }
     public function create(Request $request)
     {
@@ -45,22 +72,34 @@ class ValidasiSKController extends Controller
         if ($request->status_sk == 'Y') {
             // Ambil kode prodi dari relasi mahasiswa -> prodi
             $kodeProdi = ($ta->mahasiswa && $ta->mahasiswa->prodi)
-                ? $ta->mahasiswa->prodi->kode_prodi
-                : 'XX';
+            ? $ta->mahasiswa->prodi->kode_prodi
+            : 'XX';
 
             // Ambil bulan dan tahun dari tanggal_sk
             $tanggalSk = now();
             $bulan = $tanggalSk->format('m');
             $tahun = $tanggalSk->format('Y');
 
+            // Ambil judul revisi dari tabel tugas_akhir_revisi berdasarkan tugas_akhir_id
+            $judulRevisi = \DB::table('tugas_akhir_revisi')
+            ->where('tugas_akhir_id', $ta->id)
+            ->orderByDesc('id')
+            ->value('judul');
+            $ttd = User::whereHas('roles', function($q) {
+                    $q->where('name', 'pimpinan');
+                })
+                ->where('prodi_id', $ta->mahasiswa->prodi_id)
+                ->first();
             // Buat SK Proposal terlebih dahulu agar dapatkan id
             $sk = SkProposal::create([
                 'tugas_akhir_id' => $ta->id,
-                'judul_revisi'   => $ta->judul_revisi ?? $ta->judul,
+                // Ambil judul revisi saja dari input form (jika ada), kosongkan jika tidak ada
+                'judul_akhir'   => $judulRevisi,
                 'pembimbing_id'  => $request->pembimbing_id ?? $ta->pembimbing_id,
                 'tanggal_sk'     => $tanggalSk,
                 'tanggal_expired'=> $tanggalSk->copy()->addMonths(3),
                 'keterangan'     => $request->keterangan_sk ?? null,
+                'ttd'            => $ttd ? $ttd->id : null,
                 'status_aktif'   => true,
                 'created_at'     => now(),
                 'updated_at'     => now(),
