@@ -51,7 +51,7 @@
 <!-- Modal Usul Tugas Akhir -->
 
   <div class="modal fade" id="usulTAModal" tabindex="-1" aria-labelledby="usulTAModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg ">
       <form action="#" method="POST" class="modal-content" enctype="multipart/form-data">
         @csrf
         <div class="modal-header">

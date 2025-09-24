@@ -60,6 +60,7 @@
                     <label for="password" class="block text-gray-700 font-medium mb-1">Password</label>
                     <input id="password" type="password" name="password" required autocomplete="new-password"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                    <p class="text-xs text-gray-500">minimal 8 karakter</p>
                 </div>
 
                 <!-- Confirm Password -->
@@ -67,6 +68,7 @@
                     <label for="password_confirmation" class="block text-gray-700 font-medium mb-1">Konfirmasi Password</label>
                     <input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password"
                         class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                    <p class="text-xs text-gray-500">minimal 8 karakter</p>
                 </div>
 
                 <div class="flex items-center justify-between mt-6">

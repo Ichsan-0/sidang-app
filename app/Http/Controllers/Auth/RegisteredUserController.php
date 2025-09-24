@@ -34,6 +34,7 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'no_induk' => ['required', 'string', 'max:255', 'unique:users,no_induk'], // tambahkan baris ini
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 

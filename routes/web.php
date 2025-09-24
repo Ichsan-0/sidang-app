@@ -24,6 +24,19 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/usulkan', function () {
+    return view('commingsoon');
+})->name('usulkan.index');
+
+Route::get('/seminar', function () {
+    return view('commingsoon');
+})->name('seminar.index');
+
+Route::get('/sidang', function () {
+    return view('commingsoon');
+})->name('sidang.index');
+
+
 Route::get('/get-prodi', [DataMaster::class, 'getProdi']);
 
 Route::get('/dashboard', function () {
@@ -89,13 +102,13 @@ Route::middleware('auth')->group(function () {
             Route::delete('/user/{id}', 'destroy');
             Route::get('/user', 'index')->name('user.index');
         });
-        Route::get('/usulkan', [TugasAkhirController::class, 'usulkan'])->name('usulkan.index');
-
     });
     Route::middleware(['auth', 'role:superadmin|admin prodi|mahasiswa|dosen'])->group(function () {
         Route::get('/dashboard-role', function () {
             return view('dashboard');
         })->name('dashboard.role');
+
+        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::get('get-jenis-penelitian', [DataMaster::class, 'getJenisPenelitian']);
         Route::get('get-bidang-peminatan', [DataMaster::class, 'getBidangPeminatan']);
         Route::get('/tugas-akhir', [TugasAkhirController::class, 'index'])->name('tugas-akhir.index');
@@ -111,8 +124,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/tugas-akhir/detail/{mahasiswaId}', [TugasAkhirController::class, 'detail']);
         Route::post('/tugas-akhir/{id}/revisi', [TugasAkhirController::class, 'revisi'])->name('tugas-akhir.revisi');
 
-        Route::get('/seminar', [TugasAkhirController::class, 'seminar'])->name('seminar.index');
-        Route::get('/sidang', [TugasAkhirController::class, 'sidang'])->name('sidang.index');
         //Route::get('/tugas-akhir/{id}/cetak-sk', [TugasAkhirController::class, 'cetakSk'])->name('tugas-akhir.cetakSk');
         Route::get('/tugas-akhir/{id}/revisi-detail', [TugasAkhirController::class, 'revisiDetail']);
     });

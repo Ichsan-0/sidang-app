@@ -66,7 +66,6 @@
         $status = $ta->status()->latest()->first();
       @endphp
       <div class="mb-3">
-        <span class="fw-semibold ">Status:</span>
         @if($status && $status->status == 0)
           <span class="badge bg-secondary text-white">Usulan Disimpan, Belum diajukan</span>
         @elseif($status && $status->status == 1)
@@ -80,8 +79,14 @@
         @endif
       </div>
       @if($status && $status->status == 2)
-        <span class="fw-semibold ">Status Prodi:</span>
-        <span class="badge bg-warning text-white">Menunggu Tinjauan Prodi</span>
+        @if($ta->sk_proposal)
+            
+            <a href="{{ route('validasi-sk.cetak', ['id' => $ta->sk_proposal->id]) }}" class="badge bg-primary" target="_blank">
+                <i class="bx bx-file"></i> Lihat SK Proposal
+            </a>
+        @else
+            <span class="badge bg-warning text-white">Menunggu Tinjauan Prodi</span>
+        @endif
       @endif
     </div>
   </div>

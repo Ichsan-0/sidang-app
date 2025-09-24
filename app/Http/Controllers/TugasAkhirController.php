@@ -28,7 +28,7 @@ class TugasAkhirController extends Controller
         $prodi = Prodi::find($user->prodi_id);
 
         if($user->hasRole('mahasiswa')) {
-            $tugasAkhir = TugasAkhir::with(['jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status'])
+            $tugasAkhir = TugasAkhir::with(['jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status', 'sk_proposal'])
                 ->where('mahasiswa_id', $user->id)
                 ->get();
             foreach ($tugasAkhir as $ta) {
