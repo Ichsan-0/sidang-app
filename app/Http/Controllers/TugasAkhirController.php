@@ -147,7 +147,7 @@ class TugasAkhirController extends Controller
             ->join(DB::raw('(SELECT tugas_akhir_id, MAX(id) as last_status_id FROM tugas_akhir_status GROUP BY tugas_akhir_id) as tas'), 'tugas_akhir.id', '=', 'tas.tugas_akhir_id')
             ->join('tugas_akhir_status as status_akhir', 'status_akhir.id', '=', 'tas.last_status_id')
             ->where('status_akhir.status', '>', 0)
-            ->groupBy('tugas_akhir.mahasiswa_id', 'users.name');
+            ->groupBy('tugas_akhir.mahasiswa_id', 'users.name', 'users.no_induk');
 
         // Filter sesuai role aktif
         if ($activeRole == 'admin prodi' || $activeRole == 'pimpinan') {
