@@ -59,7 +59,7 @@
     @stack('styles')
 
     <!-- Helpers -->
-    <script src="{{ asset('assets/assets/vendor/js/helpers.js') }}"></script>
+    <script src="{{ asset('assets.assets/vendor/js/helpers.js') }}"></script>
 
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
@@ -235,7 +235,13 @@
           location.reload();
         });
       });
-      </script>
+
+      $(document).ajaxError(function(event, jqxhr) {
+        if (jqxhr.status === 401) {
+            window.location.href = '/welcome';
+        }
+    });
+    </script>
     @stack('scripts')
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>

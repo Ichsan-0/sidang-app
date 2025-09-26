@@ -70,7 +70,7 @@
           <div class="mb-3">
             <label for="selectTypeOpt" class="form-label">Jenis Tugas Akhir</label>
             <div class="d-flex gap-2 align-items-center">
-              <select id="selectTypeOpt" class="form-select" name="jenis_penelitian_id" style="flex: 1;">
+              <select id="selectTypeOpt" class="form-select" name="jenis_penelitian_id" style="flex: 1;" required>
               </select>
             </div>
             

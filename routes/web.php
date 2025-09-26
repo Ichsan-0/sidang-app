@@ -148,6 +148,9 @@ Route::post('/set-active-role', function(\Illuminate\Http\Request $request) {
 Route::post('/validasi-sk/create', [ValidasiSKController::class, 'create'])->name('validasi-sk.create');
 Route::get('/validasi-sk/cetak/{id}', [ValidasiSKController::class, 'cetak'])->name('validasi-sk.cetak');
 
+Route::get('/login', function() {
+    return redirect()->route('welcome');
+});
 
 
 require __DIR__.'/auth.php';
