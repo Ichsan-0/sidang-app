@@ -151,7 +151,7 @@
               <div class="mb-3">
                 <label class="form-label text-primary"><strong>Keterangan</strong></label>
                 <div id="quill-adminprodi-{{ $ta->id }}" class="quill-editor-adminprodi" style="height:120px;">{!! $ta->sk_proposal->keterangan ?? '' !!}</div>
-                <input type="hidden" id="quill-adminprodi-input-{{ $ta->id }}" value="{{ $ta->sk_proposal->keterangan ?? '' }}">
+                <input type="hidden" id="quill-adminprodi-input-{{ $ta->id }}" name="keterangan_sk" value="{{ $ta->sk_proposal->keterangan ?? '' }}">
               </div>
               <div class="mb-3">
                 <label class="form-label text-primary">Sesuaikan Pembimbing (jika ada perubahan dari Prodi)</label>
@@ -173,11 +173,13 @@
                 </p>
               </div>
             @endif
-            <hr>
+          @endif
+          <hr>
+            @if(!$validasiProdi)
             <button type="button" class="btn btn-secondary" id="tolakBtn-{{ $ta->id }}">Tolak Usulan</button>
             <button type="button" class="btn btn-primary" id="setujuBtn-{{ $ta->id }}">Setujui & Buat SK</button>
-          @endif
-           </form>
+            @endif
+        </form>
       </div>
     @endforeach
   </div>

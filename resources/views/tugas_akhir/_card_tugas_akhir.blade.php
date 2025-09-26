@@ -80,7 +80,7 @@
       </div>
       @if($status && $status->status == 2)
         @if($ta->sk_proposal)
-            
+            <span for=""><strong>SK Proposal</strong></span>
             <a href="{{ route('validasi-sk.cetak', ['id' => $ta->sk_proposal->id]) }}" class="badge bg-primary" target="_blank">
                 <i class="bx bx-file"></i> Lihat SK Proposal
             </a>

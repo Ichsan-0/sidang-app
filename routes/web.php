@@ -24,6 +24,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/validator', function() {
+    return view('validator');
+})->name('validator');
+
+Route::post('/validator-sk', [App\Http\Controllers\ValidatorController::class, 'check'])
+    ->name('validator.check');
+
 Route::get('/usulkan', function () {
     return view('commingsoon');
 })->name('usulkan.index');
@@ -140,5 +147,7 @@ Route::post('/set-active-role', function(\Illuminate\Http\Request $request) {
 
 Route::post('/validasi-sk/create', [ValidasiSKController::class, 'create'])->name('validasi-sk.create');
 Route::get('/validasi-sk/cetak/{id}', [ValidasiSKController::class, 'cetak'])->name('validasi-sk.cetak');
+
+
 
 require __DIR__.'/auth.php';

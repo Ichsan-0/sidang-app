@@ -26,7 +26,7 @@ class TugasAkhirController extends Controller
     {
         $user = auth()->user();
         $prodi = Prodi::find($user->prodi_id);
-
+        
         if($user->hasRole('mahasiswa')) {
             $tugasAkhir = TugasAkhir::with(['jenisPenelitian', 'bidangPeminatan', 'pembimbing', 'status', 'sk_proposal'])
                 ->where('mahasiswa_id', $user->id)
@@ -35,10 +35,16 @@ class TugasAkhirController extends Controller
                 $revisi = TugasAkhirRevisi::where('tugas_akhir_id', $ta->id)->latest()->first();
                 $ta->has_revisi = $revisi ? true : false;
             }
+            $sk_proposal = SkProposal::whereIn('tugas_akhir_id', $tugasAkhir->pluck('id'))
+                ->where('status_aktif', 1)
+                ->latest()
+                ->first();
+
             return view('tugas_akhir/tugas_akhir_mahasiswa', [
                 'prodi' => $prodi,
                 'tugasAkhir' => $tugasAkhir,
                 'dosenList' => User::role('dosen')->get(),
+                'sk_proposal' => $sk_proposal,
             ]);
         } else {
             return view('tugas_akhir/tugas_akhir_admin', [
@@ -328,7 +334,8 @@ class TugasAkhirController extends Controller
             'sk_proposal',
             'status' => function($q) {
                 $q->orderByDesc('created_at');
-            }
+            },
+            'validasiProdi'
         ])
         ->where('mahasiswa_id', $mahasiswaId)
         ->whereIn('id', function($sub) {
@@ -359,7 +366,7 @@ class TugasAkhirController extends Controller
         $BidangPeminatanList = BidangPeminatan::all();
         $sk_proposal = SkProposal::whereIn('tugas_akhir_id', $usulan->pluck('id'))->latest()->first();
         $dosenList = User::role('dosen')->get();
-        
+        $validasiProdi = ta_validasi_prodi::whereIn('tugas_akhir_id', $usulan->pluck('id'))->first();
         $editableIds = [];
         if ($user->hasRole('dosen')) {
             foreach ($usulan as $ta) {
@@ -375,7 +382,8 @@ class TugasAkhirController extends Controller
             'BidangPeminatanList',
             'editableIds',
             'dosenList',
-            'sk_proposal' 
+            'sk_proposal',
+            'validasiProdi'
         ));
     }
 
@@ -447,14 +455,25 @@ class TugasAkhirController extends Controller
             ->where('tugas_akhir_id', $id)
             ->orderByDesc('created_at')
             ->first();
-
+        
         $tugasAkhir = TugasAkhir::find($id);
 
+        $sk_proposal = SkProposal::where('tugas_akhir_id', $id)
+            ->where('status_aktif', 1)
+            ->first();
         return response()->json([
             'tugasAkhir' => $tugasAkhir,
             'judul_revisi' => $revisi ? $revisi->judul : '',
             'catatan_revisi' => $revisi ? $revisi->catatan : '',
             'status_revisi' => $revisi ? $revisi->status_revisi : '',
+            'created_at_revisi' => $revisi && $revisi->created_at ? \Carbon\Carbon::parse($revisi->created_at)->format('d/m/Y') : '',
+            'sk_proposal' => $sk_proposal ? true : false,
+            'created_at_proposal' => $sk_proposal && $sk_proposal->created_at ? \Carbon\Carbon::parse($sk_proposal->created_at)->format('d/m/Y') : '',
+            'catatan_sk' => $sk_proposal ? $sk_proposal->keterangan : '',
+            'status_sk' => $sk_proposal ? ($sk_proposal->status_aktif ? 'SK Aktif' : 'SK Tidak Aktif') : 'Belum Ada SK',
+            'tanggal_sk' => $sk_proposal && $sk_proposal->tanggal_sk ? \Carbon\Carbon::parse($sk_proposal->tanggal_sk)->format('d/m/Y') : '',
+            'tanggal_expired' => $sk_proposal && $sk_proposal->tanggal_expired ? \Carbon\Carbon::parse($sk_proposal->tanggal_expired)->format('d/m/Y') : '',
+            'kode_sk' => $sk_proposal ? $sk_proposal->kode_sk : '',
         ]);
     }
 }

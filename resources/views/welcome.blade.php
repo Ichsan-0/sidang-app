@@ -16,6 +16,7 @@
       <span class="text-lg font-semibold text-gray-800">SIGMA</span>
     </div>
     <nav class="flex items-center space-x-4">
+        <a href="{{route('validator')}}" class="px-3 py-1 text-gray-600 rounded hover:bg-gray-400 hover:text-white">Validator</a>
         <a href="{{route('login')}}" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Login</a>
         <a href="{{route('register')}}" class="px-3 py-1 text-gray-600 rounded hover:bg-gray-400 hover:text-white">Register</a>
     </nav>

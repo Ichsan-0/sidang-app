@@ -26,13 +26,18 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $data = $request->validated();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // Jika password diisi, update dan hash
+        if (!empty($data['password'])) {
+            $user->password = bcrypt($data['password']);
         }
 
-        $request->user()->save();
+        // Update field lain
+        unset($data['password'], $data['password_confirmation']);
+        $user->fill($data);
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

@@ -5,14 +5,13 @@
 <div class="container-xxl flex-grow-1 container-p-y">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0">Informasi Tugas Akhir</h4>
-    @if(auth()->user()->hasRole('mahasiswa'))
-      <button class="btn btn-primary"
-          id="addBtn"
-          {{-- @if($tugasAkhir->count() > 0) disabled @endif --}}
-      >
+     @if(!($sk_proposal && $sk_proposal->status_aktif == 1))
+      <!-- SK Proposal tidak aktif -->
+      <button class="btn btn-primary" id="addBtn">
         <i class="bx bx-plus"></i> Usul Tugas Akhir
       </button>
     @endif
+      
   </div>
   
   @if(auth()->user()->hasRole('mahasiswa'))
@@ -21,10 +20,14 @@
     <div class="col-12">
       <div class="alert alert-warning alert-dismissible" id="alert-perhatian" role="alert">
         <strong>Perhatikan :</strong> 
+        @if(!($sk_proposal && $sk_proposal->status_aktif == 1))
         <br>1. Diskusikan judul dengan dosen pembimbing sebelum mengajukan.
         <br>2. Pilih satu dosen pembimbing agar proses validasi lebih mudah.
         <br>3. Setelah <strong>"Kirim Usulan"</strong>, data tidak bisa diedit/hapus.
         <br>4. Hubungi dosen pembimbing untuk mempercepat persetujuan.
+        @else
+        <br>SK Proposal anda sedang <strong>AKTIF</strong>, Anda tidak dapat mengusulkan Tugas Akhir baru sampai masa berlaku SK Proposal habis.
+        @endif
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     </div>
@@ -166,8 +169,10 @@
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
 <script>
-  document.getElementById('addBtn').addEventListener('click', function() {
-  // Reset form sebelum show modal
+  const addBtn = document.getElementById('addBtn');
+if (addBtn) {
+  addBtn.addEventListener('click', function() {
+    // Reset form sebelum show modal
     const form = document.querySelector('#usulTAModal form');
     form.reset();
     form.action = '{{ route("tugas-akhir.store") }}';
@@ -189,6 +194,7 @@
     modal.show();
     initPembimbingSelect('');
   });
+}
 
   document.querySelector('#usulTAModal form').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -382,29 +388,56 @@ function submitUsulan(statusValue) {
           }
           html += `
             <div class="mb-3">
-              <label class="form-label"><strong>Status Revisi:</strong></label>
-              <span class="badge 
-                ${
-                  data.status_revisi == 2
-                    ? 'bg-primary'
-                    : data.status_revisi == 3
-                      ? 'bg-danger'
-                      : 'bg-secondary'
+                <label class="form-label"><strong>Status Pembimbing:</strong></label> <br>
+                <span class="badge ${
+                data.status_revisi == 2
+                  ? 'bg-primary'
+                  : data.status_revisi == 3
+                  ? 'bg-danger'
+                  : 'bg-secondary'
                 }">
                 ${
                   data.status_revisi == 2
-                    ? 'Pengajuan disetujui'
-                    : data.status_revisi == 3
-                      ? 'Pengajuan ditolak'
-                      : (data.status_revisi ?? '-')
+                  ? 'Disetujui Pembimbing, tanggal : ' + (data.created_at_revisi)
+                  : data.status_revisi == 3
+                    ? 'Pengajuan ditolak, tanggal : ' + (data.created_at_revisi)
+                    : (data.status_revisi ?? '-')
                 }
-              </span>
-            </div>
+                </span>
+            </div>  
             <div class="mb-3">
               <label class="form-label"><strong>Catatan Dosen:</strong></label>
-              <p>${data.catatan_revisi ?? '-'}</p>
+              <span>${data.catatan_revisi ?? '-'}</span>
             </div>
           `;
+            if (!data.sk_proposal && data.status_revisi == 2) {
+            html += `
+              <div class="mb-3">
+                <label class="form-label"><strong>Status Prodi:</strong></label><br>
+                <span class="badge bg-warning">Menunggu di Validasi Prodi</span>
+              </div>
+            `;
+          } else if (data.sk_proposal) {
+            html += `
+              <div class="mb-3">
+                <label class="form-label"><strong>Status Prodi:</strong></label><br>
+                <span class="badge bg-primary">Di setujui Prodi, tanggal : ${data.created_at_proposal}</span>
+              </div>
+              <div class="mb-3">
+                <label class="form-label"><strong>Catatan Prodi:</strong></label>
+                <span>${data.catatan_sk ?? '-'}</span>
+              </div>
+              <div class="mb-3">
+                <label class="form-label"><strong>Kode SK:</strong></label>
+                <span>${data.kode_sk ?? '-'}</span>
+              </div>
+              <div class="mb-3">
+                <label class="form-label"><strong>Status SK:</strong></label><br>
+                <span class="badge bg-success text-dark">${data.status_sk}, dari tanggal : ${data.tanggal_sk ?? '-'} s/d ${data.tanggal_expired ?? '-'}</span>
+              </div>
+            `;
+          }
+
           document.getElementById('detailRevisiContent').innerHTML = html;
           var modal = new bootstrap.Modal(document.getElementById('detailRevisiModal'));
           modal.show();

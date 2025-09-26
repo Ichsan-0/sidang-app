@@ -246,7 +246,15 @@ $(function () {
 $(document).on('click', '[id^=setujuBtn-]', function() {
   var taId = $(this).attr('id').replace('setujuBtn-', '');
   var pembimbingId = $('#pembimbing_id_' + taId).val();
+
+  // Update value input hidden dari Quill editor
+  var quillAdmin = Quill.find($('#quill-adminprodi-' + taId)[0]);
+  if (quillAdmin) {
+    $('#quill-adminprodi-input-' + taId).val(quillAdmin.root.innerHTML);
+  }
+
   var keteranganSK = $('#quill-adminprodi-input-' + taId).val();
+
   $.post("{{ route('validasi-sk.create') }}", {
     tugas_akhir_id: taId,
     pembimbing_id: pembimbingId,
@@ -255,18 +263,24 @@ $(document).on('click', '[id^=setujuBtn-]', function() {
     _token: "{{ csrf_token() }}"
   }, function(res) {
     if(res.success) {
-    alert('SK Proposal berhasil dibuat!');
-    var modal = bootstrap.Modal.getInstance(document.getElementById('detailTAModal'));
-    if (modal) modal.hide();
-    // reload atau update tampilan jika perlu
+      alert('SK Proposal berhasil dibuat!');
+      var modal = bootstrap.Modal.getInstance(document.getElementById('detailTAModal'));
+      if (modal) modal.hide();
     }
   });
-  });
+});
 
   $(document).on('click', '[id^=tolakBtn-]', function() {
   var taId = $(this).attr('id').replace('tolakBtn-', '');
   var pembimbingId = $('#pembimbing_id_' + taId).val();
+  // Update value input hidden dari Quill editor
+  var quillAdmin = Quill.find($('#quill-adminprodi-' + taId)[0]);
+  if (quillAdmin) {
+    $('#quill-adminprodi-input-' + taId).val(quillAdmin.root.innerHTML);
+  }
+
   var keteranganSK = $('#quill-adminprodi-input-' + taId).val();
+
   $.post("{{ route('validasi-sk.create') }}", {
     tugas_akhir_id: taId,
     pembimbing_id: pembimbingId,
@@ -275,13 +289,13 @@ $(document).on('click', '[id^=setujuBtn-]', function() {
     _token: "{{ csrf_token() }}"
   }, function(res) {
     if(res.success) {
-    alert('Usulan berhasil ditolak!');
-    var modal = bootstrap.Modal.getInstance(document.getElementById('detailTAModal'));
-    if (modal) modal.hide();
-    // reload atau update tampilan jika perlu
+      alert('Usulan berhasil ditolak!');
+      var modal = bootstrap.Modal.getInstance(document.getElementById('detailTAModal'));
+      if (modal) modal.hide();
+      // reload atau update tampilan jika perlu
     }
   });
-  });
+});
 });
 
 </script>

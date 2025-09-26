@@ -20,11 +20,10 @@ class ValidasiSKController extends Controller
             'tugasAkhir.pembimbing',
             'tugasAkhir.bidangPeminatan'
         ])->findOrFail($id);
-         $penandatangan = $sk->ttd ? User::find($sk->ttd) : null;
+        $penandatangan = $sk->ttd ? User::find($sk->ttd) : null;
 
-          // Generate QR Code
-        $url = url('cek/' . $sk->kode_sk);
-        $qrCode = QrCode::create($url)->setSize(90)->setMargin(5);
+        // Generate QR Code dengan kode_sk saja
+        $qrCode = QrCode::create($sk->kode_sk)->setSize(90)->setMargin(5);
         $writer = new PngWriter();
         $qrPng = $writer->write($qrCode)->getString();
         $qrBase64 = 'data:image/png;base64,' . base64_encode($qrPng);
@@ -64,7 +63,7 @@ class ValidasiSKController extends Controller
             'user_id'        => auth()->id(),
             'pembimbing_id'  => $request->pembimbing_id ?? $ta->pembimbing_id,
             'status'         => $request->status_sk,
-            'catatan'        => $request->catatan_sk ?? null,
+            'catatan'        => $request->keterangan_sk ?? null, 
             'created_at'     => now(),
             'updated_at'     => now(),
         ]);
@@ -97,9 +96,9 @@ class ValidasiSKController extends Controller
                 'judul_akhir'   => $judulRevisi,
                 'pembimbing_id'  => $request->pembimbing_id ?? $ta->pembimbing_id,
                 'tanggal_sk'     => $tanggalSk,
-                'tanggal_expired'=> $tanggalSk->copy()->addMonths(3),
-                'keterangan'     => $request->keterangan_sk ?? null,
+                'tanggal_expired'=> $tanggalSk->copy()->addMonths(2),
                 'ttd'            => $ttd ? $ttd->id : null,
+                'keterangan'     => $request->keterangan_sk ?? null,
                 'status_aktif'   => true,
                 'created_at'     => now(),
                 'updated_at'     => now(),

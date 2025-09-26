@@ -58,4 +58,8 @@ class TugasAkhir extends Model
     {
         return $this->hasOne(SkProposal::class, 'tugas_akhir_id');
     }
+    public function validasiProdi()
+    {
+        return $this->hasOne(ta_validasi_prodi::class, 'tugas_akhir_id');
+    }
 }

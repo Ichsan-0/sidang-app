@@ -46,7 +46,9 @@
                     </div> -->
                     <hr class="my-0" />
                     <div class="card-body">
-                      <form id="formAccountSettings" method="POST" onsubmit="return false">
+                      <form id="formAccountSettings" method="POST" action="{{ route('profile.update') }}">
+                        @csrf
+                        @method('PATCH')
                         <div class="row">
                           <div class="mb-3 col-md-6">
                             <label for="name" class="form-label">Nama lengkap</label>
@@ -85,7 +87,7 @@
                             <div class="input-group input-group-merge">
                               <span class="input-group-text">+62</span>
                               <input
-                                type="text"
+                                type="number"
                                 id="no_hp"
                                 name="no_hp"
                                 class="form-control"
@@ -117,8 +119,8 @@
                             <small class="form-text text-muted">Isi jika ingin mengubah password.</small>
                           </div>
                           <div class="mb-3 col-md-12">
-                            <label for="address" class="form-label">Alamat</label>
-                            <textarea class="form-control" id="address" name="address" placeholder="Alamat">{{ old('alamat', $user->alamat ?? '') }}</textarea>
+                            <label for="alamat" class="form-label">Alamat</label>
+                            <textarea class="form-control" id="alamat" name="alamat" placeholder="Alamat">{{ old('alamat', $user->alamat ?? '') }}</textarea>
                           </div>
                           
                         </div>
@@ -165,4 +167,11 @@
           </div>
           <!-- Content wrapper -->
         </div>
+        @if(session('status') === 'profile-updated')
+    <script>
+        window.onload = function() {
+            alert('Profil berhasil diperbarui!');
+        }
+    </script>
+@endif
 @endsection
