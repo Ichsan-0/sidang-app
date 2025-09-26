@@ -12,7 +12,7 @@
 <header class="bg-white shadow-sm sticky top-0 w-full z-50">
   <div class="max-w-7xl mx-auto flex justify-between items-center px-4 py-3">
     <div class="flex items-center space-x-2">
-      <img src="https://img.icons8.com/fluency/48/shield.png" alt="Logo" class="h-8">
+      <img src="{{ asset('storage/logo_uin.png') }}" alt="Logo" class="h-8">
       <span class="text-lg font-semibold text-gray-800">SIGMA</span>
     </div>
     <nav class="flex items-center space-x-4">
