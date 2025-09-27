@@ -359,13 +359,20 @@ function submitUsulan(statusValue) {
   bindTugasAkhirCardEvents();
 
   document.getElementById('btnKirimUsulan').addEventListener('click', function() {
+  const form = document.querySelector('#usulTAModal form');
+  // Validasi manual: cek semua required
+  let valid = true;
+  form.querySelectorAll('[required]').forEach(function(input) {
+    if (!input.value) valid = false;
+  });
+  if (!valid) {
+    alert('Semua field wajib diisi!');
+    return;
+  }
   if (confirm('Judul yang sudah diusulkan terkunci (tidak dapat diedit/dihapus) sampai diperiksa dan disetujui oleh dosen pembimbing.\n\nKlik OK untuk mengusulkan, atau Cancel untuk membatalkan.')) {
     submitUsulan(1); // Kirim usulan dengan status=1
-    window.location.reload();
   }
-  // Jika Cancel, tidak melakukan apa-apa
 });
-
   document.querySelectorAll('.detailRevisiBtn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var id = this.getAttribute('data-id');
