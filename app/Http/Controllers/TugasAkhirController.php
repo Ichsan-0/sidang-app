@@ -383,7 +383,7 @@ class TugasAkhirController extends Controller
             'editableIds',
             'dosenList',
             'sk_proposal',
-            'validasiProdi'
+            'validasiProdi',
         ));
     }
 

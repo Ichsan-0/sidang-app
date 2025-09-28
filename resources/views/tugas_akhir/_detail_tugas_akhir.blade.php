@@ -163,22 +163,25 @@
                   @endforeach
                 </select>
               </div>
+              @elseif(!$validasiProdi)
+              <div class="mb-3">
+                <label class="form-label text-primary"><strong>Catatan / Deskripsi Dosen :</strong></label>
+                <p>{!! $ta->catatan_revisi !!}</p>
+                <hr>
+                <button type="button" class="btn btn-secondary" id="tolakBtn-{{ $ta->id }}">Tolak Usulan</button>
+                <button type="button" class="btn btn-primary" id="setujuBtn-{{ $ta->id }}">Setujui & Buat SK</button>
+              </div>
               @else
               <div class="mb-3">
+                <label class="form-label text-primary"><strong>Validasi Prodi:</strong></label>
+                <p>{!! $ta->sk_proposal->keterangan !!}</p>
                 <label class="form-label text-primary"><strong>SK Proposal yang sudah dibuat:</strong></label>
-                <p>
                   <a href="{{ route('validasi-sk.cetak', ['id' => $ta->sk_proposal->id]) }}" class="badge bg-primary" target="_blank">
                     <i class="bx bx-file"></i> Lihat SK Proposal
                   </a>
-                </p>
               </div>
             @endif
           @endif
-          <hr>
-            @if(!$validasiProdi)
-            <button type="button" class="btn btn-secondary" id="tolakBtn-{{ $ta->id }}">Tolak Usulan</button>
-            <button type="button" class="btn btn-primary" id="setujuBtn-{{ $ta->id }}">Setujui & Buat SK</button>
-            @endif
         </form>
       </div>
     @endforeach
