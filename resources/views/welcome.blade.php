@@ -15,10 +15,10 @@
       <img src="{{ asset('storage/logo_uin.png') }}" alt="Logo" class="h-8">
       <span class="text-lg font-semibold text-gray-800">SIGMA</span>
     </div>
-    <nav class="flex items-center space-x-4">
-        <a href="{{route('validator')}}" class="px-3 py-1 text-gray-600 rounded hover:bg-gray-400 hover:text-white">Validator</a>
-        <a href="{{route('login')}}" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Login</a>
-        <a href="{{route('register')}}" class="px-3 py-1 text-gray-600 rounded hover:bg-gray-400 hover:text-white">Register</a>
+    <nav class="flex items-center space-x-1">
+        <a href="{{route('validator')}}" class="px-2 py-1 text-gray-600 rounded hover:bg-gray-400 hover:text-white">Validator</a>
+        <a href="{{route('login')}}" class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Login</a>
+        <a href="{{route('register')}}" class="px-2 py-1 text-gray-600 rounded hover:bg-gray-400 hover:text-white">Register</a>
     </nav>
   </div>
 </header>
@@ -214,9 +214,6 @@ document.getElementById('btnPanduanSK').addEventListener('click', function(e) {
   document.getElementById('modalPanduanSK').classList.remove('hidden');
 });
 document.getElementById('closePanduanSK').onclick = function() {
-  document.getElementById('modalPanduanSK').classList.add('hidden');
-};
-document.getElementById('closePanduanSK2').onclick = function() {
   document.getElementById('modalPanduanSK').classList.add('hidden');
 };
 </script>
