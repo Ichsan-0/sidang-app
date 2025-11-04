@@ -12,4 +12,28 @@ class BankJudul extends Model
     protected $fillable = [
         'judul', 'deskripsi', 'prodi_id', 'bidang_peminatan_id', 'pembimbing_id', 'status', 'created_by'
     ];
+
+    // Relasi ke pembuat judul (user)
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    // Relasi ke program studi
+    public function prodi()
+    {
+        return $this->belongsTo(Prodi::class, 'prodi_id');
+    }
+
+    // Relasi ke bidang peminatan
+    public function bidangPeminatan()
+    {
+        return $this->belongsTo(BidangPeminatan::class, 'bidang_peminatan_id');
+    }
+
+    // Relasi ke dosen pembimbing
+    public function pembimbing()
+    {
+        return $this->belongsTo(User::class, 'pembimbing_id');
+    }
 }

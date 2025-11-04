@@ -163,14 +163,9 @@
                   @endforeach
                 </select>
               </div>
-              @elseif(!$validasiProdi)
-              <div class="mb-3">
-                <label class="form-label text-primary"><strong>Catatan / Deskripsi Dosen :</strong></label>
-                <p>{!! $ta->catatan_revisi !!}</p>
-                <hr>
+              <hr>
                 <button type="button" class="btn btn-secondary" id="tolakBtn-{{ $ta->id }}">Tolak Usulan</button>
                 <button type="button" class="btn btn-primary" id="setujuBtn-{{ $ta->id }}">Setujui & Buat SK</button>
-              </div>
               @else
               <div class="mb-3">
                 <label class="form-label text-primary"><strong>Validasi Prodi:</strong></label>

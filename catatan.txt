@@ -1,1 +1,4 @@
 jangan lupa php artisan storage:link
+
+
+Print ulang halaman 31, 32, 40

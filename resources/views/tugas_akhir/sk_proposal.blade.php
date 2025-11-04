@@ -221,7 +221,7 @@
                 <td class="label-column">KETIGA</td>
                 <td class="colon-column">:</td>
                 <td class="content-column text-justify">
-                    Pembiayaan akibat keputusan ini dibebankan pada DIPA UIN Ar-Raniry Banda Aceh Nomor SP DIPA-025.04.2.423925/{{ now()->year }}, Tgl. {{ now()->format('d F Y') }} Tahun Anggaran {{ now()->year }};
+                    Pembiayaan akibat keputusan ini dibebankan pada DIPA UIN Ar-Raniry Banda Aceh Nomor SP DIPA - 025.04.2.423925/2024, Tgl. 24 November 2023 Tahun Anggaran 2024;
                 </td>
             </tr>
             <tr>
@@ -263,8 +263,8 @@
         </div>
         <div class="tembusan-section">
             <p class="font-bold">Tembusan</p>
-            <p>1. Rektor UIN Ar-Raniry Banda Aceh</p>
-            <p>2. Ketua Prodi PIAUD FTK;</p>
+            <p>1. Dekan Fakultas Tarbiyah dan Keguruan UIN Ar-Raniry Banda Aceh</p>
+            <p>2. Ketua Prodi {{ $ta->mahasiswa->prodi->nama_prodi }} FTK;</p>
             <p>3. Pembimbing yang bersangkutan untuk dimaklumi dan dilaksanakan</p>
             <p>4. Mahasiswa yang bersangkutan.</p>
         </div>

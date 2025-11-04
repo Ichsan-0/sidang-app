@@ -5,9 +5,9 @@
 <div class="container-xxl flex-grow-1 container-p-y">
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-      <h5 class="mb-0">Data Fakultas</h5>
-      <button class="btn btn-primary" id="addBtn">
-        <i class="bx bx-plus"></i> Tambah Fakultas
+        <h5 class="mb-0">Data Fakultas</h5>
+        <button class="btn btn-primary" id="addBtn">
+        <i class="bx bx-plus"></i> Tahun Ajaran
       </button>
     </div>
     <div class="card-body">
