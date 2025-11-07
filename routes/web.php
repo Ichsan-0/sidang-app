@@ -211,4 +211,8 @@ Route::get('/login', function() {
     return redirect()->route('welcome');
 });
 
+Route::get('/seminar', function() {
+    return view('seminar');
+})->name('seminar');
+
 require __DIR__.'/auth.php';

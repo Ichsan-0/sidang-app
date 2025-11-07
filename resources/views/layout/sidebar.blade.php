@@ -106,16 +106,16 @@
     </li>
     
     <li class="menu-item {{ request()->is('seminar') ? 'active' : '' }}">
-      <a href="{{ route('seminar.index') }}" class="menu-link">
+      <a href="{{ route('seminar') }}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-calendar-check"></i>
-        <div data-i18n="Seminar">Seminar</div>
+        <div data-i18n="Seminar">Seminar Proposal</div>
       </a>
     </li>
     
     <li class="menu-item {{ request()->is('sidang') ? 'active' : '' }}">
       <a href="{{ route('sidang.index') }}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-check-shield"></i>
-        <div data-i18n="Sidang">Sidang</div>
+        <div data-i18n="Sidang">Sidang Munaqasha</div>
       </a>
     </li>
     

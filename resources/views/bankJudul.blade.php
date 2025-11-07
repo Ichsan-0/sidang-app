@@ -39,12 +39,14 @@
                         <table id="tableBankJudul" class="table table-hover">
                           <thead class="table-light">
                             <tr>
-                              <th class="col-no">No</th>            <!-- tambahkan class -->
+                              <th class="col-no">No</th> 
                               <th>Judul</th>
                               <th>Deskripsi</th>
                               <th>Status</th>
                               <th>Dibuat</th>
+                              @can('bank-judul-edit')
                               <th>Aksi</th>
+                              @endcan
                             </tr>
                           </thead>
                         </table>
@@ -197,7 +199,7 @@ $(function () {
     processing: true,
     serverSide: true,
     ajax: '/bank-judul/ajax',
-    autoWidth: false,                          // penting: jangan auto hitung lebar
+    autoWidth: false,                     
     responsive: { details:{ type:'row', target:'tr' }, breakpoints:[
       { name:'mobile', width:576 }, { name:'desktop', width:Infinity }
     ]},
@@ -212,8 +214,10 @@ $(function () {
       { data:'judul', name:'judul', className:'col-judul' },
       { data:'deskripsi', name:'deskripsi' },
       { data:'status', name:'status' },
-      { data:'created_at', name:'created_at' },
+      { data:'nama', name:'nama' },
+      @can('bank-judul-edit')
       { data:'action', name:'action', orderable:false, searchable:false }
+      @endcan
     ]
   });
 

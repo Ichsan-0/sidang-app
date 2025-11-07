@@ -10,7 +10,18 @@ class BankJudul extends Model
     use HasFactory;
     protected $table = 'bank_judul';
     protected $fillable = [
-        'judul', 'deskripsi', 'prodi_id', 'bidang_peminatan_id', 'pembimbing_id', 'status', 'created_by'
+        'nama',
+        'nim',
+        'judul',
+        'deskripsi',
+        'prodi_id',
+        'bidang_peminatan_id',
+        'pembimbing_id',
+        'pembimbing_2_id',
+        'no_sk',
+        'tgl_sk',
+        'status',
+        'created_by'
     ];
 
     // Relasi ke pembuat judul (user)
@@ -35,5 +46,10 @@ class BankJudul extends Model
     public function pembimbing()
     {
         return $this->belongsTo(User::class, 'pembimbing_id');
+    }
+
+    public function pembimbing2()
+    {
+        return $this->belongsTo(User::class, 'pembimbing_2_id');
     }
 }
