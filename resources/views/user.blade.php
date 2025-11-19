@@ -100,7 +100,6 @@
 <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 <style>
-/* Agar dropdown Tom Select selalu di atas modal Bootstrap */
 .ts-control {
     min-height: 38px; /* sesuai Bootstrap input */
     height: auto;

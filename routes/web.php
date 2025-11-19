@@ -10,7 +10,7 @@ use App\Http\Controllers\SkProposalController;
 use App\Http\Controllers\ValidasiSKController;
 use App\Http\Controllers\BankJudulController;
 use App\Http\Controllers\RolePermissionController;
-
+use App\Http\Controllers\DataAkhirController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -211,6 +211,18 @@ Route::get('/login', function() {
     return redirect()->route('welcome');
 });
 
+Route::get('/pin_akhir', [DataAkhirController::class, 'showPinAkhir'])->name('pin_akhir');
+Route::get('/pin-akhir/ajax', [DataAkhirController::class, 'ajaxPinAkhir'])->name('pin-akhir.ajax');
+Route::post('/pin-akhir', [DataAkhirController::class, 'store']);
+Route::get('/pin-akhir/{id}', [DataAkhirController::class, 'show']);
+Route::put('/pin-akhir/{id}', [DataAkhirController::class, 'update']);
+Route::delete('/pin-akhir/{id}', [DataAkhirController::class, 'destroy']);
+Route::get('/transkrip', function() {
+    return view('transkrip');
+})->name('transkrip');
+Route::get('/ijazah', function() {
+    return view('ijazah');
+})->name('ijazah');
 Route::get('/seminar', function() {
     return view('seminar');
 })->name('seminar');

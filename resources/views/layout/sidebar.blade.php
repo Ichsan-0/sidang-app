@@ -118,6 +118,30 @@
         <div data-i18n="Sidang">Sidang Munaqasha</div>
       </a>
     </li>
+
+    <li class="menu-item {{ request()->is('transkrip') || request()->is('ijazah') || request()->is('pin_akhir') ? 'open active' : '' }}">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+      <i class="menu-icon tf-icons bx bx-medal"></i>
+      <div data-i18n="Hasil Akhir">Hasil Akhir</div>
+      </a>
+      <ul class="menu-sub">
+      <li class="menu-item {{ request()->is('pin_akhir') ? 'active' : '' }}">
+        <a href="{{ route('pin_akhir') }}" class="menu-link">
+        <div data-i18n="pin">PIN / No.Ijazah</div>
+        </a>
+      </li>
+      <li class="menu-item {{ request()->is('transkrip') ? 'active' : '' }}">
+        <a href="{{ route('transkrip') }}" class="menu-link">
+        <div data-i18n="transkrip">Cetak Transkrip Nilai</div>
+        </a>
+      </li>
+      <li class="menu-item {{ request()->is('ijazah') ? 'active' : '' }}">
+        <a href="{{ route('ijazah') }}" class="menu-link">
+        <div data-i18n="Ijazah">Cetak Ijazah</div>
+        </a>
+      </li>
+      </ul>
+    </li>
     
     @if(!auth()->user()->hasRole('mahasiswa'))
     <li class="menu-item {{ request()->is('laporan') ? 'active' : '' }}">
